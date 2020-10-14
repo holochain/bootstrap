@@ -1,3 +1,6 @@
 .nix-node
 node_modules
 .cargo
+dist
+transpiled
+worker

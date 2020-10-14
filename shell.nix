@@ -8,6 +8,7 @@ pkgs.stdenv.mkDerivation {
   # deps from upstream
   pkgs.nodejs-14_x
   pkgs.cargo
+  pkgs.rustc
  ];
 
  shellHook = ''
