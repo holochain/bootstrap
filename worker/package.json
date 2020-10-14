@@ -1,0 +1,22 @@
+{
+  "name": "@holochain/bootstrap",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holochain/bootstrap.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/holochain/bootstrap/issues"
+  },
+  "homepage": "https://github.com/holochain/bootstrap#readme",
+  "devDependencies": {
+    "@cloudflare/wrangler": "^1.11.0"
+  }
+}

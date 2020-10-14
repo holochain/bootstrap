@@ -1,0 +1,16 @@
+name: worker-docker
+
+on: push
+
+jobs:
+ build-docker:
+  name: build the docker
+  runs-on: ubuntu-latest
+
+  steps:
+   - uses: actions/checkout@v2
+   - uses: docker/build-push-action@v2
+     with:
+      context: worker
+      file: worker/Dockerfile
+      tags: holochain/bootstrap
