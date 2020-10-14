@@ -4,18 +4,15 @@ in
 pkgs.stdenv.mkDerivation {
  name = "shell";
  buildInputs = [
+  pkgs.gnumake
   # deps from upstream
   pkgs.nodejs-14_x
-  pkgs.gnumake
+  pkgs.cargo
  ];
 
  shellHook = ''
-  # https://ghedam.at/15978/an-introduction-to-nix-shell
-  mkdir -p .nix-node
-  export NODE_PATH=$PWD/.nix-node
-  export NPM_CONFIG_PREFIX=$PWD/.nix-node
+  export CARGO_HOME=$PWD/.cargo
   export PATH=$( npm bin ):$PATH
-  # keep it fresh
-  npm install
+  export PATH=$CARGO_HOME/bin:$PATH
  '';
 }
