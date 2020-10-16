@@ -1,44 +1,6 @@
 import { pack as mpPack } from 'msgpackr'
-
-export class KitsuneSignature {
- private value: KitsuneSignature.Value
- constructor(value:KitsuneSignature.Value) {
-  // sometimes this comes in as a buffer so be defensive
-  this.value = Uint8Array.from(value)
- }
-
- encode():KitsuneSignature.Encoded {
-  return this.value
- }
-}
-
-export namespace KitsuneSignature {
- export type Value = Uint8Array
- export type Encoded = Uint8Array
-
- export function decode(encoded:KitsuneSignature.Encoded):KitsuneSignature|Error {
-  if (encoded.length === 32) {
-   try {
-    return new KitsuneSignature(encoded)
-   }
-   catch (e) {
-    return e
-   }
-  }
-  return Error(KitsuneSignature.name + ' failed to decode ' + JSON.stringify(encoded))
- }
-}
-
-export class KitsuneBin {
- private value: Uint8Array
- constructor(value:Uint8Array) {
-  // sometimes this comes in as a buffer so be defensive
-  this.value = Uint8Array.from(value)
- }
-}
-
-export type KitsuneSpace = KitsuneBin
-export type KitsuneAgent = KitsuneBin
+import { Ed25519 } from './crypto'
+import { KitsuneSignature, KitsuneAgent, KitsuneSpace } from './kitsune'
 
 export type Url = string
 export type Urls = Array<Url>
@@ -47,6 +9,10 @@ export class AgentInfoPacked {
  private value: Uint8Array
  constructor(value:Uint8Array) {
   this.value = Uint8Array.from(value)
+ }
+
+ encode():AgentInfoPacked.Encoded {
+  return this.value
  }
 }
 
@@ -64,9 +30,32 @@ export namespace AgentInfoPacked {
  }
 }
 
-export interface AgentInfoSigned {
+export interface AgentInfoSignedData {
  signature: KitsuneSignature,
+ agent: KitsuneAgent,
  agent_info: AgentInfoPacked,
+}
+
+export class AgentInfoSigned {
+ private value:AgentInfoSignedData
+ constructor(value:AgentInfoSignedData) {
+  this.value = value
+ }
+
+ public verify():boolean {
+  return Ed25519.verify(this.value.agent_info.encode(), this.value.signature.encode(), this.value.agent.encode())
+ }
+}
+
+export namespace AgentInfoSigned {
+ export function tryFromData(data:AgentInfoSignedData):AgentInfoSigned|Error {
+  let optimistic_value = new AgentInfoSigned(data)
+  if (optimistic_value.verify()) {
+   return optimistic_value
+  } else {
+   return Error(AgentInfoSigned.name + ' failed to verify ' + JSON.stringify(data))
+  }
+ }
 }
 
 export interface AgentInfoData {
