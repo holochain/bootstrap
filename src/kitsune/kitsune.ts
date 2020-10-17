@@ -1,31 +1,17 @@
-import { pack as mpPack } from 'msgpackr'
-
-export class KitsuneSignature {
- private value: KitsuneSignature.Value
- constructor(value:KitsuneSignature.Value) {
-  // sometimes this comes in as a buffer so be defensive
-  this.value = Uint8Array.from(value)
- }
-
- encode():KitsuneSignature.Encoded {
-  return this.value
- }
-}
-
 export namespace KitsuneSignature {
  export type Value = Uint8Array
  export type Encoded = Uint8Array
 
- export function decode(encoded:KitsuneSignature.Encoded):KitsuneSignature|Error {
+ export function decode(encoded:KitsuneSignature.Encoded):KitsuneSignature.Value|Error {
   if (encoded.length === 64) {
    try {
-    return new KitsuneSignature(encoded)
+    return encoded
    }
    catch (e) {
     return e
    }
   }
-  return Error(KitsuneSignature.name + ' failed to decode ' + JSON.stringify(encoded))
+  return Error('KitsuneSignature failed to decode ' + JSON.stringify(encoded))
  }
 }
 
