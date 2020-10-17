@@ -23,6 +23,10 @@ export namespace Ed25519 {
   return Uint8Array.from(Buffer.from(base64, 'base64'))
  }
 
+ export function validPublicKey(public_key:Public):boolean {
+  return public_key.length === publicKeyLength
+ }
+
  // sign a message
  // not really used by the running server but very useful for testing
  export function sign(message:Message, secret:Secret):Ed25519.Signature {

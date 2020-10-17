@@ -6,7 +6,7 @@ describe('agent info data', () => {
 
  it('should decode from msgpack binary data', () => {
   const valid_agent_info:AgentInfo|Error = AgentInfo.unpack(aliceVaporPostBody)
-  assert.ok(valid_agent_info instanceof AgentInfo)
+  assert.ok(!(valid_agent_info instanceof Error))
   assert.ok(valid_agent_info)
 
   const fail_agent_info:AgentInfo|Error = AgentInfo.unpack(aliceVaporPostBodyCorrupted)

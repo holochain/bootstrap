@@ -1,5 +1,4 @@
-import { Urls, AgentInfo } from '../../src/agent_info/info'
-import { AgentInfoPacked } from '../../src/agent_info/packed'
+import { Urls, AgentInfo, AgentInfoPacked } from '../../src/agent_info/info'
 import { AgentInfoSigned } from '../../src/agent_info/signed'
 import { KitsuneSignature, KitsuneSpace, KitsuneBin, KitsuneAgent } from '../../src/kitsune/kitsune'
 import { aliceAgentVapor, aliceSecret } from '../fixture/agents'
@@ -10,11 +9,7 @@ describe('agent info signed', () => {
 
  it('should verify packed info correctly', () => {
 
-  const agent_info_packed:AgentInfoPacked|Error = AgentInfoPacked.decode(new AgentInfo(aliceAgentVapor).pack())
-  if (agent_info_packed instanceof Error) {
-    console.error(agent_info_packed)
-    throw agent_info_packed
-  }
+  const agent_info_packed:AgentInfoPacked = AgentInfo.pack(aliceAgentVapor)
 
   // console.log(Buffer.from(agent_info_packed.encode()).toString('base64'))
   //
@@ -31,7 +26,7 @@ describe('agent info signed', () => {
   //
   console.log(Buffer.from(aliceVaporPostBody).toString('base64'))
   assert.deepEqual(
-    new AgentInfoPacked(aliceVaporPostBody),
+    aliceVaporPostBody,
     agent_info_packed
   )
   //
