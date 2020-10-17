@@ -1,6 +1,6 @@
 import { pack as mpPack, unpack as mpUnpack } from 'msgpackr'
-import { Ed25519 } from './crypto'
-import { KitsuneSignature, KitsuneAgent, KitsuneSpace } from './kitsune'
+import { Ed25519 } from '../crypto/crypto'
+import { KitsuneSignature, KitsuneAgent, KitsuneSpace } from '../kitsune/kitsune'
 
 export type Url = string
 export type Urls = Array<Url>
@@ -77,6 +77,6 @@ export class AgentInfo {
 
 export namespace AgentInfo {
  export function unpack(data:Uint8Array):AgentInfo {
-  return new AgentInfo(mpUnpack(data))
+  return new AgentInfo(mpUnpack(Buffer.from(data)))
  }
 }

@@ -1,6 +1,6 @@
-import { AgentInfoSigned, AgentInfoPacked, Urls, AgentInfo } from '../src/agent_info'
-import { KitsuneSignature, KitsuneSpace, KitsuneBin, KitsuneAgent } from '../src/kitsune'
-import { aliceAgentVapor, aliceSecret } from './agents'
+import { AgentInfoSigned, AgentInfoPacked, Urls, AgentInfo } from '../../src/agent_info/agent_info'
+import { KitsuneSignature, KitsuneSpace, KitsuneBin, KitsuneAgent } from '../../src/kitsune/kitsune'
+import { aliceAgentVapor, aliceSecret } from '../fixture/agents'
 import { strict as assert } from 'assert'
 
 describe('agent info signed', () => {

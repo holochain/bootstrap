@@ -1,7 +1,7 @@
-import { Ed25519 } from '../src/crypto'
+import { Ed25519 } from '../../src/crypto/crypto'
 import { vaporChatSpace } from './spaces'
-import { AgentInfoData } from '../src/agent_info'
-import { KitsuneBin } from '../src/kitsune'
+import { AgentInfoData } from '../../src/agent_info/agent_info'
+import { KitsuneBin } from '../../src/kitsune/kitsune'
 
 // all keys generated with https://tweetnacl.js.org/#/sign
 

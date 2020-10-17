@@ -7,5 +7,5 @@
     "experimentalDecorators": true,
     "lib": ["esnext", "webworker"]
   },
-  "include": ["./*.ts", "../node_modules/@cloudflare/workers-types/index.d.ts"]
+  "include": ["./*.ts", "./**/*.ts", "../node_modules/@cloudflare/workers-types/index.d.ts"]
 }

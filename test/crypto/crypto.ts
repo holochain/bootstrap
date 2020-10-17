@@ -1,6 +1,6 @@
-import { Ed25519 } from '../src/crypto'
+import { Ed25519 } from '../../src/crypto/crypto'
 import { strict as assert } from 'assert'
-import { aliceSecret, alicePublic, bobSecret, bobPublic } from './agents'
+import { aliceSecret, alicePublic, bobSecret, bobPublic } from '../fixture/agents'
 
 describe('base64 handling', () => {
  it('should convert base64 strings to u8 int arrays', () => {
