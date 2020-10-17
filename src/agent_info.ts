@@ -1,4 +1,4 @@
-import { pack as mpPack } from 'msgpackr'
+import { pack as mpPack, unpack as mpUnpack } from 'msgpackr'
 import { Ed25519 } from './crypto'
 import { KitsuneSignature, KitsuneAgent, KitsuneSpace } from './kitsune'
 
@@ -72,5 +72,11 @@ export class AgentInfo {
  }
  public pack = () => {
   return mpPack(this.value)
+ }
+}
+
+export namespace AgentInfo {
+ export function unpack(data:Uint8Array):AgentInfo {
+  return new AgentInfo(mpUnpack(data))
  }
 }

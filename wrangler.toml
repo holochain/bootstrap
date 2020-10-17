@@ -1,7 +1,9 @@
 name = "bootstrap"
 type = "webpack"
-account_id = ""
+account_id = "18ff2b4e6205b938652998cfca0d8cff"
+# account_id = ""
 workers_dev = true
-route = ""
-zone_id = ""
+# routes = [ "agent", "agents" ]
+# zone_id = "bootstrap"
+# zone_id = ""
 webpack_config = "webpack.config.js"
