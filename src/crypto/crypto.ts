@@ -1,41 +1,43 @@
+import * as D from "io-ts/Decoder"
 import { sign as naclSign } from 'tweetnacl'
-// @todo use wasm key manager
-// import { KeyManager } from '@holo-host/wasm-key-manager'
+import { FixedSizeUint8ArrayDecoderBuilder, Uint8ArrayDecoder } from '../io/io'
 
 export namespace Ed25519 {
- // Length of signing public key in bytes.
  export const publicKeyLength:number = naclSign.publicKeyLength
- // Length of seed for deterministic secret generation in bytes.
- export const seedLength = naclSign.seedLength
- // Length of signing secret key in bytes.
- export const secretKeyLength:number =naclSign.secretKeyLength
- // Length of a signature in bytes.
+ export const publicKey = FixedSizeUint8ArrayDecoderBuilder(publicKeyLength)
+ export type PublicKey = D.TypeOf<typeof publicKey>
+
+ // Seed is for deterministic secret generation in bytes.
+ // Strongly recommended to not use this directly without some kind of key
+ // stretching algorithm, e.g. scrypt or argon2id.
+ export const seedLength:number = naclSign.seedLength
+ export const seed = FixedSizeUint8ArrayDecoderBuilder(seedLength)
+ export type Seed = D.TypeOf<typeof seed>
+
+ export const secretKeyLength:number = naclSign.secretKeyLength
+ export const secretKey = FixedSizeUint8ArrayDecoderBuilder(secretKeyLength)
+ export type SecretKey = D.TypeOf<typeof secretKey>
+
  export const signatureLength:number = naclSign.signatureLength
+ export const signature = FixedSizeUint8ArrayDecoderBuilder(signatureLength)
+ export type Signature = D.TypeOf<typeof signature>
 
- // Define a list of bytes for ed25519 crypto usage as a Uint8Array.
- export type Bytes = Uint8Array
- export type Secret = Bytes
- export type Public = Bytes
- export type Signature = Bytes
- export type Message = Bytes
+ export const message = Uint8ArrayDecoder
+ export type Message = D.TypeOf<typeof message>
 
- export function base64ToBytes(base64:string):Bytes {
+ export function base64ToBytes(base64:string):Uint8Array {
   return Uint8Array.from(Buffer.from(base64, 'base64'))
  }
 
- export function validPublicKey(public_key:Public):boolean {
-  return public_key.length === publicKeyLength
- }
-
- // sign a message
- // not really used by the running server but very useful for testing
- export function sign(message:Message, secret:Secret):Ed25519.Signature {
+ // Sign a message.
+ // Not used by the server but useful for testing.
+ export function sign(message:Message, secret:SecretKey):Ed25519.Signature {
   return naclSign.detached(message, secret)
  }
 
- // verify a message
- // this is the main workhorse for server security
- export function verify(message:Message, signature:Signature, pubkey:Public):boolean {
+ // Verify a message.
+ // The main workhorse for server security.
+ export function verify(message:Message, signature:Signature, pubkey:PublicKey):boolean {
   return naclSign.detached.verify(message, signature, pubkey)
  }
 }

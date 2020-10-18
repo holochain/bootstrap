@@ -1,18 +1,28 @@
-import { KitsuneBin } from '../kitsune/kitsune'
+import * as D from "io-ts/Decoder"
+import { kitsuneSpace, kitsuneAgent } from '../kitsune/kitsune'
 import { encode, decode } from '../msgpack/msgpack'
 import { Ed25519 } from '../crypto/crypto'
+import { Uint8ArrayDecoder } from '../io/io'
 
-export type Url = string
-export type Urls = Array<Url>
+export const url = D.string
+export type Url = D.TypeOf<typeof url>
 
-export type AgentInfoPacked = Uint8Array
+export const urls = D.array(D.string)
+export type Urls = D.TypeOf<typeof urls>
 
-export interface AgentInfo {
- space: KitsuneBin,
- agent: KitsuneBin,
- urls: Urls,
- signed_at_ms: number,
-}
+export const agentInfoPacked = Uint8ArrayDecoder
+export type AgentInfoPacked = D.TypeOf<typeof agentInfoPacked>
+
+export const signedAtMs = D.number
+export type SignedAtMs = D.TypeOf<typeof signedAtMs>
+
+export const agentInfo = D.type({
+ space: kitsuneSpace,
+ agent: kitsuneAgent,
+ urls: urls,
+ signed_at_ms: signedAtMs,
+})
+export type AgentInfo = D.TypeOf<typeof agentInfo>
 
 export namespace AgentInfo {
  export function pack(agent_info:AgentInfo):AgentInfoPacked {
@@ -25,21 +35,5 @@ export namespace AgentInfo {
   } catch (e) {
    return e
   }
- }
-
- function validSpace(agent_info:AgentInfo):boolean {
-  return agent_info.space.length === 32
- }
-
- function validAgent(agent_info:AgentInfo):boolean {
-  return Ed25519.validPublicKey(agent_info.agent)
- }
-
- function validSignedAtMs(agent_info:AgentInfo):boolean {
-  return Date.now() >= agent_info.signed_at_ms
- }
-
- export function valid(agent_info:AgentInfo):boolean {
-  return validAgent(agent_info) && validSpace(agent_info) && validSignedAtMs(agent_info)
  }
 }
