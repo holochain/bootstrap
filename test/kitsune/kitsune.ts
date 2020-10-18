@@ -1,25 +1,34 @@
 import { isRight, isLeft } from 'fp-ts/lib/Either'
-import { kitsuneBinDecoder } from '../../src/kitsune/kitsune'
+import { kitsuneBin, kitsuneSpace, kitsuneAgent, kitsuneSignature } from '../../src/kitsune/kitsune'
 import { strict as assert } from 'assert'
 
 describe('kitsune ts-io', () => {
 
  it('KitsuneBin decodes correctly', () => {
-  for (let decodes of [
-   Uint8Array.from([1, 2, 3]),
-   Buffer.from([1, 2, 3]),
-  ]) {
-   assert.ok(isRight(kitsuneBinDecoder.decode(decodes)))
-  }
+  // Any number of bytes is a valid KitsuneBin.
+  assert.ok(isRight(kitsuneBin.decode(Uint8Array.from(Array(5)))))
+ })
 
-  for (let notDecodes of [
-   null,
-   "foo",
-   "",
-   [1, 2, 3],
-  ]) {
-   assert.ok(isLeft(kitsuneBinDecoder.decode(notDecodes)))
-  }
+ it('KitsuneSpace decodes correctly', () => {
+  // KitsuneSpace must be 32 bytes.
+  assert.ok(isRight(kitsuneSpace.decode(Uint8Array.from(Array(32)))))
+
+  assert.ok(isLeft(kitsuneSpace.decode(Uint8Array.from(Array(33)))))
+  assert.ok(isLeft(kitsuneSpace.decode(Uint8Array.from(Array(34)))))
+ })
+
+ it('KitsuneAgent decodes correctly', () => {
+  // KitsuneAgent must be 32 bytes.
+  assert.ok(isRight(kitsuneAgent.decode(Uint8Array.from(Array(32)))))
+
+  assert.ok(isLeft(kitsuneAgent.decode(Uint8Array.from(Array(31)))))
+ })
+
+ it('KitsuneSignature decodes correctly', () => {
+  // KitsuneSignature must be 64 bytes.
+  assert.ok(isRight(kitsuneSignature.decode(Uint8Array.from(Array(64)))))
+
+  assert.ok(isLeft(kitsuneSignature.decode(Uint8Array.from(Array(32)))))
  })
 
 })

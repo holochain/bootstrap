@@ -3,7 +3,7 @@ import { AgentInfoPacked, AgentInfo } from './info'
 import { Ed25519 } from '../crypto/crypto'
 
 export interface AgentInfoSigned {
- signature: KitsuneSignature.Encoded,
+ signature: KitsuneSignature,
  agent: KitsuneBin,
  agent_info: AgentInfoPacked,
 }
