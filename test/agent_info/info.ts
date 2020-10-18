@@ -16,4 +16,11 @@ describe('agent info data', () => {
    RangeError('Extra 144 of 145 byte(s) found at buffer[1]')
   )
  })
+
+ it('should round trip deterministically', () => {
+  assert.deepEqual(
+   aliceVaporPostBody,
+   AgentInfo.pack((AgentInfo.unpack(aliceVaporPostBody) as AgentInfo))
+  )
+ })
 })

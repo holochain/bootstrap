@@ -40,6 +40,8 @@
     "@holo-host/wasm-key-manager": "0.0.5",
     "@msgpack/msgpack": "^2.3.0",
     "@types/node": "^14.11.8",
-    "@types/service-worker-mock": "^2.0.1"
+    "@types/service-worker-mock": "^2.0.1",
+    "fp-ts": "^2.8.4",
+    "io-ts": "^2.2.11"
   }
 }
