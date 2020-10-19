@@ -3,6 +3,7 @@ import { vaporChatSpace } from './spaces'
 import { AgentInfo } from '../../src/agent_info/info'
 import { AgentInfoSigned } from '../../src/agent_info/signed'
 import { KitsuneBin } from '../../src/kitsune/kitsune'
+import { encode } from '../../src/msgpack/msgpack'
 
 // all keys generated with https://tweetnacl.js.org/#/sign
 
@@ -15,9 +16,9 @@ export const aliceAgentVapor:AgentInfo = {
  signed_at_ms: 1602767728019,
 }
 export const aliceAgentVaporSigned:AgentInfoSigned = {
- signature: Ed25519.sign(AgentInfo.pack(aliceAgentVapor), aliceSecret),
+ signature: Ed25519.sign(encode(aliceAgentVapor), aliceSecret),
  agent: alicePublic,
- agent_info: AgentInfo.pack(aliceAgentVapor),
+ agent_info: encode(aliceAgentVapor),
 }
 
 export const bobSecret:Ed25519.SecretKey = Ed25519.base64ToBytes('D8U4J8rCvyxCYMHoFnsyFck4S0+DLwRaophRQh4gU2MjGgH84u96jOqCiom+BGBF/UcGv14ZbqXFA7YudnpL6A==')

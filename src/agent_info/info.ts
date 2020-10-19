@@ -1,8 +1,11 @@
 import * as D from "io-ts/Decoder"
 import { kitsuneSpace, kitsuneAgent } from '../kitsune/kitsune'
-import { encode, decode } from '../msgpack/msgpack'
+import { encode, decode, MessagePackData, messagePackData, messagePackDecoder } from '../msgpack/msgpack'
 import { Ed25519 } from '../crypto/crypto'
 import { Uint8ArrayDecoder } from '../io/io'
+import { pipe } from 'fp-ts/lib/pipeable'
+// import { either, Either } from 'fp-ts/lib/Either'
+import * as E from 'fp-ts/lib/Either'
 
 export const url = D.string
 export type Url = D.TypeOf<typeof url>
@@ -24,16 +27,26 @@ export const agentInfo = D.type({
 })
 export type AgentInfo = D.TypeOf<typeof agentInfo>
 
-export namespace AgentInfo {
- export function pack(agent_info:AgentInfo):AgentInfoPacked {
-  return encode(agent_info)
- }
-
- export function unpack(data:AgentInfoPacked):AgentInfo|Error {
-  try {
-   return decode(data)
-  } catch (e) {
-   return e
-  }
+export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
+ decode: (a: unknown) => {
+  return pipe(
+   Uint8ArrayDecoder.decode(a),
+   E.fold(
+    errors => D.failure(a, JSON.stringify(errors)),
+    value => pipe(
+     messagePackDecoder.decode(value),
+     E.fold(
+      errors => D.failure(a, JSON.stringify(errors)),
+      value => pipe(
+       agentInfo.decode(value),
+       E.fold(
+        errors => D.failure(a, JSON.stringify(errors)),
+        value => D.success(value),
+       )
+      )
+     )
+    )
+   )
+  )
  }
 }
