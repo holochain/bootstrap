@@ -1,7 +1,9 @@
 import { AgentInfo, url, urls, agentInfoSafe } from '../../src/agent_info/info'
-import { aliceVaporPostBody, aliceVaporPostBodyCorrupted } from '../fixture/requests'
+import { aliceAgentVapor } from '../fixture/agents'
+import { aliceVaporPostBody, aliceVaporPostBodyCorrupted, aliceVaporPostBodyMaliciousProperty } from '../fixture/requests'
 import { strict as assert } from 'assert'
 import { isRight, isLeft } from 'fp-ts/lib/Either'
+import { encode } from '../../src/msgpack/msgpack'
 
 describe('agent info ts-io', () => {
  it('should decode url', () => {
@@ -23,30 +25,13 @@ describe('agent info ts-io', () => {
  })
 
  it('should decode packed data', () => {
-  console.log(agentInfoSafe.decode(aliceVaporPostBody))
+  // We must decode valid agent info data.
+  assert.ok(isRight(agentInfoSafe.decode(aliceVaporPostBody)))
+
+  // We must not decode anything with incorrect messagepack data.
+  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporPostBodyCorrupted)))
+
+  // We must not decode anything with unexpected properties.
+  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporPostBodyMaliciousProperty)))
  })
 })
-
-
-// describe('agent info data', () => {
-//
-//  it('should decode from msgpack binary data', () => {
-//   const valid_agent_info:AgentInfo|Error = AgentInfo.unpack(aliceVaporPostBody)
-//   assert.ok(!(valid_agent_info instanceof Error))
-//   assert.ok(valid_agent_info)
-//
-//   const fail_agent_info:AgentInfo|Error = AgentInfo.unpack(aliceVaporPostBodyCorrupted)
-//   assert.ok(fail_agent_info instanceof Error)
-//   assert.deepEqual(
-//    fail_agent_info,
-//    RangeError('Extra 144 of 145 byte(s) found at buffer[1]')
-//   )
-//  })
-//
-//  it('should round trip deterministically', () => {
-//   assert.deepEqual(
-//    aliceVaporPostBody,
-//    AgentInfo.pack((AgentInfo.unpack(aliceVaporPostBody) as AgentInfo))
-//   )
-//  })
-// })

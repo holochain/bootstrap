@@ -4,8 +4,9 @@ import { encode, decode, MessagePackData, messagePackData, messagePackDecoder } 
 import { Ed25519 } from '../crypto/crypto'
 import { Uint8ArrayDecoder } from '../io/io'
 import { pipe } from 'fp-ts/lib/pipeable'
-// import { either, Either } from 'fp-ts/lib/Either'
 import * as E from 'fp-ts/lib/Either'
+import { strict as assert } from 'assert'
+import * as _ from 'lodash'
 
 export const url = D.string
 export type Url = D.TypeOf<typeof url>
@@ -41,7 +42,18 @@ export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
        agentInfo.decode(value),
        E.fold(
         errors => D.failure(a, JSON.stringify(errors)),
-        value => D.success(value),
+        agentInfoValue => {
+         // Ensure that the decoded AgentInfo matches the generic object.
+         // This flags the situation where additional properties were added to
+         // the object that were dropped on the AgentInfo. We don't accept this
+         // because honest nodes should always sign exactly valid data.
+         if (_.isEqual(agentInfoValue, value)) {
+          return D.success(agentInfoValue)
+         }
+         else {
+          return D.failure(a, JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(value))
+         }
+        }
        )
       )
      )
