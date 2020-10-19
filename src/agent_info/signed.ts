@@ -1,32 +1,86 @@
-import { KitsuneBin, KitsuneSignature, KitsuneAgent } from '../kitsune/kitsune'
-import { AgentInfoPacked, AgentInfo } from './info'
+import { KitsuneBin, kitsuneSignature, kitsuneAgent } from '../kitsune/kitsune'
+import { agentInfo, agentInfoSafe } from './info'
 import { Ed25519 } from '../crypto/crypto'
+import { MessagePackData, messagePackDecoder, messagePackData } from '../msgpack/msgpack'
+import * as D from "io-ts/Decoder"
+import { pipe } from 'fp-ts/lib/pipeable'
+import { Uint8ArrayDecoder } from '../io/io'
+import * as E from 'fp-ts/lib/Either'
+import * as _ from 'lodash'
 
-export interface AgentInfoSigned {
- signature: KitsuneSignature,
- agent: KitsuneBin,
- agent_info: AgentInfoPacked,
+export const agentInfoSignedRaw = D.type({
+ signature: kitsuneSignature,
+ agent: kitsuneAgent,
+ agent_info: messagePackData,
+})
+export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>
+
+export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedRaw> = {
+ decode: (a:MessagePackData) => {
+  return pipe(
+   Uint8ArrayDecoder.decode(a),
+   E.fold(
+    errors => D.failure(a, JSON.stringify(errors)),
+    value => pipe(
+     messagePackDecoder.decode(value),
+     E.fold(
+      errors => D.failure(a, JSON.stringify(errors)),
+      value => pipe(
+       agentInfoSignedRaw.decode(value),
+       E.fold(
+        errors => D.failure(a, JSON.stringify(errors)),
+        agentInfoSignedRawValue => {
+         if (Ed25519.verify(
+          agentInfoSignedRawValue.agent_info,
+          agentInfoSignedRawValue.signature,
+          agentInfoSignedRawValue.agent,
+         )) {
+          return D.success(agentInfoSignedRawValue)
+         }
+         else {
+          return D.failure(a, 'Signature does not verify for agent and agent_info data.')
+         }
+        }
+       )
+      )
+     )
+    )
+   )
+  )
+ }
 }
 
-// export namespace AgentInfoSigned {
-//  function validSignature(agent_info_signed:AgentInfoSigned):boolean {
-//   return Ed25519.verify(
-//    agent_info_signed.agent_info,
-//    agent_info_signed.signature,
-//    agent_info_signed.agent
-//   )
-//  }
-//
-//  function validAgentInfo(agent_info_signed:AgentInfoSigned):boolean {
-//   const agent_info:AgentInfo|Error = AgentInfo.unpack(agent_info_signed.agent_info)
-//   if (agent_info instanceof Error) {
-//    return false
-//   }
-//
-//   return ( agent_info.agent === agent_info_signed.agent ) && AgentInfo.valid(agent_info)
-//  }
-//
-//  export function valid(agent_info_signed:AgentInfoSigned):boolean {
-//   return validSignature(agent_info_signed) && validAgentInfo(agent_info_signed)
-//  }
-// }
+export const agentInfoSigned = D.type({
+ signature: kitsuneSignature,
+ agent: kitsuneAgent,
+ agent_info: agentInfo,
+})
+export type AgentInfoSigned = D.TypeOf<typeof agentInfoSigned>
+
+export const agentInfoSignedSafe: D.Decoder<MessagePackData, AgentInfoSigned> = {
+ decode: (a:MessagePackData) => {
+  return pipe(
+   agentInfoSignedRawSafe.decode(a),
+   E.fold(
+    errors => D.failure(a, JSON.stringify(errors)),
+    agentInfoSignedRawSafeValue => pipe(
+     agentInfoSafe.decode(agentInfoSignedRawSafeValue.agent_info),
+     E.fold(
+      errors => D.failure(a, JSON.stringify(errors)),
+      agentInfoValue => {
+       if ( ! _.isEqual(agentInfoSignedRawSafeValue.agent, agentInfoValue.agent) ) {
+        return D.failure(a, `Outer signed agent ${agentInfoSignedRawSafeValue.agent} does not match signed inner agent ${agentInfoValue.agent}.`)
+       }
+
+       return D.success({
+        signature: agentInfoSignedRawSafeValue.signature,
+        agent: agentInfoSignedRawSafeValue.agent,
+        agent_info: agentInfoValue,
+       })
+      }
+     )
+    )
+   )
+  )
+ }
+}

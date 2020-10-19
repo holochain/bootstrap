@@ -1,7 +1,7 @@
 import { Ed25519 } from '../../src/crypto/crypto'
 import { vaporChatSpace } from './spaces'
 import { AgentInfo } from '../../src/agent_info/info'
-import { AgentInfoSigned } from '../../src/agent_info/signed'
+import { AgentInfoSignedRaw } from '../../src/agent_info/signed'
 import { KitsuneBin } from '../../src/kitsune/kitsune'
 import { encode } from '../../src/msgpack/msgpack'
 
@@ -15,7 +15,7 @@ export const aliceAgentVapor:AgentInfo = {
  urls: ['https://example.com', 'https://foo.com'],
  signed_at_ms: 1602767728019,
 }
-export const aliceAgentVaporSigned:AgentInfoSigned = {
+export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(aliceAgentVapor), aliceSecret),
  agent: alicePublic,
  agent_info: encode(aliceAgentVapor),
@@ -28,4 +28,10 @@ export const bobAgentVapor:AgentInfo = {
  agent: bobPublic,
  urls: ["https://bob.com"],
  signed_at_ms: 1602767738019,
+}
+// this is bad, bob must not be allowed to sign alice
+export const bobSignedAliceRaw:AgentInfoSignedRaw = {
+ signature: Ed25519.sign(encode(aliceAgentVapor), bobSecret),
+ agent: bobPublic,
+ agent_info: encode(aliceAgentVapor),
 }

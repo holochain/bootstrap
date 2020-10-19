@@ -1,6 +1,6 @@
 import { AgentInfo, url, urls, agentInfoSafe } from '../../src/agent_info/info'
 import { aliceAgentVapor } from '../fixture/agents'
-import { aliceVaporPostBody, aliceVaporPostBodyCorrupted, aliceVaporPostBodyMaliciousProperty } from '../fixture/requests'
+import { aliceVaporEncodedInfo, aliceVaporEncodedInfoCorrupted, aliceVaporEncodedInfoMaliciousProperty } from '../fixture/requests'
 import { strict as assert } from 'assert'
 import { isRight, isLeft } from 'fp-ts/lib/Either'
 import { encode } from '../../src/msgpack/msgpack'
@@ -26,12 +26,12 @@ describe('agent info ts-io', () => {
 
  it('should decode packed data', () => {
   // We must decode valid agent info data.
-  assert.ok(isRight(agentInfoSafe.decode(aliceVaporPostBody)))
+  assert.ok(isRight(agentInfoSafe.decode(aliceVaporEncodedInfo)))
 
   // We must not decode anything with incorrect messagepack data.
-  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporPostBodyCorrupted)))
+  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporEncodedInfoCorrupted)))
 
   // We must not decode anything with unexpected properties.
-  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporPostBodyMaliciousProperty)))
+  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporEncodedInfoMaliciousProperty)))
  })
 })
