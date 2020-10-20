@@ -43,6 +43,7 @@
     "@types/service-worker-mock": "^2.0.1",
     "fp-ts": "^2.8.4",
     "io-ts": "^2.2.11",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "node-fetch": "^2.6.1"
   }
 }

@@ -1,5 +1,5 @@
 import { Ed25519 } from '../../src/crypto/crypto'
-import { vaporChatSpace } from './spaces'
+import { vaporChatSpace, wikiSpace } from './spaces'
 import { AgentInfo } from '../../src/agent_info/info'
 import { AgentInfoSignedRaw } from '../../src/agent_info/signed'
 import { KitsuneBin } from '../../src/kitsune/kitsune'
@@ -21,6 +21,18 @@ export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
  agent_info: encode(aliceAgentVapor),
 }
 
+export const aliceAgentWiki:AgentInfo = {
+ space: wikiSpace,
+ agent: alicePublic,
+ urls: ["https://alice.com"],
+ signed_at_ms: 1602767728020,
+}
+export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
+ signature: Ed25519.sign(encode(aliceAgentWiki), aliceSecret),
+ agent: alicePublic,
+ agent_info: encode(aliceAgentWiki),
+}
+
 export const bobSecret:Ed25519.SecretKey = Ed25519.base64ToBytes('D8U4J8rCvyxCYMHoFnsyFck4S0+DLwRaophRQh4gU2MjGgH84u96jOqCiom+BGBF/UcGv14ZbqXFA7YudnpL6A==')
 export const bobPublic:Ed25519.PublicKey = Ed25519.base64ToBytes('IxoB/OLveozqgoqJvgRgRf1HBr9eGW6lxQO2LnZ6S+g=')
 export const bobAgentVapor:AgentInfo = {
@@ -29,6 +41,13 @@ export const bobAgentVapor:AgentInfo = {
  urls: ["https://bob.com"],
  signed_at_ms: 1602767738019,
 }
+export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
+ signature: Ed25519.sign(encode(bobAgentVapor), bobSecret),
+ agent: bobPublic,
+ agent_info: encode(bobAgentVapor),
+}
+
+
 // this is bad, bob must not be allowed to sign alice
 export const bobSignedAliceRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(aliceAgentVapor), bobSecret),

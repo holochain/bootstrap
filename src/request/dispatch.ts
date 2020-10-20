@@ -5,5 +5,5 @@ export async function eventDispatch(event:Event):Promise<Response> {
   return postHandler(event)
  }
 
- return new Response(base64)
+ return new Response('unhandled request', { status: 500 })
 }
