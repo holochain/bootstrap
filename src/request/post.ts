@@ -1,36 +1,28 @@
 import { AgentInfo } from '../agent_info/info'
-import { putAgentInfoSigned, listSpace } from '../kv/kv'
+import { putAgentInfoSigned, listSpace, getAgentInfoSigned } from '../kv/kv'
 
 const DISPATCH_HEADER: string = 'X-Op'
 const OP_PUT: string = 'put'
 const OP_LIST: string = 'list'
+const OP_GET: string = 'get'
 
-export async function putHandler(bytes:Uint8Array):Promise<Response> {
- let tryPut = await putAgentInfoSigned(bytes)
+async function handle(f:(bytes:Uint8Array)=> MessagePackData|Error , bytes:Uint8Array):Promise<Response> {
+ let tryIt = await f(bytes)
 
- if (tryPut instanceof Error) {
-  return new Response(tryPut, { status: 500 })
+ if (tryIt instanceof Error) {
+  return new Response(tryIt, { status: 500 })
  }
 
- return new Response(tryPut)
-}
-
-export async function listHandler(bytes:Uint8Array):Promise<Response> {
- let tryList = await listSpace(bytes)
-
- if (tryList instanceof Error) {
-  return new Response(tryList, { status: 500 })
- }
-
- return new Response(tryList)
+ return new Response(tryIt)
 }
 
 export async function postHandler(event:Event):Promise<Response> {
  let bodyBytes = new Uint8Array(await event.request.arrayBuffer())
 
  switch(event.request.headers.get(DISPATCH_HEADER)) {
-  case OP_PUT: return putHandler(bodyBytes)
-  case OP_LIST: return listHandler(bodyBytes)
+  case OP_PUT: return handle(putAgentInfoSigned, bodyBytes)
+  case OP_LIST: return handle(listSpace, bodyBytes)
+  case OP_GET: return handle(getAgentInfoSigned, bodyBytes)
   default: return new Response(encode('unknown op'), { status: 500 })
  }
 }

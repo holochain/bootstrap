@@ -1,5 +1,5 @@
 import * as fetch from 'node-fetch'
-import { alicePublic, bobPublic, bobAgentVaporSignedRaw } from '../fixture/agents'
+import { alicePublic, bobPublic, bobAgentVaporSignedRaw, aliceAgentVaporSignedRaw, aliceAgentWikiSignedRaw } from '../fixture/agents'
 import { aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody } from '../fixture/requests'
 import { vaporChatSpace, wikiSpace } from '../fixture/spaces'
 import { encode, decode } from '../../src/msgpack/msgpack'
@@ -43,6 +43,25 @@ describe('integration tests', () => {
   assert.deepEqual(
    wikiPubKeys,
    [ alicePublic ],
+  )
+
+  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...alicePublic])
+  let aliceVaporValue = await doApi('get', aliceVaporKey)
+  assert.deepEqual(
+   aliceAgentVaporSignedRaw,
+   aliceVaporValue,
+  )
+  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...bobPublic])
+  let bobVaporValue = await doApi('get', bobVaporKey)
+  assert.deepEqual(
+   bobAgentVaporSignedRaw,
+   bobVaporValue,
+  )
+  let aliceWikiKey = new Uint8Array([...wikiSpace, ...alicePublic])
+  let aliceWikiValue = await doApi('get', aliceWikiKey)
+  assert.deepEqual(
+   aliceAgentWikiSignedRaw,
+   aliceWikiValue,
   )
 
  })
