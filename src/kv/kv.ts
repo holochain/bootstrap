@@ -17,20 +17,20 @@ function keyFromAgentInfoSigned(agentInfoSigned:AgentInfoSigned):Uint8Array {
 
 // Store an AgentInfoSignedRaw under the relevant key.
 // Errors if the AgentInfoSignedRaw does not decode to a safe AgentInfo.
-export async function putAgentInfoSigned(agentInfoSignedRaw:AgentInfoSignedRaw):void|Error {
+export async function putAgentInfoSigned(agentInfoSignedRaw:AgentInfoSignedRaw):MessagePackData|Error {
  let doPut = async agentInfoSigned => {
   let key = keyFromAgentInfoSigned(agentInfoSigned)
   let value = agentInfoSignedRaw
   await BOOTSTRAP.put(key, value)
  }
 
- return pipe(
+ return encode(pipe(
   agentInfoSignedSafe.decode(agentInfoSignedRaw),
   E.fold(
    errors => Error(JSON.stringify(errors)),
    agentInfoSignedValue => doPut(agentInfoSignedValue),
   )
- )
+ ))
 }
 
 function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
@@ -42,7 +42,7 @@ function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
 
 // Paginates through the kv list API using the space as a prefix.
 // Returns all pubkeys for all agents currently registered in the space.
-export async function listSpace(space:KitsuneSpace):Array {
+export async function listSpace(space:KitsuneSpace):MessagePackData {
  let prefix = '' + atob64(space) + KEY_SEPARATOR
  let keys = []
  let more = true

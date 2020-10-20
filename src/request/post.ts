@@ -12,7 +12,7 @@ export async function putHandler(bytes:Uint8Array):Promise<Response> {
   return new Response(tryPut, { status: 500 })
  }
 
- return new Response('OK')
+ return new Response(tryPut)
 }
 
 export async function listHandler(bytes:Uint8Array):Promise<Response> {
@@ -31,6 +31,6 @@ export async function postHandler(event:Event):Promise<Response> {
  switch(event.request.headers.get(DISPATCH_HEADER)) {
   case OP_PUT: return putHandler(bodyBytes)
   case OP_LIST: return listHandler(bodyBytes)
-  default: return new Response('unknown op', { status: 500 })
+  default: return new Response(encode('unknown op'), { status: 500 })
  }
 }

@@ -2,7 +2,7 @@ import { encode as libEncode, decode as libDecode } from '@msgpack/msgpack'
 import { Uint8ArrayDecoder } from '../io/io'
 import * as D from "io-ts/Decoder"
 
-export function encode(data:unknown):Uint8Array {
+export function encode(data:unknown):MessagePackData {
  return libEncode(data)
 }
 

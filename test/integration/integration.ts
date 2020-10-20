@@ -1,47 +1,50 @@
 import * as fetch from 'node-fetch'
-import { alicePublic, bobAgentVaporSignedRaw } from '../fixture/agents'
-import { aliceVaporPostBody, aliceWikiPostBody, bobVaporPostBody } from '../fixture/requests'
-import { vaporChatSpace } from '../fixture/spaces'
+import { alicePublic, bobPublic, bobAgentVaporSignedRaw } from '../fixture/agents'
+import { aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody } from '../fixture/requests'
+import { vaporChatSpace, wikiSpace } from '../fixture/spaces'
 import { encode, decode } from '../../src/msgpack/msgpack'
 import { strict as assert } from 'assert'
 
 describe('integration tests', () => {
 
- it('should POST correctly', () => {
-  assert.deepEqual(
-   encode(bobAgentVaporSignedRaw),
-   bobVaporPostBody,
-  )
+ it('should POST correctly', async function() {
 
-  // put alice and bob
-  for (let agent of [aliceVaporPostBody, aliceWikiPostBody, bobVaporPostBody]) {
-   fetch('http://127.0.0.1:8787', {
+  // needs an extended timeout to post everything
+  this.timeout(0)
+
+  let url = 'http://127.0.0.1:8787'
+
+  let doApi = async (op:string, body:Uint8Array):Promise<unknown> => {
+   let buffer = await fetch(url, {
     method: 'post',
-    body: agent,
+    body: body,
     headers: {
      'Content-Type': 'application/octet',
-     'X-Op': 'put',
+     'X-Op': op,
     },
-   })
-    .then(res => res.buffer())
-    .then(buffer => console.log(buffer))
+   }).then(res => res.buffer())
+   return decode(Uint8Array.from(buffer))
   }
 
-  let bytes = fetch('http://127.0.0.1:8787', {
-   method: 'post',
-   body: vaporChatSpace,
-   headers: {
-   'Content-Type': 'application/octet',
-   'X-Op': 'list',
-   },
-  })
-   .then(res => res.buffer())
+  // put alice and bob
+  for (let agent of [aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody]) {
+   await doApi('put', agent)
+  }
 
-  let pubKeys = decode(Uint8Array.from(bytes))
+  // vapor chat list pubkeys
+  let vaporPubKeys = await doApi('list', vaporChatSpace)
   assert.deepEqual(
-   pubKeys,
-   [ alicePublic ]
+   vaporPubKeys,
+   [ alicePublic, bobPublic ],
   )
+
+  // wiki list pubkeys
+  let wikiPubKeys = await doApi('list', wikiSpace)
+  assert.deepEqual(
+   wikiPubKeys,
+   [ alicePublic ],
+  )
+
  })
 
 })
