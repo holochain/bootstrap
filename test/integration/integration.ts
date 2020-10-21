@@ -2,7 +2,7 @@ import * as fetch from 'node-fetch'
 import { alicePublic, bobPublic, bobAgentVaporSignedRaw, aliceAgentVaporSignedRaw, aliceAgentWikiSignedRaw } from '../fixture/agents'
 import { aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody } from '../fixture/requests'
 import { vaporChatSpace, wikiSpace } from '../fixture/spaces'
-import { encode, decode } from '../../src/msgpack/msgpack'
+import { encode, decode, MessagePackData } from '../../src/msgpack/msgpack'
 import { strict as assert } from 'assert'
 
 describe('integration tests', () => {
@@ -14,7 +14,7 @@ describe('integration tests', () => {
 
   let url = 'http://127.0.0.1:8787'
 
-  let doApi = async (op:string, body:Uint8Array):Promise<unknown> => {
+  let doApi = async (op:string, body:MessagePackData):Promise<unknown> => {
    let buffer = await fetch(url, {
     method: 'post',
     body: body,
@@ -28,7 +28,10 @@ describe('integration tests', () => {
 
   // put alice and bob
   for (let agent of [aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody]) {
-   await doApi('put', agent)
+   assert.deepEqual(
+    await doApi('put', agent),
+    null
+   )
   }
 
   // vapor chat list pubkeys
@@ -37,7 +40,6 @@ describe('integration tests', () => {
    vaporPubKeys,
    [ alicePublic, bobPublic ],
   )
-
   // wiki list pubkeys
   let wikiPubKeys = await doApi('list', wikiSpace)
   assert.deepEqual(
