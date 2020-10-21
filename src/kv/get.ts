@@ -11,12 +11,10 @@ export async function _get(key:Key):MessagePackData|Error {
 }
 
 export async function get(input:MessagePackData):MessagePackData|Error {
+ // Values are already messagepack data so return as is.
+ // @todo is this the right thing to do?
  return pipe(
   key.decode(input),
-  E.fold(
-   errors => Error(JSON.stringify(errors)),
-   // Values are already messagepack data so return as is.
-   async keyValue => await _get(keyValue),
-  )
+  E.chain(async keyValue => await _get(keyValue))
  )
 }

@@ -17,22 +17,8 @@ export const querySafe: D.Decoder<MessagePackData, Query> = {
  decode: (a:MessagePackData) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
-   E.fold(
-    errors => D.failure(a, JSON.stringify(errors)),
-    value => pipe(
-     messagePackDecoder.decode(value),
-     E.fold(
-      errors => D.failure(a, JSON.stringify(errors)),
-      value => pipe(
-       query.decode(value),
-       E.fold(
-        errors => D.failure(a, JSON.stringify(errors)),
-        queryValue => D.success(queryValue),
-       )
-      )
-     )
-    )
-   )
+   E.chain(value => messagePackDecoder.decode(value)),
+   E.chain(value => query.decode(value)),
   )
  }
 }
@@ -68,9 +54,6 @@ export async function _random(query:Query):MessagePackData {
 export async function random(input:MessagePackData):MessagePackData|Error {
  return pipe(
   querySafe.decode(input),
-  E.fold(
-   errors => Error(JSON.stringify(errors)),
-   async queryValue => encode(await _random(queryValue)),
-  )
+  E.chain(async queryValue => encode(await _random(queryValue))),
  )
 }

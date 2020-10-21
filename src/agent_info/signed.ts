@@ -19,33 +19,20 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
  decode: (a:MessagePackData) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
-   E.fold(
-    errors => D.failure(a, JSON.stringify(errors)),
-    value => pipe(
-     messagePackDecoder.decode(value),
-     E.fold(
-      errors => D.failure(a, JSON.stringify(errors)),
-      value => pipe(
-       agentInfoSignedRaw.decode(value),
-       E.fold(
-        errors => D.failure(a, JSON.stringify(errors)),
-        agentInfoSignedRawValue => {
-         if (Ed25519.verify(
-          agentInfoSignedRawValue.agent_info,
-          agentInfoSignedRawValue.signature,
-          agentInfoSignedRawValue.agent,
-         )) {
-          return D.success(agentInfoSignedRawValue)
-         }
-         else {
-          return D.failure(a, 'Signature does not verify for agent and agent_info data.')
-         }
-        }
-       )
-      )
-     )
-    )
-   )
+   E.chain(value => messagePackDecoder.decode(value)),
+   E.chain(value => agentInfoSignedRaw.decode(value)),
+   E.chain(agentInfoSignedRawValue => {
+    if (Ed25519.verify(
+     agentInfoSignedRawValue.agent_info,
+     agentInfoSignedRawValue.signature,
+     agentInfoSignedRawValue.agent,
+    )) {
+     return D.success(agentInfoSignedRawValue)
+    }
+    else {
+     return D.failure(a, 'Signature does not verify for agent and agent_info data.')
+    }
+   })
   )
  }
 }

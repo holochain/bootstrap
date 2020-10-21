@@ -37,9 +37,6 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 export async function list(input:MessagePackData):MessagePackData|Error {
  return pipe(
   kitsuneSpace.decode(input),
-  E.fold(
-   errors => Error(JSON.stringify(errors)),
-   async spaceValue => encode(await _list(spaceValue)),
-  )
+  E.chain(async spaceValue => encode(await _list(spaceValue))),
  )
 }

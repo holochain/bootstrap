@@ -24,10 +24,7 @@ async function _put(agentInfoSignedRawData:MessagePackData):void|Error {
 
  return pipe(
   agentInfoSignedSafe.decode(agentInfoSignedRawData),
-  E.fold(
-   errors => Error(JSON.stringify(errors)),
-   agentInfoSignedValue => doPut(agentInfoSignedValue),
-  )
+  E.chain(async agentInfoSignedValue => await doPut(agentInfoSignedValue)),
  )
 }
 

@@ -32,30 +32,25 @@ export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
  decode: (a: unknown) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
+   E.chain(value => messagePackDecoder.decode(value)),
    E.fold(
     errors => D.failure(a, JSON.stringify(errors)),
-    value => pipe(
-     messagePackDecoder.decode(value),
+    rawValue => pipe(
+     agentInfo.decode(rawValue),
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
-      value => pipe(
-       agentInfo.decode(value),
-       E.fold(
-        errors => D.failure(a, JSON.stringify(errors)),
-        agentInfoValue => {
-         // Ensure that the decoded AgentInfo matches the generic object.
-         // This flags the situation where additional properties were added to
-         // the object that were dropped on the AgentInfo. We don't accept this
-         // because honest nodes should always sign exactly valid data.
-         if (_.isEqual(agentInfoValue, value)) {
-          return D.success(agentInfoValue)
-         }
-         else {
-          return D.failure(a, JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(value))
-         }
-        }
-       )
-      )
+      agentInfoValue => {
+       // Ensure that the decoded AgentInfo matches the generic object.
+       // This flags the situation where additional properties were added to
+       // the object that were dropped on the AgentInfo. We don't accept this
+       // because honest nodes should always sign exactly valid data.
+       if (_.isEqual(agentInfoValue, rawValue)) {
+        return D.success(agentInfoValue)
+       }
+       else {
+        return D.failure(a, JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue))
+       }
+      }
      )
     )
    )
