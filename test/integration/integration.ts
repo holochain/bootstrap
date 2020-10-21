@@ -47,6 +47,7 @@ describe('integration tests', () => {
    [ alicePublic ],
   )
 
+  // gets all work
   let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...alicePublic])
   let aliceVaporValue = await doApi('get', aliceVaporKey)
   assert.deepEqual(
@@ -64,6 +65,50 @@ describe('integration tests', () => {
   assert.deepEqual(
    aliceAgentWikiSignedRaw,
    aliceWikiValue,
+  )
+
+  // random list
+  let randomOne = await doApi('random', encode({
+   space: vaporChatSpace,
+   limit: 1,
+  }))
+  // alice or bob is fine
+  try {
+   assert.deepEqual(
+    randomOne,
+    [ bobVaporPutBody ]
+   )
+  } catch (e) {
+   assert.deepEqual(
+    randomOne,
+    [ aliceVaporPutBody ]
+   )
+  }
+
+  let randomTwo = await doApi('random', encode({
+   space: vaporChatSpace,
+   limit: 2,
+  }))
+  // either order is fine but we need both
+  try {
+   assert.deepEqual(
+    randomTwo,
+    [ aliceVaporPutBody, bobVaporPutBody ],
+   )
+  } catch (e) {
+   assert.deepEqual(
+    randomTwo,
+    [ bobVaporPutBody, aliceVaporPutBody ],
+   )
+  }
+
+  let randomOversubscribed = await doApi('random', encode({
+   space: wikiSpace,
+   limit: 2,
+  }))
+  assert.deepEqual(
+   randomOversubscribed,
+   [ aliceWikiPutBody ],
   )
 
  })

@@ -1,7 +1,7 @@
 import { put } from '../kv/put'
 import { list } from '../kv/list'
 import { get } from '../kv/get'
-// import { random } from '../kv/random'
+import { random } from '../kv/random'
 import { strict as assert } from 'assert'
 import { encode, MessagePackData } from '../msgpack/msgpack'
 
@@ -15,7 +15,7 @@ async function handle(f:(bytes:Uint8Array)=> MessagePackData|Error, input:Messag
  let tryF = await f(input)
 
  if (tryF instanceof Error) {
-  return new Response(tryF, { status: 500 })
+  return new Response(encode('' + tryF), { status: 500 })
  }
 
  return new Response(tryF)

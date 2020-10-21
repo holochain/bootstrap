@@ -7,8 +7,7 @@ import { pipe } from 'fp-ts/lib/pipeable'
 export async function _get(key:Key):MessagePackData|Error {
  let space = key.slice(0,spaceLength)
  let agent = key.slice(spaceLength)
-
- return await BOOTSTRAP.get(agentKey(space, agent), 'arrayBuffer')
+ return new Uint8Array(await BOOTSTRAP.get(agentKey(space, agent), 'arrayBuffer'))
 }
 
 export async function get(input:MessagePackData):MessagePackData|Error {
