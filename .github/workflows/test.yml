@@ -21,4 +21,5 @@ jobs:
       apiToken: ${{ secrets.CF_API_TOKEN }}
       publish: false
       preCommands: wrangler dev &
+   - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8787)" != "200" ]]; do echo 'waiting for wrangler'; done
    - run: npm test
