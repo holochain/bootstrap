@@ -12,15 +12,18 @@ jobs:
 
   steps:
    - uses: actions/checkout@v2
+   - uses: actions-rs/toolchain@v1
+     with:
+      toolchain: stable
    - uses: actions/setup-node@v2-beta
      with:
        node-version: ${{ matrix.node }}
    - run: npm install
-   - uses: cloudflare/wrangler-action@1.3.0
-     with:
-      apiToken: ${{ secrets.CF_API_TOKEN }}
-      publish: false
-      preCommands: wrangler build
-   - run: wrangler dev &
+   # - uses: cloudflare/wrangler-action@1.3.0
+   #   with:
+   #    apiToken: ${{ secrets.CF_API_TOKEN }}
+   #    publish: false
+   #    preCommands: wrangler build
+   # - run: wrangler dev &
    - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
    - run: npm test
