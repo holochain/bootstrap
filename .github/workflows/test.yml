@@ -15,6 +15,7 @@ jobs:
    - uses: actions-rs/toolchain@v1
      with:
       toolchain: stable
+   - run: cargo install wrangler
    - uses: actions/setup-node@v2-beta
      with:
        node-version: ${{ matrix.node }}
@@ -24,6 +25,6 @@ jobs:
    #    apiToken: ${{ secrets.CF_API_TOKEN }}
    #    publish: false
    #    preCommands: wrangler build
-   # - run: wrangler dev &
+   - run: wrangler dev &
    - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
    - run: npm test
