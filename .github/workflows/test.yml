@@ -18,7 +18,7 @@ jobs:
    - run: npm install
    - uses: cloudflare/wrangler-action@1.2.0
      with:
-      # apiToken: ${{ secrets.CF_API_TOKEN }}
+      apiToken: ${{ secrets.CF_API_TOKEN }}
       publish: false
       preCommands: wrangler dev
    - run: npm test
