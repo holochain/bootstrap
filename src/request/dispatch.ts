@@ -5,5 +5,10 @@ export async function eventDispatch(event:Event):Promise<Response> {
   return postHandler(event)
  }
 
+ // Respond with a simple pong for any GET to help with smoke testing.
+ if (event.request.method === 'GET') {
+  return new Response('pong')
+ }
+
  return new Response('unhandled request', { status: 500 })
 }
