@@ -23,7 +23,10 @@ describe('integration tests', () => {
      'X-Op': op,
     },
    })
-   .then(res => res.buffer())
+   .then(res => {
+    console.log(res)
+    return res.buffer()
+   })
    .catch(err => console.log(err))
    console.log(buffer)
    return decode(Uint8Array.from(buffer))
