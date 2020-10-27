@@ -37,8 +37,7 @@ jobs:
    #   with:
    #    toolchain: stable
    - run: cargo install wrangler
-   - run: |
-   which wrangler
+   - run: which wrangler
    # - uses: actions/setup-node@v2-beta
    #   with:
    #     node-version: ${{ matrix.node }}
