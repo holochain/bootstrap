@@ -26,13 +26,13 @@ describe('integration tests', () => {
    return decode(Uint8Array.from(buffer))
   }
 
-  // put alice and bob
-  for (let agent of [aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody]) {
-   assert.deepEqual(
-    await doApi('put', agent),
-    null
-   )
-  }
+  // // put alice and bob
+  // for (let agent of [aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody]) {
+  //  assert.deepEqual(
+  //   await doApi('put', agent),
+  //   null
+  //  )
+  // }
 
   // // vapor chat list pubkeys
   // let vaporPubKeys = await doApi('list', vaporChatSpace)
