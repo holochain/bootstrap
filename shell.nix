@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation {
  buildInputs = [
   pkgs.gnumake
   # deps from upstream
-  pkgs.nodejs-14_x
+  pkgs.nodejs-12_x
   pkgs.cargo
   pkgs.rustc
  ];
