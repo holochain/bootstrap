@@ -19,7 +19,9 @@ jobs:
    # - run: export CARGO_INSTALL_ROOT=$CARGO_HOME/bin
    # - run: export PATH=$CARGO_INSTALL_ROOT:$PATH
    # - run: echo $PATH
-   - run: echo $CARGO_HOME
+   - run: echo $PATH
+   - run: echo "${CARGO_INSTALL_ROOT}/bin" >> $GITHUB_PATH
+   - run: echo $PATH
    - uses: actions/checkout@v2
 
    # - uses: Swatinem/rust-cache@v1
