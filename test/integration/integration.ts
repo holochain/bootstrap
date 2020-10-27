@@ -34,82 +34,82 @@ describe('integration tests', () => {
    )
   }
 
-  // vapor chat list pubkeys
-  let vaporPubKeys = await doApi('list', vaporChatSpace)
-  assert.deepEqual(
-   vaporPubKeys,
-   [ alicePublic, bobPublic ],
-  )
-  // wiki list pubkeys
-  let wikiPubKeys = await doApi('list', wikiSpace)
-  assert.deepEqual(
-   wikiPubKeys,
-   [ alicePublic ],
-  )
-
-  // gets all work
-  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...alicePublic])
-  let aliceVaporValue = await doApi('get', aliceVaporKey)
-  assert.deepEqual(
-   aliceAgentVaporSignedRaw,
-   aliceVaporValue,
-  )
-  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...bobPublic])
-  let bobVaporValue = await doApi('get', bobVaporKey)
-  assert.deepEqual(
-   bobAgentVaporSignedRaw,
-   bobVaporValue,
-  )
-  let aliceWikiKey = new Uint8Array([...wikiSpace, ...alicePublic])
-  let aliceWikiValue = await doApi('get', aliceWikiKey)
-  assert.deepEqual(
-   aliceAgentWikiSignedRaw,
-   aliceWikiValue,
-  )
-
-  // random list
-  let randomOne = await doApi('random', encode({
-   space: vaporChatSpace,
-   limit: 1,
-  }))
-  // alice or bob is fine
-  try {
-   assert.deepEqual(
-    randomOne,
-    [ bobVaporPutBody ]
-   )
-  } catch (e) {
-   assert.deepEqual(
-    randomOne,
-    [ aliceVaporPutBody ]
-   )
-  }
-
-  let randomTwo = await doApi('random', encode({
-   space: vaporChatSpace,
-   limit: 2,
-  }))
-  // either order is fine but we need both
-  try {
-   assert.deepEqual(
-    randomTwo,
-    [ aliceVaporPutBody, bobVaporPutBody ],
-   )
-  } catch (e) {
-   assert.deepEqual(
-    randomTwo,
-    [ bobVaporPutBody, aliceVaporPutBody ],
-   )
-  }
-
-  let randomOversubscribed = await doApi('random', encode({
-   space: wikiSpace,
-   limit: 2,
-  }))
-  assert.deepEqual(
-   randomOversubscribed,
-   [ aliceWikiPutBody ],
-  )
+  // // vapor chat list pubkeys
+  // let vaporPubKeys = await doApi('list', vaporChatSpace)
+  // assert.deepEqual(
+  //  vaporPubKeys,
+  //  [ alicePublic, bobPublic ],
+  // )
+  // // wiki list pubkeys
+  // let wikiPubKeys = await doApi('list', wikiSpace)
+  // assert.deepEqual(
+  //  wikiPubKeys,
+  //  [ alicePublic ],
+  // )
+  //
+  // // gets all work
+  // let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...alicePublic])
+  // let aliceVaporValue = await doApi('get', aliceVaporKey)
+  // assert.deepEqual(
+  //  aliceAgentVaporSignedRaw,
+  //  aliceVaporValue,
+  // )
+  // let bobVaporKey = new Uint8Array([...vaporChatSpace, ...bobPublic])
+  // let bobVaporValue = await doApi('get', bobVaporKey)
+  // assert.deepEqual(
+  //  bobAgentVaporSignedRaw,
+  //  bobVaporValue,
+  // )
+  // let aliceWikiKey = new Uint8Array([...wikiSpace, ...alicePublic])
+  // let aliceWikiValue = await doApi('get', aliceWikiKey)
+  // assert.deepEqual(
+  //  aliceAgentWikiSignedRaw,
+  //  aliceWikiValue,
+  // )
+  //
+  // // random list
+  // let randomOne = await doApi('random', encode({
+  //  space: vaporChatSpace,
+  //  limit: 1,
+  // }))
+  // // alice or bob is fine
+  // try {
+  //  assert.deepEqual(
+  //   randomOne,
+  //   [ bobVaporPutBody ]
+  //  )
+  // } catch (e) {
+  //  assert.deepEqual(
+  //   randomOne,
+  //   [ aliceVaporPutBody ]
+  //  )
+  // }
+  //
+  // let randomTwo = await doApi('random', encode({
+  //  space: vaporChatSpace,
+  //  limit: 2,
+  // }))
+  // // either order is fine but we need both
+  // try {
+  //  assert.deepEqual(
+  //   randomTwo,
+  //   [ aliceVaporPutBody, bobVaporPutBody ],
+  //  )
+  // } catch (e) {
+  //  assert.deepEqual(
+  //   randomTwo,
+  //   [ bobVaporPutBody, aliceVaporPutBody ],
+  //  )
+  // }
+  //
+  // let randomOversubscribed = await doApi('random', encode({
+  //  space: wikiSpace,
+  //  limit: 2,
+  // }))
+  // assert.deepEqual(
+  //  randomOversubscribed,
+  //  [ aliceWikiPutBody ],
+  // )
 
  })
 
