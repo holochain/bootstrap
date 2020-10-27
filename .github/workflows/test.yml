@@ -17,19 +17,20 @@ jobs:
   steps:
    - uses: actions/checkout@v2
 
-   - uses: Swatinem/rust-cache@v1
-   # - uses: actions/cache@v2
-   #   with:
-   #     path: |
-   #       $CARGO_HOME/registry
-   #       $CARGO_HOME/git
-   #       $CARGO_INSTALL_ROOT
-   #       target
-   #     key: ${{ runner.os }}-cargo-${{ github.ref }}
-
-   - uses: actions-rs/toolchain@v1
+   # - uses: Swatinem/rust-cache@v1
+   - uses: actions/cache@v2
      with:
-      toolchain: stable
+       path: |
+         $CARGO_HOME/registry
+         $CARGO_HOME/git
+         $CARGO_INSTALL_ROOT
+         target
+       key: ${{ runner.os }}-cargo-${{ github.ref }}
+   - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   #
+   # - uses: actions-rs/toolchain@v1
+   #   with:
+   #    toolchain: stable
    - run: cargo install wrangler
    - run: which wrangler
    # - uses: actions/setup-node@v2-beta
