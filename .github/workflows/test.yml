@@ -11,8 +11,8 @@ jobs:
     node: ['12', '14']
 
   env:
-   CARGO_HOME: .cargo
-   CARGO_INSTALL_ROOT: .cargo
+   CARGO_HOME: ${{ env.GITHUB_WORKSPACE }}.cargo
+   CARGO_INSTALL_ROOT: ${{ env.GITHUB_WORKSPACE }}.cargo
 
   steps:
    # - run: export CARGO_HOME=$GITHUB_WORKSPACE/.cargo
@@ -36,7 +36,8 @@ jobs:
    #   with:
    #    toolchain: stable
    - run: cargo install wrangler
-   - run: which wrangler
+   - run: |
+   which wrangler
    # - uses: actions/setup-node@v2-beta
    #   with:
    #     node-version: ${{ matrix.node }}
