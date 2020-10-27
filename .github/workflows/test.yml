@@ -17,14 +17,15 @@ jobs:
   steps:
    - uses: actions/checkout@v2
 
-   - uses: actions/cache@v2
-     with:
-       path: |
-         $CARGO_HOME/registry
-         $CARGO_HOME/git
-         $CARGO_INSTALL_ROOT
-         target
-       key: ${{ runner.os }}-cargo-${{ github.ref }}
+   - uses: Swatinem/rust-cache@v1
+   # - uses: actions/cache@v2
+   #   with:
+   #     path: |
+   #       $CARGO_HOME/registry
+   #       $CARGO_HOME/git
+   #       $CARGO_INSTALL_ROOT
+   #       target
+   #     key: ${{ runner.os }}-cargo-${{ github.ref }}
 
    - uses: actions-rs/toolchain@v1
      with:
