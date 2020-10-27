@@ -7,12 +7,24 @@ import { strict as assert } from 'assert'
 
 describe('integration tests', () => {
 
+ let url = 'http://127.0.0.1:8787'
+
+ it('should GET correctly', async function() {
+  this.timeout(0)
+
+  let pong = await fetch(url).then(res => res.text())
+
+  assert.deepEqual(
+   'pong',
+   pong,
+  )
+
+ })
+
  it('should POST correctly', async function() {
 
   // needs an extended timeout to post everything
   this.timeout(0)
-
-  let url = 'http://127.0.0.1:8787'
 
   let doApi = async (op:string, body:MessagePackData):Promise<unknown> => {
    let buffer = await fetch(url, {
@@ -24,11 +36,13 @@ describe('integration tests', () => {
     },
    })
    .then(res => {
-    console.log(res)
+    // For debugging errors.
+    if (res.status !== 200) {
+     console.log(res)
+    }
     return res.buffer()
    })
    .catch(err => console.log(err))
-   console.log(buffer)
    return decode(Uint8Array.from(buffer))
   }
 
