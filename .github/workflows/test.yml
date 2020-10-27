@@ -19,14 +19,9 @@ jobs:
       cache-name: cache-rust
      with:
       path: |
-        ~/.cargo/registry
-        ~/.cargo/git
+        ~/.cargo
         target
-      key: ${{ matrix.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('Cargo.toml') }}-${{ hashFiles('crates/**/Cargo.toml') }}
-      restore-keys: |
-       ${{ runner.os }}-cargo-${{ env.cache-name }}-
-       ${{ runner.os }}-cargo-
-       ${{ runner.os }}-
+      key: cargo
 
    - uses: actions-rs/toolchain@v1
      with:
