@@ -22,7 +22,10 @@ describe('integration tests', () => {
      'Content-Type': 'application/octet',
      'X-Op': op,
     },
-   }).then(res => res.buffer())
+   })
+   .then(res => res.buffer())
+   .catch(err => console.log(err))
+   console.log(buffer)
    return decode(Uint8Array.from(buffer))
   }
 
