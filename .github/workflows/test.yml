@@ -20,11 +20,11 @@ jobs:
    - uses: actions/cache@v2
      with:
        path: |
-         $GITHUB_WORKSPACE/.cargo/registry
-         $GITHUB_WORKSPACE/.cargo/git
-         $GITHUB_WORKSPACE/.cargo/bin
+         $CARGO_HOME/registry
+         $CARGO_HOME/git
+         $CARGO_INSTALL_ROOT
          target
-       key: ${{ runner.os }}-cargo-${{ hashFiles("$GITHUB_WORKSPACE/.cargo/**") }}
+       key: ${{ runner.os }}-cargo-${{ hashFiles($CARGO_HOME/**) }}
 
    - uses: actions-rs/toolchain@v1
      with:
