@@ -11,8 +11,8 @@ jobs:
     node: ['12', '14']
 
   env:
-   CARGO_HOME: ${{ GITHUB_WORKSPACE }}.cargo
-   CARGO_INSTALL_ROOT: ${{ GITHUB_WORKSPACE }}.cargo
+   CARGO_HOME: ${{ github.workspace }}.cargo
+   CARGO_INSTALL_ROOT: ${{ github.workspace }}.cargo
 
   steps:
    # - run: export CARGO_HOME=$GITHUB_WORKSPACE/.cargo
