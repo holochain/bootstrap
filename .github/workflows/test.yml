@@ -20,6 +20,7 @@ jobs:
    # - run: export PATH=$CARGO_INSTALL_ROOT:$PATH
    # - run: echo $PATH
    - run: echo $PATH
+   - run: echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> $GITHUB_ENV
    - run: echo "${CARGO_INSTALL_ROOT}/bin" >> $GITHUB_PATH
    - run: echo $PATH
    - uses: actions/checkout@v2
