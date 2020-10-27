@@ -26,7 +26,7 @@ jobs:
          $CARGO_INSTALL_ROOT
          target
        key: ${{ runner.os }}-cargo-${{ github.ref }}
-   - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -- -y
    #
    # - uses: actions-rs/toolchain@v1
    #   with:
