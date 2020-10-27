@@ -12,7 +12,7 @@ jobs:
 
   env:
    CARGO_HOME: .cargo
-   CARGO_INSTALL_ROOT: .cargo/bin
+   CARGO_INSTALL_ROOT: .cargo
 
   steps:
    # - run: export CARGO_HOME=$GITHUB_WORKSPACE/.cargo
