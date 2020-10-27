@@ -26,9 +26,9 @@ jobs:
    - uses: actions/cache@v2
      with:
        path: |
-         $CARGO_HOME/registry
-         $CARGO_HOME/git
-         $CARGO_INSTALL_ROOT
+         ${{ env.CARGO_HOME }}/registry
+         ${{ env.CARGO_HOME }}/git
+         ${{ env.CARGO_INSTALL_ROOT }}
          target
        key: ${{ runner.os }}-cargo-${{ github.ref }}
    - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
