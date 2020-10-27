@@ -20,8 +20,9 @@ jobs:
      with:
       path: |
         ~/.cargo
+        /usr/share/rust
         target
-      key: cargo
+      key: cargo-${{ hashFiles('/usr/share/rust/.cargo/bin') }}
 
    - uses: actions-rs/toolchain@v1
      with:
