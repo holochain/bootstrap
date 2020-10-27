@@ -10,11 +10,15 @@ jobs:
    matrix:
     node: ['12', '14']
 
-  env:
-   CARGO_HOME: $GITHUB_WORKSPACE/.cargo
-   CARGO_INSTALL_ROOT: $GITHUB_WORKSPACE/.cargo/bin
+  # env:
+  #  CARGO_HOME: $GITHUB_WORKSPACE/.cargo
+  #  CARGO_INSTALL_ROOT: $GITHUB_WORKSPACE/.cargo/bin
 
   steps:
+   - run: export CARGO_HOME=$GITHUB_WORKSPACE/.cargo
+   - run: export CARGO_INSTALL_ROOT=$CARGO_HOME/bin
+   - run: export PATH=$CARGO_INSTALL_ROOT:$PATH
+   - run: echo $PATH
    - uses: actions/checkout@v2
 
    # - uses: Swatinem/rust-cache@v1
