@@ -24,7 +24,7 @@ jobs:
          $CARGO_HOME/git
          $CARGO_INSTALL_ROOT
          target
-       key: ${{ runner.os }}-cargo-${{ hashFiles($CARGO_HOME/**) }}
+       key: ${{ runner.os }}-cargo-${{ hashFiles(env.CARGO_HOME/**) }}
 
    - uses: actions-rs/toolchain@v1
      with:
