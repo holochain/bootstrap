@@ -19,6 +19,7 @@ jobs:
    # - run: export CARGO_INSTALL_ROOT=$CARGO_HOME/bin
    # - run: export PATH=$CARGO_INSTALL_ROOT:$PATH
    # - run: echo $PATH
+   - run: echo $CARGO_HOME
    - uses: actions/checkout@v2
 
    # - uses: Swatinem/rust-cache@v1
