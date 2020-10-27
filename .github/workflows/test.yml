@@ -10,16 +10,21 @@ jobs:
    matrix:
     node: ['12', '14']
 
+  env:
+   CARGO_HOME: $GITHUB_WORKSPACE/.cargo
+   CARGO_INSTALL_ROOT: $GITHUB_WORKSPACE/.cargo/bin
+
   steps:
    - uses: actions/checkout@v2
 
    - uses: actions/cache@v2
      with:
        path: |
-         ~/.cargo/registry
-         ~/.cargo/git
+         $GITHUB_WORKSPACE/.cargo/registry
+         $GITHUB_WORKSPACE/.cargo/git
+         $GITHUB_WORKSPACE/.cargo/bin
          target
-       key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+       key: ${{ runner.os }}-cargo-${{ hashFiles("$GITHUB_WORKSPACE/.cargo/**") }}
 
    - uses: actions-rs/toolchain@v1
      with:
