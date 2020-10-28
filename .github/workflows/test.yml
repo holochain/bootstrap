@@ -35,6 +35,7 @@ jobs:
    #     key: ${{ runner.os }}-cargo-${{ github.ref }}
    # - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
    # - run: cargo install wrangler
+   - uses: mxschmitt/action-tmate@v3
    - uses: actions/setup-node@v2-beta
      with:
        node-version: ${{ matrix.node }}
