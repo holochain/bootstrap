@@ -14,4 +14,5 @@ vars = { ENVIRONMENT = "dev" }
 
 [env.production]
 name = "bootstrap"
+workers_dev = false
 vars = { ENVIRONMENT = "production" }
