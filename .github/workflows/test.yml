@@ -42,6 +42,7 @@ jobs:
    - run: echo $( npm -g bin ) >> $GITHUB_PATH
    - run: echo $PATH
    - run: npm list -g
-   - run: wrangler dev &
+   - run: ls ~/.wrangler
+   # - run: wrangler dev &
    # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
    # - run: npm test
