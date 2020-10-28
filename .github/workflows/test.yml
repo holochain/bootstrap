@@ -35,15 +35,17 @@ jobs:
    #     key: ${{ runner.os }}-cargo-${{ github.ref }}
    # - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
    # - run: cargo install wrangler
-   - uses: mxschmitt/action-tmate@v3
+   # - uses: mxschmitt/action-tmate@v3
    - uses: actions/setup-node@v2-beta
      with:
        node-version: ${{ matrix.node }}
    - run: npm install
-   - run: echo $( npm -g bin ) >> $GITHUB_PATH
+   - run: sudo chown -R runner:docker ${{ github.workspace }}/.wrangler
+   - run: echo "${{ github.workspace }}/.wrangler/bin" >> $GITHUB_PATH
    - run: echo $PATH
    - run: npm list -g
    - run: ls ~/.wrangler
+   - run: wrangler whoami
    # - run: wrangler dev &
    # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
    # - run: npm test
