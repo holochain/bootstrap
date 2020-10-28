@@ -44,7 +44,6 @@ jobs:
    - run: echo "${{ github.workspace }}/.wrangler/bin" >> $GITHUB_PATH
    - run: echo $PATH
    - run: npm list -g
-   - run: ls ~/.wrangler
    - run: wrangler whoami
    # - run: wrangler dev &
    # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
