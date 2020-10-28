@@ -1,14 +1,10 @@
 name = "bootstrap-dev"
 type = "webpack"
 account_id = "18ff2b4e6205b938652998cfca0d8cff"
-# account_id = ""
 workers_dev = true
-# routes = [ "agent", "agents" ]
-# zone_id = "bootstrap"
-# zone_id = ""
 webpack_config = "webpack.config.js"
 kv_namespaces = [
- { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c", preview_id = "30ff63d04cb5433db469a041f67783da" }
+ { binding = "BOOTSTRAP", id = "30ff63d04cb5433db469a041f67783da" }
 ]
 vars = { ENVIRONMENT = "dev" }
 
@@ -18,3 +14,6 @@ workers_dev = false
 vars = { ENVIRONMENT = "production" }
 route = "bootstrap.holo.host"
 zone_id = "35f34e8f9d04ef8c87283ea9fb812989"
+kv_namespaces = [
+ { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c" }
+]
