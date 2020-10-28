@@ -15,36 +15,41 @@ jobs:
    CARGO_INSTALL_ROOT: ${{ github.workspace }}/.cargo
 
   steps:
-   # - run: echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> $GITHUB_ENV
-   # - run: echo "${CARGO_INSTALL_ROOT}/bin" >> $GITHUB_PATH
-   - run: echo $PATH
    - uses: actions/checkout@v2
-   - uses: cloudflare/wrangler-action@1.3.0
-     with:
-       apiToken: ${{ secrets.CF_API_TOKEN }}
-       publish: false
-       # preCommands: wrangler build
 
-   # - uses: actions/cache@v2
+   # this does NOT work for using wrangler directly in other steps
+   # for a start it installs wrangler in a location behind root permissions
+   # even with a chown it segfaults and doesn't pick up on the apiToken set here
+   # with a simple `wrangler whoami`
+   # overall it seeems easier to install wrangler directly
+   # e.g. https://github.com/holochain/bootstrap/runs/1319497106?check_suite_focus=true
+   # - uses: cloudflare/wrangler-action@1.3.0
    #   with:
-   #     path: |
-   #       ${{ env.CARGO_HOME }}/registry
-   #       ${{ env.CARGO_HOME }}/git
-   #       ${{ env.CARGO_INSTALL_ROOT }}
-   #       target
-   #     key: ${{ runner.os }}-cargo-${{ github.ref }}
-   # - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-   # - run: cargo install wrangler
-   # - uses: mxschmitt/action-tmate@v3
+   #     apiToken: ${{ secrets.CF_API_TOKEN }}
+   #     publish: false
+   # - run: sudo chown -R runner:docker ${{ github.workspace }}/.wrangler
+   # - run: echo "${{ github.workspace }}/.wrangler/bin" >> $GITHUB_PATH
+   # - run: wrangler whoami
+   - run: echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> $GITHUB_ENV
+   - run: echo "${CARGO_INSTALL_ROOT}/bin" >> $GITHUB_PATH
+   - uses: actions/cache@v2
+     with:
+       path: |
+         ${{ env.CARGO_HOME }}/registry
+         ${{ env.CARGO_HOME }}/git
+         ${{ env.CARGO_INSTALL_ROOT }}
+         target
+       key: ${{ runner.os }}-cargo-${{ github.ref }}
+   - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+   - run: cargo install wrangler
+   - run: wrangler whoami
+
+   # need to do the javascript builds for the wrangler
    - uses: actions/setup-node@v2-beta
      with:
        node-version: ${{ matrix.node }}
    - run: npm install
-   - run: sudo chown -R runner:docker ${{ github.workspace }}/.wrangler
-   - run: echo "${{ github.workspace }}/.wrangler/bin" >> $GITHUB_PATH
-   - run: echo $PATH
-   - run: npm list -g
-   - run: wrangler whoami
+
    # - run: wrangler dev &
    # - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
    # - run: npm test
