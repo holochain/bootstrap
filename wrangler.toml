@@ -1,4 +1,4 @@
-name = "bootstrap"
+name = "bootstrap-dev"
 type = "webpack"
 account_id = "18ff2b4e6205b938652998cfca0d8cff"
 # account_id = ""
@@ -13,4 +13,5 @@ kv_namespaces = [
 vars = { ENVIRONMENT = "dev" }
 
 [env.production]
+name = "bootstrap"
 vars = { ENVIRONMENT = "production" }
