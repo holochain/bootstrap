@@ -16,5 +16,5 @@ vars = { ENVIRONMENT = "dev" }
 name = "bootstrap"
 workers_dev = false
 vars = { ENVIRONMENT = "production" }
-route = "bootstrap.holo.host/*"
+route = "bootstrap.holo.host"
 zone_id = "35f34e8f9d04ef8c87283ea9fb812989"
