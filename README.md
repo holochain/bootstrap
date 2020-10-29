@@ -27,7 +27,7 @@ repository (not globally).
 We expect and encourage developers to fork and use this code for deployment on
 their own CloudFlare account.
 
-Simply update the `wrangler.toml` with your DF account details and ensure that
+Simply update the `wrangler.toml` with your CF account details and ensure that
 github secrets have `CF_API_TOKEN` set for production deployment.
 
 ## Why do holochain networks need a bootstrap service?
