@@ -411,3 +411,34 @@ handle to maximise the diversity of their view on the network before they
 attempt to join, which has benefits beyond eclipse protection.
 
 Paranoid agents can implement their own randomness using `get` and `list`.
+
+## Validation
+
+Validation rules are well defined for signed agent info and all other binary
+data is fixed sized.
+
+### SignedAgentInfo validation
+
+Validation is a 'chained' operation in that each step of the validation will be
+attempting to verify some aspect of the data. Any step that fails MUST abort the
+entire validation chain as a failure to validate the data. That is to say, any
+corrupt or bad data MUST immediately stop validations and return an error. The
+error SHOULD be descriptive to aid logging and debugging.
+
+0. The raw `SignedAgentInfo` on the wire will be a messagepacked object with
+   keys `signature`, `agent`, and `agent_info` and binary array values.
+1. Attempt to decode the messagepack data into the object.
+2. Check that the `signature` is 64 bytes long, as per `Ed25519` signatures.
+3. Check that the `agent` pubkey is 32 bytes long, as per `Ed25519` public keys.
+4. Use `libsodium` to verify the `agent_info` bytes using the `signature` and
+   `agent` pubkey, as per `Ed25519`.
+5. IF the signature is valid, attempt to deserialize the `agent_info` bytes
+   using messagepack to an `AgentInfo` object (see above).
+6. Check the `space` is 32 bytes long, as per base HoloHash bytes.
+7. Check the `agent` is 32 bytes long, as per `Ed25519` public keys.
+8. Check the `agent` bytes are equal to the `agent` bytes used to verify the
+   signature above.
+9. Check the `urls` is an array of utf8 strings.
+10. Check the `signed_at_ms` is a positive number.
+11. Check the `signed_at_ms` is in the past relative to the bootstrap service's
+    local time, interpreted as a unix timestamp in milliseconds.

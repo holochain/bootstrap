@@ -40,6 +40,19 @@ export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
       agentInfoValue => {
+       if ( agentInfoValue.signed_at_ms <= 0 ) {
+        return D.failure(
+         a,
+         JSON.stringify(agentInfoValue) + ' has a negative signed_at_ms ' + agentInfoValue.signed_at_ms,
+        )
+       }
+       let now_ms = Date.now()
+       if (now_ms < agentInfoValue.signed_at_ms) {
+        return D.failure(
+         a,
+         JSON.stringify(agentInfoValue) + ' has a signed_at_ms ' + agentInfoValue.signed_at_ms + ' in the future relative to now ' + now_ms,
+        )
+       }
        // Ensure that the decoded AgentInfo matches the generic object.
        // This flags the situation where additional properties were added to
        // the object that were dropped on the AgentInfo. We don't accept this
@@ -48,7 +61,10 @@ export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
         return D.success(agentInfoValue)
        }
        else {
-        return D.failure(a, JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue))
+        return D.failure(
+         a,
+         JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue),
+        )
        }
       }
      )
