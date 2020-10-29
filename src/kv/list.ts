@@ -15,7 +15,6 @@ function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
 // Paginates through the kv list API using the space as a prefix.
 // Returns all pubkeys for all agents currently registered in the space.
 export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
- console.log('_list', space.toString('base64'))
  let prefix = atob64(space)
  let keys = []
  let more = true
@@ -37,8 +36,6 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 }
 
 export async function list(input:MessagePackData):MessagePackData|Error {
- console.log('list input', input.toString('base64'))
- console.log('list decode', kitsuneSpace.decode(input))
  return pipe(
   Uint8ArrayDecoder.decode(input),
   E.chain(value => messagePackDecoder.decode(value)),
