@@ -1,8 +1,8 @@
-import { AgentInfo, url, urls, agentInfoSafe } from '../../src/agent_info/info'
+import { AgentInfo, url, urls, agentInfoSafe, signedAtMsSafe } from '../../src/agent_info/info'
 import { aliceAgentVapor } from '../fixture/agents'
 import { aliceVaporEncodedInfo, aliceVaporEncodedInfoCorrupted, aliceVaporEncodedInfoMaliciousProperty } from '../fixture/requests'
 import { strict as assert } from 'assert'
-import { isRight, isLeft } from 'fp-ts/lib/Either'
+import { isRight, isLeft, right } from 'fp-ts/lib/Either'
 import { encode } from '../../src/msgpack/msgpack'
 
 describe('agent info ts-io', () => {
@@ -22,6 +22,26 @@ describe('agent info ts-io', () => {
 
   assert.ok(isLeft(urls.decode("")))
   assert.ok(isLeft(urls.decode("foo")))
+ })
+
+ it('should decode signed_at_ms', () => {
+  let past = Date.now() - 10
+  assert.deepEqual(
+   signedAtMsSafe.decode(past),
+   right(past),
+  )
+
+  let now = Date.now()
+  assert.deepEqual(
+   signedAtMsSafe.decode(now),
+   right(now),
+  )
+
+  let future = Date.now() + 10
+  assert.ok(isLeft(signedAtMsSafe.decode(future)))
+
+  let negative = -10
+  assert.ok(isLeft(signedAtMsSafe.decode(negative)))
  })
 
  it('should decode packed data', () => {
