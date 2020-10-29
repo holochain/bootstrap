@@ -15,7 +15,7 @@ a set of rules (defined in wasm) implemented as callback functions.
 
 All of that happens in [the 'conductor'](https://github.com/holochain/holochain).
 
-Nodes send data to each other to maintain 'the DHT'.
+Nodes send data to each other to maintain 'the DHT' without central servers.
 
 Basic DHT behaviour includes (for example):
 
@@ -44,7 +44,7 @@ in zero or not many hops.
 
 The agent's signature of their current network location is returned alongside
 their information and validated. Malicious actors on the network cannot tamper
-with another actor's location, the worst they can do is withold another agent's
+with another agent's location, the worst they can do is withold another agent's
 location, but as long as at least one honest agent is returning the signed agent
 location, that agent is discoverable.
 
@@ -54,7 +54,7 @@ At this point we still have two big, obvious problems:
 - How does a new node safely find an honest node in the first place?
 
 The solution to the first problem is handled via. the holochain _proxy_ and is
-totally different and separate to the _bootstrap_.
+totally different and separate to the _bootstrap_ service.
 
 The _proxy_ allows nodes that are already aware of each other indirectly to open
 connections to each other directly, regardless of firewalls, etc.
@@ -66,14 +66,14 @@ For example, this repository implements a bootstrap service as:
 
 - A simple POST based API that accepts signed agent info
 - A CloudFlare backed key/value store
-- Agent information automaticaly expires after 10 minutes
+- Agent information automaticaly expires (is deleted) after 10 minutes
 - The service can be forked/copied by any hApp developer and deployed to their
   own CloudFlare account
 - 'Trusted' agent public keys can be set by the service owner to further
   mitigate eclipse attacks at the expense of needing to maintain high(ish)
   availability nodes (not implemented yet)
 
-This allows nodes that _want_ to safely join a DHT space to prepopulate their
+This allows nodes that want to safely join a DHT space to prepopulate their
 agent locations with everyone advertising themselves within the last 10 minutes.
 
 ## Limitations of the boostrap service
@@ -109,6 +109,9 @@ At the time of writing we are simply expiring all key/value pairs after 10
 minutes, which is a relatively weak challenge but at least sybils will fade
 quickly unless there is a dedicated machine somewhere actively generating them
 over a long period of time.
+
+Additionally, CloudFlare themselves implement anti-bot protections at the
+network layer that we passively benefit from simply by using their service.
 
 ### Eclipse attack
 
@@ -147,12 +150,12 @@ the future.
 
 The `random` endpoint _does_ enforce that random agents are returned from the
 running service, so that a client cannot be tricked into selecting specific
-agents from the listings.
+agents from the listings. This puts additional trust on CloudFlare (see below).
 
-Basically there will be a priviledged set of public keys that agents would be
-strongly encouraged to prioritise as available when joining a network.
+With any trust model, there will be some set of public keys that agents would be
+strongly encouraged to prioritise when joining a network.
 
-These public keys could only be set after some kind of elevated access challenge.
+These public keys would be set after some kind of elevated access challenge.
 For example:
 
 - Set directly in the CloudFlare interface by the account owner (developer)
@@ -287,7 +290,8 @@ Where the `agent_info` is messagepack serialized binary data that MUST be valid
 for the `agent` public key and `signature` bytes according to libsodium.
 
 If the `agent_info` is not valid then it MUST be discarded and any further logic
-abandoned because this is ALWAYS malicious or corrupt data.
+abandoned because this is ALWAYS malicious or corrupt data. The inner
+`agent_info` MUST NOT be deserialized if it is invalid.
 
 When the `agent_info` is validated and unpacked it looks like this:
 
@@ -310,6 +314,7 @@ service. We store exactly what is given to us by the agent alongside its
 cryptographic integrity and authenticity proof (signature).
 
 This allows all agents using the bootstrap service to redundantly verify the
+data for themselves which is an important hedge against a compromised service.
 
 ### KV keys
 
@@ -325,8 +330,11 @@ before concatenating them. This is an _internal implementation detail only_ so
 any attempt to externally interact with keys as base64 data will fail because
 the input/output will be treated as raw binary bytes, not utf8 encoded data.
 
-For example, when performing a `get` the POST body would contain the space and
-agent key raw binary bytes, not a base64 or utf8 representation of these.
+This is more efficient on the wire and decouples the messagepack binary API
+design from the CloudFlare key prefix lookup implementation.
+
+For example, when performing a `get` op the POST body would contain the space
+and agent key raw binary bytes, not a base64 or utf8 representation of these.
 
 ## Ops
 

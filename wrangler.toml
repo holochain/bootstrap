@@ -4,7 +4,7 @@ account_id = "18ff2b4e6205b938652998cfca0d8cff"
 workers_dev = true
 webpack_config = "webpack.config.js"
 kv_namespaces = [
- { binding = "BOOTSTRAP", id = "30ff63d04cb5433db469a041f67783da", preview_id = "30ff63d04cb5433db469a041f67783da" }
+ { binding = "BOOTSTRAP", preview_id = "30ff63d04cb5433db469a041f67783da" }
 ]
 vars = { ENVIRONMENT = "dev" }
 

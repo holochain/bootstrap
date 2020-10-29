@@ -10,6 +10,7 @@ const EXPIRES_AFTER: number = 60 * 10
 // Errors if the AgentInfoSignedRaw does not decode to a safe AgentInfo.
 async function _put(agentInfoSignedRawData:MessagePackData):void|Error {
  let doPut = async agentInfoSigned => {
+  console.log('doPut')
   let key = agentKey(agentInfoSigned.agent_info.space, agentInfoSigned.agent_info.agent)
   let value = agentInfoSignedRawData
   // In production we want the keys to expire relative to the time they were

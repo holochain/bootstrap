@@ -1,8 +1,9 @@
 import { KitsuneAgent, KitsuneSpace, kitsuneSpace } from '../kitsune/kitsune'
 import { atob64 } from '../base64/base64'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { encode, MessagePackData } from '../msgpack/msgpack'
+import { encode, MessagePackData, messagePackDecoder } from '../msgpack/msgpack'
 import * as E from 'fp-ts/lib/Either'
+import { Uint8ArrayDecoder } from '../io/io'
 
 function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
  if (key.indexOf(prefix) === 0) {
@@ -14,6 +15,7 @@ function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
 // Paginates through the kv list API using the space as a prefix.
 // Returns all pubkeys for all agents currently registered in the space.
 export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
+ console.log('_list', space.toString('base64'))
  let prefix = atob64(space)
  let keys = []
  let more = true
@@ -35,8 +37,12 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 }
 
 export async function list(input:MessagePackData):MessagePackData|Error {
+ console.log('list input', input.toString('base64'))
+ console.log('list decode', kitsuneSpace.decode(input))
  return pipe(
-  kitsuneSpace.decode(input),
+  Uint8ArrayDecoder.decode(input),
+  E.chain(value => messagePackDecoder.decode(value)),
+  E.chain(value => kitsuneSpace.decode(value)),
   E.chain(async spaceValue => encode(await _list(spaceValue))),
  )
 }
