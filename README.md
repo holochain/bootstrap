@@ -3,6 +3,33 @@
 This is a [CloudFlare Worker](https://workers.cloudflare.com/) that allows
 holochain networks to bootstrap.
 
+## Installing
+
+The worker code is all written in typescript using npm.
+
+Tested on CI against node major versions `12` and `14` on ubuntu.
+
+Standard `npm install` to install.
+
+Running tests is `npm test` _but requires a running `wrangler dev`._
+
+Wrangler can be installed with npm globally as `npm i -g @cloudflare/wrangler`
+but this is simply wrapping a rust binary that can be compiled and installed
+directly with `cargo install wrangler`. I fould the latter can be more reliable
+if you're seeing issues like segfaults with the npm approach.
+
+If you're using nix there is a `shell.nix` that provides relevant `npm`,
+`cargo`, and `rustc`, with a shell hook to install npm and wrangler into the
+repository (not globally).
+
+## Forking
+
+We expect and encourage developers to fork and use this code for deployment on
+their own CloudFlare account.
+
+Simply update the `wrangler.toml` with your DF account details and ensure that
+github secrets have `CF_API_TOKEN` set for production deployment.
+
 ## Why do holochain networks need a bootstrap service?
 
 tl;dr: to mitigate eclipse attacks.
