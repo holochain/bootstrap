@@ -278,7 +278,8 @@ This is the same cryptography as holochain itself which means the signatures and
 validation used by the bootstrap service are the same as those used by the agent
 DHT by conductors.
 
-This implementation uses [tweetnacl](https://www.npmjs.com/package/tweetnacl).
+This implementation uses [tweetnacl](https://www.npmjs.com/package/tweetnacl) for validation
+but does not ever generate any signatures.
 
 ### Headers
 
