@@ -1,9 +1,9 @@
 import * as fetch from 'node-fetch'
-import { alicePublic, bobPublic, bobAgentVaporSignedRaw, aliceAgentVaporSignedRaw, aliceAgentWikiSignedRaw } from '../fixture/agents'
-import { aliceVaporPutBody, aliceWikiPutBody, bobVaporPutBody } from '../fixture/requests'
+import * as Agents from '../fixture/agents'
 import { vaporChatSpace, wikiSpace, emptySpace } from '../fixture/spaces'
-import { encode, decode, MessagePackData } from '../../src/msgpack/msgpack'
+import * as MP from '../../src/msgpack/msgpack'
 import { strict as assert } from 'assert'
+import * as Kitsune from '../../src/kitsune/kitsune'
 
 describe('integration tests', () => {
 
@@ -29,7 +29,7 @@ describe('integration tests', () => {
   let doApi = async (op:string, body:unknown):Promise<unknown> => {
    let buffer = await fetch(url, {
     method: 'post',
-    body: encode(body),
+    body: MP.encode(body),
     headers: {
      'Content-Type': 'application/octet',
      'X-Op': op,
@@ -43,11 +43,11 @@ describe('integration tests', () => {
     return res.buffer()
    })
    .catch(err => console.log(err))
-   return decode(Uint8Array.from(buffer))
+   return MP.decode(Uint8Array.from(buffer))
   }
 
   // put alice and bob
-  for (let agent of [aliceAgentVaporSignedRaw, aliceAgentWikiSignedRaw, bobAgentVaporSignedRaw]) {
+  for (let agent of [Agents.aliceAgentVaporSignedRaw, Agents.aliceAgentWikiSignedRaw, Agents.bobAgentVaporSignedRaw]) {
    assert.deepEqual(
     await doApi('put', agent),
     null
@@ -58,13 +58,13 @@ describe('integration tests', () => {
   let vaporPubKeys = await doApi('list', vaporChatSpace)
   assert.deepEqual(
    vaporPubKeys,
-   [ alicePublic, bobPublic ],
+   [ Agents.bob.publicKey, Agents.alice.publicKey ].map(Kitsune.fromBytes),
   )
   // wiki list pubkeys
   let wikiPubKeys = await doApi('list', wikiSpace)
   assert.deepEqual(
    wikiPubKeys,
-   [ alicePublic ],
+   [ Agents.alice.publicKey ].map(Kitsune.fromBytes),
   )
   // empty list pubkeys
   let emptyPubKeys = await doApi('list', emptySpace)
@@ -74,25 +74,25 @@ describe('integration tests', () => {
   )
 
   // gets all work
-  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...alicePublic])
+  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
   let aliceVaporValue = await doApi('get', aliceVaporKey)
   assert.deepEqual(
-   aliceAgentVaporSignedRaw,
+   Agents.aliceAgentVaporSignedRaw,
    aliceVaporValue,
   )
-  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...bobPublic])
+  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...Kitsune.fromBytes(Agents.bob.publicKey)])
   let bobVaporValue = await doApi('get', bobVaporKey)
   assert.deepEqual(
-   bobAgentVaporSignedRaw,
+   Agents.bobAgentVaporSignedRaw,
    bobVaporValue,
   )
-  let aliceWikiKey = new Uint8Array([...wikiSpace, ...alicePublic])
+  let aliceWikiKey = new Uint8Array([...wikiSpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
   let aliceWikiValue = await doApi('get', aliceWikiKey)
   assert.deepEqual(
-   aliceAgentWikiSignedRaw,
+   Agents.aliceAgentWikiSignedRaw,
    aliceWikiValue,
   )
-  let nobodyKey = new Uint8Array([...emptySpace, ...alicePublic])
+  let nobodyKey = new Uint8Array([...emptySpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
   let nobodyValue = await doApi('get', nobodyKey)
   assert.deepEqual(
    null,
@@ -108,12 +108,12 @@ describe('integration tests', () => {
   try {
    assert.deepEqual(
     randomOne,
-    [ bobVaporPutBody ]
+    [ MP.encode(Agents.bobAgentVaporSignedRaw) ]
    )
   } catch (e) {
    assert.deepEqual(
     randomOne,
-    [ aliceVaporPutBody ]
+    [ MP.encode(Agents.aliceAgentVaporSignedRaw) ]
    )
   }
 
@@ -125,12 +125,18 @@ describe('integration tests', () => {
   try {
    assert.deepEqual(
     randomTwo,
-    [ aliceVaporPutBody, bobVaporPutBody ],
+    [
+     MP.encode(Agents.aliceAgentVaporSignedRaw),
+     MP.encode(Agents.bobAgentVaporSignedRaw),
+    ],
    )
   } catch (e) {
    assert.deepEqual(
     randomTwo,
-    [ bobVaporPutBody, aliceVaporPutBody ],
+    [
+     MP.encode(Agents.bobAgentVaporSignedRaw),
+     MP.encode(Agents.aliceAgentVaporSignedRaw),
+    ],
    )
   }
 
@@ -140,9 +146,8 @@ describe('integration tests', () => {
   })
   assert.deepEqual(
    randomOversubscribed,
-   [ aliceWikiPutBody ],
+   [ MP.encode(Agents.aliceAgentWikiSignedRaw) ],
   )
-
   let randomEmpty = await doApi('random', {
    space: emptySpace,
    limit: 2,

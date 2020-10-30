@@ -2,55 +2,75 @@ import { Ed25519 } from '../../src/crypto/crypto'
 import { vaporChatSpace, wikiSpace } from './spaces'
 import { AgentInfo } from '../../src/agent_info/info'
 import { AgentInfoSignedRaw } from '../../src/agent_info/signed'
-import { KitsuneBin } from '../../src/kitsune/kitsune'
+import * as Kitsune from '../../src/kitsune/kitsune'
 import { encode } from '../../src/msgpack/msgpack'
+import { keypair } from './crypto'
 
-// all keys generated with https://tweetnacl.js.org/#/sign
+export const alice = {
+ publicKey: Uint8Array.from([
+  95, 62, 138, 155, 147, 98, 254, 130, 27, 90, 189, 22, 214, 159, 53, 71, 110,
+  8, 222, 90, 16, 252, 179, 208, 115, 252, 10, 63, 244, 211, 125, 115
+ ]),
+ secretKey: Uint8Array.from([
+  185, 17, 98, 189, 195, 23, 240, 235, 171,  51, 178, 214, 33, 25, 217, 20, 250,
+  197, 248, 164, 162, 36, 218, 17, 6, 152, 241, 29, 72, 36, 246, 155, 95, 62,
+  138, 155, 147, 98, 254, 130, 27, 90, 189, 22, 214, 159, 53, 71, 110, 8, 222,
+  90, 16, 252, 179, 208, 115, 252, 10, 63, 244, 211, 125, 115
+ ]),
+}
 
-export const aliceSecret:Ed25519.SecretKey = Ed25519.base64ToBytes('GAPp1NvexlHiWDtHztLfrYmJxcANqZiWW3bm7bdLXH329oxAe1uX2x4y4USVu40c6QuDqwcjIZFixvB7RrzgCA==')
-export const alicePublic:Ed25519.PublicKey = Ed25519.base64ToBytes('9vaMQHtbl9seMuFElbuNHOkLg6sHIyGRYsbwe0a84Ag=')
+export const bob = {
+ publicKey: Uint8Array.from([
+  208, 28, 22, 215, 187, 154, 60, 168, 229, 6, 79, 163, 128, 143, 17, 156, 124,
+  230, 192, 4, 137, 124, 84, 121, 212, 49, 14, 156, 25, 120, 4, 129
+ ]),
+ secretKey: Uint8Array.from([
+  145, 37, 159, 254, 196, 64, 171, 49, 149, 7, 17, 253, 171, 58, 253, 214, 8,
+  76, 23, 4, 162, 194, 57, 130, 150, 208, 107, 148, 95, 253, 168, 61, 208, 28,
+  22, 215, 187, 154, 60, 168, 229, 6, 79, 163, 128, 143, 17, 156, 124, 230, 192,
+  4, 137, 124, 84, 121, 212, 49, 14, 156, 25, 120, 4, 129
+ ]),
+}
+
 export const aliceAgentVapor:AgentInfo = {
  space: vaporChatSpace,
- agent: alicePublic,
+ agent: Kitsune.fromBytes(alice.publicKey),
  urls: ['https://example.com', 'https://foo.com'],
  signed_at_ms: 1602767728019,
 }
 export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentVapor), aliceSecret),
- agent: alicePublic,
+ signature: Ed25519.sign(encode(aliceAgentVapor), alice.secretKey),
+ agent: Kitsune.fromBytes(alice.publicKey),
  agent_info: encode(aliceAgentVapor),
 }
 
 export const aliceAgentWiki:AgentInfo = {
  space: wikiSpace,
- agent: alicePublic,
+ agent: Kitsune.fromBytes(alice.publicKey),
  urls: ["https://alice.com"],
  signed_at_ms: 1602767728020,
 }
 export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentWiki), aliceSecret),
- agent: alicePublic,
+ signature: Ed25519.sign(encode(aliceAgentWiki), alice.secretKey),
+ agent: Kitsune.fromBytes(alice.publicKey),
  agent_info: encode(aliceAgentWiki),
 }
 
-export const bobSecret:Ed25519.SecretKey = Ed25519.base64ToBytes('D8U4J8rCvyxCYMHoFnsyFck4S0+DLwRaophRQh4gU2MjGgH84u96jOqCiom+BGBF/UcGv14ZbqXFA7YudnpL6A==')
-export const bobPublic:Ed25519.PublicKey = Ed25519.base64ToBytes('IxoB/OLveozqgoqJvgRgRf1HBr9eGW6lxQO2LnZ6S+g=')
 export const bobAgentVapor:AgentInfo = {
  space: vaporChatSpace,
- agent: bobPublic,
+ agent: Kitsune.fromBytes(bob.publicKey),
  urls: ["https://bob.com"],
  signed_at_ms: 1602767738019,
 }
 export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(bobAgentVapor), bobSecret),
- agent: bobPublic,
+ signature: Ed25519.sign(encode(bobAgentVapor), bob.secretKey),
+ agent: Kitsune.fromBytes(bob.publicKey),
  agent_info: encode(bobAgentVapor),
 }
 
-
 // this is bad, bob must not be allowed to sign alice
 export const bobSignedAliceRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentVapor), bobSecret),
- agent: bobPublic,
+ signature: Ed25519.sign(encode(aliceAgentVapor), bob.secretKey),
+ agent: Kitsune.fromBytes(bob.publicKey),
  agent_info: encode(aliceAgentVapor),
 }

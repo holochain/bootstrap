@@ -1,5 +1,5 @@
 import * as D from "io-ts/Decoder"
-import { kitsuneSpace, kitsuneAgent } from '../kitsune/kitsune'
+import * as Kitsune from '../kitsune/kitsune'
 import { encode, decode, MessagePackData, messagePackData, messagePackDecoder } from '../msgpack/msgpack'
 import { Ed25519 } from '../crypto/crypto'
 import { Uint8ArrayDecoder } from '../io/io'
@@ -46,8 +46,8 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
 
 
 export const agentInfo = D.type({
- space: kitsuneSpace,
- agent: kitsuneAgent,
+ space: Kitsune.Space,
+ agent: Kitsune.Agent,
  urls: urls,
  signed_at_ms: signedAtMsSafe,
 })

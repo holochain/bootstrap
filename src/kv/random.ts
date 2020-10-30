@@ -1,6 +1,6 @@
 import * as D from 'io-ts/Decoder'
-import { kitsuneSpace } from '../kitsune/kitsune'
-import { MessagePackData, encode, messagePackDecoder, messagePackData } from '../msgpack/msgpack'
+import * as Kitsune from '../kitsune/kitsune'
+import * as MP from '../msgpack/msgpack'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as E from 'fp-ts/lib/Either'
 import { Uint8ArrayDecoder } from '../io/io'
@@ -8,7 +8,7 @@ import { _list } from './list'
 import { _get } from './get'
 
 export const query = D.type({
- space: kitsuneSpace,
+ space: Kitsune.Space,
  limit: D.number,
 })
 export type Query = D.TypeOf<typeof query>
@@ -17,7 +17,7 @@ export const querySafe: D.Decoder<MessagePackData, Query> = {
  decode: (a:MessagePackData) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
-   E.chain(value => messagePackDecoder.decode(value)),
+   E.chain(value => MP.messagePackDecoder.decode(value)),
    E.chain(value => query.decode(value)),
   )
  }
@@ -25,10 +25,15 @@ export const querySafe: D.Decoder<MessagePackData, Query> = {
 
 // shuffle with a lazy generator because the list may be very long
 function *shuffle(array) {
-    var i = array.length;
-    while (i--) {
-        yield array.splice(Math.floor(Math.random() * (i+1)), 1)[0];
-    }
+ var i = array.length
+ while (i--) {
+  yield array.splice(
+   Math.floor(
+    Math.random() * (i + 1)
+   ),
+   1,
+  )[0]
+ }
 }
 
 export async function _random(query:Query):MessagePackData {
@@ -36,7 +41,7 @@ export async function _random(query:Query):MessagePackData {
  let everyone = shuffle(await _list(space))
  let keys = []
  let i = 0
- let k:KitsuneAgent
+ let k:Kitsune.Agent
  while (i < limit) {
   k = everyone.next().value
   if (k) {
@@ -54,6 +59,6 @@ export async function _random(query:Query):MessagePackData {
 export async function random(input:MessagePackData):MessagePackData|Error {
  return pipe(
   querySafe.decode(input),
-  E.chain(async queryValue => encode(await _random(queryValue))),
+  E.chain(async queryValue => MP.encode(await _random(queryValue))),
  )
 }

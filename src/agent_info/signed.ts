@@ -1,4 +1,4 @@
-import { KitsuneBin, kitsuneSignature, kitsuneAgent } from '../kitsune/kitsune'
+import * as Kitsune from '../kitsune/kitsune'
 import { agentInfo, agentInfoSafe } from './info'
 import { Ed25519 } from '../crypto/crypto'
 import { MessagePackData, messagePackDecoder, messagePackData } from '../msgpack/msgpack'
@@ -9,8 +9,8 @@ import * as E from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 
 export const agentInfoSignedRaw = D.type({
- signature: kitsuneSignature,
- agent: kitsuneAgent,
+ signature: Kitsune.Signature,
+ agent: Kitsune.Agent,
  agent_info: messagePackData,
 })
 export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>
@@ -25,7 +25,7 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
     if (Ed25519.verify(
      agentInfoSignedRawValue.agent_info,
      agentInfoSignedRawValue.signature,
-     agentInfoSignedRawValue.agent,
+     Kitsune.toBytes(agentInfoSignedRawValue.agent),
     )) {
      return D.success(agentInfoSignedRawValue)
     }
@@ -38,8 +38,8 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
 }
 
 export const agentInfoSigned = D.type({
- signature: kitsuneSignature,
- agent: kitsuneAgent,
+ signature: Kitsune.Signature,
+ agent: Kitsune.Agent,
  agent_info: agentInfo,
 })
 export type AgentInfoSigned = D.TypeOf<typeof agentInfoSigned>
