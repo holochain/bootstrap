@@ -20,11 +20,36 @@ export type AgentInfoPacked = D.TypeOf<typeof agentInfoPacked>
 export const signedAtMs = D.number
 export type SignedAtMs = D.TypeOf<typeof signedAtMs>
 
+export const signedAtMsSafe: D.Decoder<number, number> = {
+ decode: (a:number) => {
+  return pipe(
+   D.number.decode(a),
+   E.chain(signedAtMs => {
+    if ( signedAtMs <= 0 ) {
+     return D.failure(
+      a,
+      'signed at ms is negative ' + signedAtMs,
+     )
+    }
+    let now_ms = Date.now()
+    if (now_ms < signedAtMs) {
+     return D.failure(
+      a,
+      'signed at ms ' + signedAtMs + ' is in the future relative to now ' + now_ms
+     )
+    }
+    return D.success(a)
+   })
+  )
+ }
+}
+
+
 export const agentInfo = D.type({
  space: kitsuneSpace,
  agent: kitsuneAgent,
  urls: urls,
- signed_at_ms: signedAtMs,
+ signed_at_ms: signedAtMsSafe,
 })
 export type AgentInfo = D.TypeOf<typeof agentInfo>
 
@@ -48,7 +73,10 @@ export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
         return D.success(agentInfoValue)
        }
        else {
-        return D.failure(a, JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue))
+        return D.failure(
+         a,
+         JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue),
+        )
        }
       }
      )

@@ -12,6 +12,8 @@ const OP_GET: string = 'get'
 const OP_RANDOM: string = 'random'
 
 async function handle(f:(bytes:Uint8Array)=> MessagePackData|Error, input:MessagePackData):Promise<Response> {
+ // Every f needs to handle messagepack decoding itself so that the deserialized
+ // object can sanity check itself.
  let tryF = await f(input)
 
  if (tryF instanceof Error) {

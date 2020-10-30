@@ -1,8 +1,9 @@
 import { KitsuneAgent, KitsuneSpace, kitsuneSpace } from '../kitsune/kitsune'
 import { atob64 } from '../base64/base64'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { encode, MessagePackData } from '../msgpack/msgpack'
+import { encode, MessagePackData, messagePackDecoder } from '../msgpack/msgpack'
 import * as E from 'fp-ts/lib/Either'
+import { Uint8ArrayDecoder } from '../io/io'
 
 function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
  if (key.indexOf(prefix) === 0) {
@@ -36,7 +37,9 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 
 export async function list(input:MessagePackData):MessagePackData|Error {
  return pipe(
-  kitsuneSpace.decode(input),
+  Uint8ArrayDecoder.decode(input),
+  E.chain(value => messagePackDecoder.decode(value)),
+  E.chain(value => kitsuneSpace.decode(value)),
   E.chain(async spaceValue => encode(await _list(spaceValue))),
  )
 }
