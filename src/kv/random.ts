@@ -4,8 +4,8 @@ import * as MP from '../msgpack/msgpack'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as E from 'fp-ts/lib/Either'
 import { Uint8ArrayDecoder } from '../io/io'
-import { _list } from './list'
-import { _get } from './get'
+import * as List from './list'
+import * as Get from './get'
 
 export const query = D.type({
  space: Kitsune.Space,
@@ -38,7 +38,7 @@ function *shuffle(array) {
 
 export async function _random(query:Query):MessagePackData {
  let { space, limit } = query
- let everyone = shuffle(await _list(space))
+ let everyone = shuffle(await List._list(space))
  let keys = []
  let i = 0
  let k:Kitsune.Agent
@@ -53,12 +53,19 @@ export async function _random(query:Query):MessagePackData {
   }
  }
 
- return await Promise.all(keys.map(k => _get(Uint8Array.from([...space, ...k]))))
+ return await Promise.all(keys.map(k => Get._get(Uint8Array.from([...space, ...k]))))
 }
 
-export async function random(input:MessagePackData):MessagePackData|Error {
- return pipe(
+export async function random(input:MP.MessagePackData):MP.MessagePackData|Error {
+ let result = await pipe(
   querySafe.decode(input),
-  E.chain(async queryValue => MP.encode(await _random(queryValue))),
+  E.chain(async queryValue => D.success(MP.encode(await _random(queryValue)))),
+  E.mapLeft(v => Error(JSON.stringify(v))),
  )
+ if (E.isLeft(result)) {
+  return result.left
+ }
+ else {
+  return result.right
+ }
 }

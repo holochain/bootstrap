@@ -4,6 +4,7 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import * as MP from '../msgpack/msgpack'
 import * as E from 'fp-ts/lib/Either'
 import { Uint8ArrayDecoder } from '../io/io'
+import * as D from 'io-ts/Decoder'
 
 function agentFromKey(prefix:string, key:string):KitsuneAgent {
  if (key.indexOf(prefix) === 0) {
@@ -36,10 +37,17 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 }
 
 export async function list(input:MP.MessagePackData):MP.MessagePackData|Error {
- return pipe(
+ let result = await pipe(
   Uint8ArrayDecoder.decode(input),
   E.chain(value => MP.messagePackDecoder.decode(value)),
   E.chain(value => Kitsune.Space.decode(value)),
-  E.chain(async spaceValue => MP.encode(await _list(spaceValue))),
+  E.chain(async spaceValue => D.success(MP.encode(await _list(spaceValue)))),
+  E.mapLeft(v => Error(JSON.stringify(v)))
  )
+ if (E.isLeft(result)) {
+  return result.left
+ }
+ else {
+  return result.right
+ }
 }

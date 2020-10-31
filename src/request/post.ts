@@ -17,9 +17,9 @@ async function handle(f:(bytes:Uint8Array)=> MP.MessagePackData|Error, input:MP.
  let tryF = await f(input)
 
  if (tryF instanceof Error) {
-  let err = MP.encode('' + tryF)
-  console.error('post handling error', input.toString('base64'), err)
-  return new Response(err, { status: 500 })
+  console.error('messagepack input:', input.toString('base64'))
+  console.error('error:', '' + tryF)
+  return new Response('' + tryF, { status: 500 })
  }
 
  return new Response(tryF)

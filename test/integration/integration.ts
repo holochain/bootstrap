@@ -4,6 +4,7 @@ import { vaporChatSpace, wikiSpace, emptySpace } from '../fixture/spaces'
 import * as MP from '../../src/msgpack/msgpack'
 import { strict as assert } from 'assert'
 import * as Kitsune from '../../src/kitsune/kitsune'
+import * as _ from 'lodash'
 
 describe('integration tests', () => {
 
@@ -17,6 +18,75 @@ describe('integration tests', () => {
   assert.deepEqual(
    'OK',
    ok,
+  )
+
+ })
+
+ it('should handle POST errors', async function() {
+
+  // needs an extended timeout to post everything
+  this.timeout(0)
+
+  let errApi = async (op:string, body:unknown):Promise<Response> => {
+   return await fetch(url, {
+    method: 'post',
+    body: MP.encode(body),
+    headers: {
+     'Content-Type': 'application/octet',
+     'X-Op': op,
+    },
+   })
+   // .then(_ => assert.ok(false))
+   .catch(err => console.log('we WANT an error here', err))
+  }
+
+  // any bad signature must not POST
+  let badSignature = _.cloneDeep(Agents.aliceAgentVaporSignedRaw)
+  badSignature.signature = new Uint8Array(Array(Kitsune.signatureLength)).fill(1)
+
+  let badSignatureErr = await errApi('put', badSignature)
+  assert.deepEqual(
+   badSignatureErr.status,
+   500,
+  )
+  assert.ok(
+   (await badSignatureErr.text())
+   .includes('Signature does not verify for agent and agent_info data.')
+  )
+
+  let badSpace = Uint8Array.from([1, 2, 3])
+  let badSpaceErr = await errApi('list', badSpace)
+  assert.deepEqual(
+   badSpaceErr.status,
+   500,
+  )
+  assert.ok(
+   (await badSpaceErr.text())
+   .includes('length must be exactly 36')
+  )
+
+  let badRandomQuery = {
+   space: badSpace,
+   limit: 5,
+  }
+  let badRandomQueryErr = await errApi('random', badRandomQuery)
+  assert.deepEqual(
+   badRandomQueryErr.status,
+   500,
+  )
+  assert.ok(
+   (await badRandomQueryErr.text())
+   .includes('length must be exactly 36')
+  )
+
+  let badGetErr = await errApi('get', badSpace)
+  assert.deepEqual(
+   badGetErr.status,
+   500,
+  )
+  assert.ok(
+   (await badGetErr.text())
+   .includes('length must be exactly 72')
   )
 
  })
