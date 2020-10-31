@@ -1,4 +1,4 @@
-import { Ed25519 } from '../../src/crypto/crypto'
+import * as Crypto from '../../src/crypto/crypto'
 import { vaporChatSpace, wikiSpace } from './spaces'
 import { AgentInfo } from '../../src/agent_info/info'
 import { AgentInfoSignedRaw } from '../../src/agent_info/signed'
@@ -42,7 +42,7 @@ export const aliceAgentVapor:AgentInfo = {
  signed_at_ms: 1602767728019,
 }
 export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentVapor), alice.secretKey),
+ signature: Crypto.sign(encode(aliceAgentVapor), alice.secretKey),
  agent: publicKeyToKitsuneAgent(alice.publicKey),
  agent_info: encode(aliceAgentVapor),
 }
@@ -54,7 +54,7 @@ export const aliceAgentWiki:AgentInfo = {
  signed_at_ms: 1602767728020,
 }
 export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentWiki), alice.secretKey),
+ signature: Crypto.sign(encode(aliceAgentWiki), alice.secretKey),
  agent: publicKeyToKitsuneAgent(alice.publicKey),
  agent_info: encode(aliceAgentWiki),
 }
@@ -66,14 +66,14 @@ export const bobAgentVapor:AgentInfo = {
  signed_at_ms: 1602767738019,
 }
 export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(bobAgentVapor), bob.secretKey),
+ signature: Crypto.sign(encode(bobAgentVapor), bob.secretKey),
  agent: publicKeyToKitsuneAgent(bob.publicKey),
  agent_info: encode(bobAgentVapor),
 }
 
 // this is bad, bob must not be allowed to sign alice
 export const bobSignedAliceRaw:AgentInfoSignedRaw = {
- signature: Ed25519.sign(encode(aliceAgentVapor), bob.secretKey),
+ signature: Crypto.sign(encode(aliceAgentVapor), bob.secretKey),
  agent: publicKeyToKitsuneAgent(bob.publicKey),
  agent_info: encode(aliceAgentVapor),
 }
