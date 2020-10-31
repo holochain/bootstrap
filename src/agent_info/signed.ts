@@ -22,10 +22,11 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
    E.chain(value => messagePackDecoder.decode(value)),
    E.chain(value => agentInfoSignedRaw.decode(value)),
    E.chain(agentInfoSignedRawValue => {
+    // The signature must be valid for the agent's pubkey.
     if (Ed25519.verify(
      agentInfoSignedRawValue.agent_info,
      agentInfoSignedRawValue.signature,
-     Kitsune.toBytes(agentInfoSignedRawValue.agent),
+     Kitsune.toPublicKey(agentInfoSignedRawValue.agent),
     )) {
      return D.success(agentInfoSignedRawValue)
     }
@@ -55,6 +56,7 @@ export const agentInfoSignedSafe: D.Decoder<MessagePackData, AgentInfoSigned> = 
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
       agentInfoValue => {
+       // The inner and outer agent bytes need to be the same.
        if ( ! _.isEqual(agentInfoSignedRawSafeValue.agent, agentInfoValue.agent) ) {
         return D.failure(a, `Outer signed agent ${agentInfoSignedRawSafeValue.agent} does not match signed inner agent ${agentInfoValue.agent}.`)
        }

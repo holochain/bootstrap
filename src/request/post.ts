@@ -3,7 +3,7 @@ import { list } from '../kv/list'
 import { get } from '../kv/get'
 import { random } from '../kv/random'
 import { strict as assert } from 'assert'
-import { encode, MessagePackData } from '../msgpack/msgpack'
+import * as MP from '../msgpack/msgpack'
 
 const DISPATCH_HEADER: string = 'X-Op'
 const OP_PUT: string = 'put'
@@ -11,13 +11,13 @@ const OP_LIST: string = 'list'
 const OP_GET: string = 'get'
 const OP_RANDOM: string = 'random'
 
-async function handle(f:(bytes:Uint8Array)=> MessagePackData|Error, input:MessagePackData):Promise<Response> {
+async function handle(f:(bytes:Uint8Array)=> MP.MessagePackData|Error, input:MP.MessagePackData):Promise<Response> {
  // Every f needs to handle messagepack decoding itself so that the deserialized
  // object can sanity check itself.
  let tryF = await f(input)
 
  if (tryF instanceof Error) {
-  return new Response(encode('' + tryF), { status: 500 })
+  return new Response(MP.encode('' + tryF), { status: 500 })
  }
 
  return new Response(tryF)
@@ -30,7 +30,7 @@ export async function postHandler(event:Event):Promise<Response> {
   case OP_LIST: return handle(list, input)
   case OP_GET: return handle(get, input)
   case OP_RANDOM: return handle(random, input)
-  default: return new Response(encode('unknown op'), { status: 500 })
+  default: return new Response(MP.encode('unknown op'), { status: 500 })
  }
  assert.unreachable('broken dispatch switch')
 }

@@ -25,12 +25,14 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
   return pipe(
    D.number.decode(a),
    E.chain(signedAtMs => {
+    // Time must be positive.
     if ( signedAtMs <= 0 ) {
      return D.failure(
       a,
       'signed at ms is negative ' + signedAtMs,
      )
     }
+    // Signatures must happen in the past.
     let now_ms = Date.now()
     if (now_ms < signedAtMs) {
      return D.failure(

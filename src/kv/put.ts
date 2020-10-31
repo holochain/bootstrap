@@ -1,4 +1,4 @@
-import { MessagePackData, encode } from '../msgpack/msgpack'
+import * as MP from '../msgpack/msgpack'
 import { agentKey } from './kv'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { agentInfoSignedSafe } from '../agent_info/signed'
@@ -8,7 +8,7 @@ const EXPIRES_AFTER: number = 60 * 10
 
 // Store an AgentInfoSignedRaw under the relevant key.
 // Errors if the AgentInfoSignedRaw does not decode to a safe AgentInfo.
-async function _put(agentInfoSignedRawData:MessagePackData):void|Error {
+async function _put(agentInfoSignedRawData:MP.MessagePackData):void|Error {
  let doPut = async agentInfoSigned => {
   let key = agentKey(agentInfoSigned.agent_info.space, agentInfoSigned.agent_info.agent)
   let value = agentInfoSignedRawData
@@ -28,12 +28,12 @@ async function _put(agentInfoSignedRawData:MessagePackData):void|Error {
  )
 }
 
-export async function put(input:MessagePackData):MessagePackData|Error {
+export async function put(input:MP.MessagePackData):MP.MessagePackData|Error {
  // put literally puts the raw MessagePackData to the kv store if it validates.
  // the key is derived from the raw data.
  let p = await _put(input)
  if (p instanceof Error) {
   return p
  }
- return encode(p)
+ return MP.encode(p)
 }

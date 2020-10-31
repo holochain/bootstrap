@@ -58,13 +58,13 @@ describe('integration tests', () => {
   let vaporPubKeys = await doApi('list', vaporChatSpace)
   assert.deepEqual(
    vaporPubKeys,
-   [ Agents.bob.publicKey, Agents.alice.publicKey ].map(Kitsune.fromBytes),
+   [ Agents.bob.publicKey, Agents.alice.publicKey ].map(Agents.publicKeyToKitsuneAgent),
   )
   // wiki list pubkeys
   let wikiPubKeys = await doApi('list', wikiSpace)
   assert.deepEqual(
    wikiPubKeys,
-   [ Agents.alice.publicKey ].map(Kitsune.fromBytes),
+   [ Agents.alice.publicKey ].map(Agents.publicKeyToKitsuneAgent),
   )
   // empty list pubkeys
   let emptyPubKeys = await doApi('list', emptySpace)
@@ -74,25 +74,25 @@ describe('integration tests', () => {
   )
 
   // gets all work
-  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
+  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
   let aliceVaporValue = await doApi('get', aliceVaporKey)
   assert.deepEqual(
    Agents.aliceAgentVaporSignedRaw,
    aliceVaporValue,
   )
-  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...Kitsune.fromBytes(Agents.bob.publicKey)])
+  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...Agents.publicKeyToKitsuneAgent(Agents.bob.publicKey)])
   let bobVaporValue = await doApi('get', bobVaporKey)
   assert.deepEqual(
    Agents.bobAgentVaporSignedRaw,
    bobVaporValue,
   )
-  let aliceWikiKey = new Uint8Array([...wikiSpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
+  let aliceWikiKey = new Uint8Array([...wikiSpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
   let aliceWikiValue = await doApi('get', aliceWikiKey)
   assert.deepEqual(
    Agents.aliceAgentWikiSignedRaw,
    aliceWikiValue,
   )
-  let nobodyKey = new Uint8Array([...emptySpace, ...Kitsune.fromBytes(Agents.alice.publicKey)])
+  let nobodyKey = new Uint8Array([...emptySpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
   let nobodyValue = await doApi('get', nobodyKey)
   assert.deepEqual(
    null,

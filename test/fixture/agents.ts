@@ -32,45 +32,48 @@ export const bob = {
  ]),
 }
 
+export const publicKeyToKitsuneAgent = (publicKey:Uint8Array):Kitsune.Agent =>
+ Uint8Array.from([...publicKey, ...new Uint8Array(Array(4))])
+
 export const aliceAgentVapor:AgentInfo = {
  space: vaporChatSpace,
- agent: Kitsune.fromBytes(alice.publicKey),
+ agent: publicKeyToKitsuneAgent(alice.publicKey),
  urls: ['https://example.com', 'https://foo.com'],
  signed_at_ms: 1602767728019,
 }
 export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(aliceAgentVapor), alice.secretKey),
- agent: Kitsune.fromBytes(alice.publicKey),
+ agent: publicKeyToKitsuneAgent(alice.publicKey),
  agent_info: encode(aliceAgentVapor),
 }
 
 export const aliceAgentWiki:AgentInfo = {
  space: wikiSpace,
- agent: Kitsune.fromBytes(alice.publicKey),
+ agent: publicKeyToKitsuneAgent(alice.publicKey),
  urls: ["https://alice.com"],
  signed_at_ms: 1602767728020,
 }
 export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(aliceAgentWiki), alice.secretKey),
- agent: Kitsune.fromBytes(alice.publicKey),
+ agent: publicKeyToKitsuneAgent(alice.publicKey),
  agent_info: encode(aliceAgentWiki),
 }
 
 export const bobAgentVapor:AgentInfo = {
  space: vaporChatSpace,
- agent: Kitsune.fromBytes(bob.publicKey),
+ agent: publicKeyToKitsuneAgent(bob.publicKey),
  urls: ["https://bob.com"],
  signed_at_ms: 1602767738019,
 }
 export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(bobAgentVapor), bob.secretKey),
- agent: Kitsune.fromBytes(bob.publicKey),
+ agent: publicKeyToKitsuneAgent(bob.publicKey),
  agent_info: encode(bobAgentVapor),
 }
 
 // this is bad, bob must not be allowed to sign alice
 export const bobSignedAliceRaw:AgentInfoSignedRaw = {
  signature: Ed25519.sign(encode(aliceAgentVapor), bob.secretKey),
- agent: Kitsune.fromBytes(bob.publicKey),
+ agent: publicKeyToKitsuneAgent(bob.publicKey),
  agent_info: encode(aliceAgentVapor),
 }

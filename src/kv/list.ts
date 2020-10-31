@@ -35,7 +35,7 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
  return keys
 }
 
-export async function list(input:MessagePackData):MessagePackData|Error {
+export async function list(input:MP.MessagePackData):MP.MessagePackData|Error {
  return pipe(
   Uint8ArrayDecoder.decode(input),
   E.chain(value => MP.messagePackDecoder.decode(value)),
