@@ -13,6 +13,17 @@ import * as _ from 'lodash'
 export const MAX_URL_SIZE = 2048
 export const MAX_URLS = 256
 
+// The number of milliseconds we will accept for a signature in the future.
+// This allows leeway for agents with a clock that is 'slightly' different to
+// the server time.
+// Agents are strongly encouraged to use the `now` op as a preflight task for a
+// conductor session in order to gauge for themselves whether their local time
+// is safe for use as a signature timestamp.
+export const NOW_THRESHOLD = 100
+
+export const now = ():number =>
+ Date.now() + NOW_THRESHOLD
+
 export const url = pipe(
  D.string,
  D.refine(
@@ -60,7 +71,7 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
     }
 
     // Signatures must happen in the past.
-    let now_ms = Date.now()
+    let now_ms = now()
     if (now_ms < signedAtMs) {
      return D.failure(
       a,
