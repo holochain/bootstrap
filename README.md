@@ -293,6 +293,7 @@ The possible values are:
 - `list`: list all stored agent info
 - `get`: retrive a single agent info
 - `random`: retrieve up to N random agents (hybrid of list and get)
+- `now`: get the current server time as a unix milliseconds timestamp
 
 ## Data structures
 
@@ -438,6 +439,24 @@ handle to maximise the diversity of their view on the network before they
 attempt to join, which has benefits beyond eclipse protection.
 
 Paranoid agents can implement their own randomness using `get` and `list`.
+
+### Now
+
+Get the time 'now' from the service as a millisecond unix timestamp.
+
+The `signed_at_ms` MUST be in the past from the perspective of the bootstrap
+service otherwise agent info won't be accepted.
+
+If an agent wants to be sure that the signing time will be accepted by the
+service it can first call `now` and then use the returned timestamp for signing.
+
+An agent can call `now` once upon booting a conductor and then calculate an
+offset relative to their agent local time, then use the offset for as long as it
+is safe to assume that the local clock has not shifted relative to the service.
+
+A full clock sync algorithm like (S)NTP is not required, the signing time simply
+needs to be within a few seconds on both machines and in the past from the
+perspective of the service.
 
 ## Validation
 
