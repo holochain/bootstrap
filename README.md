@@ -466,6 +466,9 @@ error SHOULD be descriptive to aid logging and debugging.
 8. Check the `agent` bytes are equal to the `agent` bytes used to verify the
    signature above.
 9. Check the `urls` is an array of utf8 strings.
-10. Check the `signed_at_ms` is a positive number.
-11. Check the `signed_at_ms` is in the past relative to the bootstrap service's
+10. Check there are 256 or fewer `urls` in the array.
+11. Check every `url` is 2048 or fewer utf8 _bytes_, e.g. utf8 multibyte
+    characters are counted as several bytes towards the limit.
+12. Check the `signed_at_ms` is a positive number.
+13. Check the `signed_at_ms` is in the past relative to the bootstrap service's
     local time, interpreted as a unix timestamp in milliseconds.
