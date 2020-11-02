@@ -1,5 +1,5 @@
 import * as MP from '../msgpack/msgpack'
-import { key, Key, agentKey } from './kv'
+import { key, Key, agentKey } from '../kv/kv'
 import * as Kitsune from '../kitsune/kitsune'
 import * as E from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/pipeable'

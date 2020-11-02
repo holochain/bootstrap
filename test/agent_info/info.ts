@@ -45,9 +45,15 @@ describe('agent info ts-io', () => {
    right(now),
   )
 
+  // Fractional times cannot be accepted.
+  let fractionalMs = 1.1
+  assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(fractionalMs)))
+
+  // Future times cannot be accepted.
   let future = Date.now() + 10
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(future)))
 
+  // Negative times cannot be accepted.
   let negative = -10
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(negative)))
  })

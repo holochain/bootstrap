@@ -42,6 +42,15 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
   return pipe(
    D.number.decode(a),
    E.chain(signedAtMs => {
+
+    // Milliseconds must be an integer.
+    if ( !Number.isInteger(signedAtMs) ) {
+     return D.failure(
+      a,
+      'signed at ms is not an integer ' + signedAtMs,
+     )
+    }
+
     // Time must be positive.
     if ( signedAtMs <= 0 ) {
      return D.failure(
@@ -49,6 +58,7 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
       'signed at ms is negative ' + signedAtMs,
      )
     }
+
     // Signatures must happen in the past.
     let now_ms = Date.now()
     if (now_ms < signedAtMs) {
@@ -57,6 +67,7 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
       'signed at ms ' + signedAtMs + ' is in the future relative to now ' + now_ms
      )
     }
+
     return D.success(a)
    })
   )
