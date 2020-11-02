@@ -15,5 +15,8 @@ export const Uint8ArrayDecoder: D.Decoder<unknown, Uint8Array> = {
 
 export const FixedSizeUint8ArrayDecoderBuilder = (n: number) => pipe(
  Uint8ArrayDecoder,
- D.refine((input): input is Uint8Array => input.length === n, `length must be exactly ${n}`),
+ D.refine(
+  (input): input is Uint8Array => input.length === n,
+  `length must be exactly ${n}`,
+ ),
 )
