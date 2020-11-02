@@ -469,7 +469,7 @@ error SHOULD be descriptive to aid logging and debugging.
 10. Check there are 256 or fewer `urls` in the array.
 11. Check every `url` is 2048 or fewer utf8 _bytes_, e.g. utf8 multibyte
     characters are counted as several bytes towards the limit.
-12. Check the 'signed_at_ms' is an integer.
+12. Check the `signed_at_ms` is an integer.
 13. Check the `signed_at_ms` is a positive number.
 14. Check the `signed_at_ms` is in the past relative to the bootstrap service's
     local time, interpreted as a unix timestamp in milliseconds.
