@@ -1,11 +1,9 @@
 import * as D from "io-ts/Decoder"
 import * as Kitsune from '../kitsune/kitsune'
-import { encode, decode, MessagePackData, messagePackData, messagePackDecoder } from '../msgpack/msgpack'
-import { Ed25519 } from '../crypto/crypto'
+import * as MP from '../msgpack/msgpack'
 import { Uint8ArrayDecoder } from '../io/io'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as E from 'fp-ts/lib/Either'
-import { strict as assert } from 'assert'
 import * as _ from 'lodash'
 
 export const url = D.string
@@ -55,11 +53,11 @@ export const agentInfo = D.type({
 })
 export type AgentInfo = D.TypeOf<typeof agentInfo>
 
-export const agentInfoSafe: D.Decoder<MessagePackData, AgentInfo> = {
+export const agentInfoSafe: D.Decoder<MP.MessagePackData, AgentInfo> = {
  decode: (a: unknown) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
-   E.chain(value => messagePackDecoder.decode(value)),
+   E.chain(value => MP.messagePackDecoder.decode(value)),
    E.fold(
     errors => D.failure(a, JSON.stringify(errors)),
     rawValue => pipe(

@@ -6,7 +6,7 @@ import { strict as assert } from 'assert'
 import * as MP from '../../src/msgpack/msgpack'
 import { isRight, isLeft } from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
-import { Ed25519 } from '../../src/crypto/crypto'
+import * as Crypto from '../../src/crypto/crypto'
 
 describe('agent info signed', () => {
 
@@ -30,7 +30,7 @@ describe('agent info signed', () => {
 
   // bob must not be allowed to sign alice's info
   let bobSignedAlice = _.cloneDeep(Agents.aliceAgentVaporSignedRaw)
-  bobSignedAlice.signature = Ed25519.sign(bobSignedAlice.agent_info, Agents.bob.secretKey)
+  bobSignedAlice.signature = Crypto.sign(bobSignedAlice.agent_info, Agents.bob.secretKey)
   assert.ok(isLeft(agentInfoSignedSafe.decode(MP.encode(bobSignedAlice))))
  })
 

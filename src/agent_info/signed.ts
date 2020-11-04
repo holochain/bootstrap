@@ -1,7 +1,7 @@
 import * as Kitsune from '../kitsune/kitsune'
 import { agentInfo, agentInfoSafe } from './info'
-import { Ed25519 } from '../crypto/crypto'
-import { MessagePackData, messagePackDecoder, messagePackData } from '../msgpack/msgpack'
+import * as Crypto from '../crypto/crypto'
+import * as MP from '../msgpack/msgpack'
 import * as D from "io-ts/Decoder"
 import { pipe } from 'fp-ts/lib/pipeable'
 import { Uint8ArrayDecoder } from '../io/io'
@@ -11,19 +11,19 @@ import * as _ from 'lodash'
 export const agentInfoSignedRaw = D.type({
  signature: Kitsune.Signature,
  agent: Kitsune.Agent,
- agent_info: messagePackData,
+ agent_info: MP.messagePackData,
 })
 export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>
 
-export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedRaw> = {
- decode: (a:MessagePackData) => {
+export const agentInfoSignedRawSafe: D.Decoder<MP.MessagePackData, AgentInfoSignedRaw> = {
+ decode: (a:MP.MessagePackData) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
-   E.chain(value => messagePackDecoder.decode(value)),
+   E.chain(value => MP.messagePackDecoder.decode(value)),
    E.chain(value => agentInfoSignedRaw.decode(value)),
    E.chain(agentInfoSignedRawValue => {
     // The signature must be valid for the agent's pubkey.
-    if (Ed25519.verify(
+    if (Crypto.verify(
      agentInfoSignedRawValue.agent_info,
      agentInfoSignedRawValue.signature,
      Kitsune.toPublicKey(agentInfoSignedRawValue.agent),
@@ -45,8 +45,8 @@ export const agentInfoSigned = D.type({
 })
 export type AgentInfoSigned = D.TypeOf<typeof agentInfoSigned>
 
-export const agentInfoSignedSafe: D.Decoder<MessagePackData, AgentInfoSigned> = {
- decode: (a:MessagePackData) => {
+export const agentInfoSignedSafe: D.Decoder<MP.MessagePackData, AgentInfoSigned> = {
+ decode: (a:MP.MessagePackData) => {
   return pipe(
    agentInfoSignedRawSafe.decode(a),
    E.fold(

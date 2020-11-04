@@ -1,8 +1,9 @@
 import * as MP from '../msgpack/msgpack'
 import { agentKey } from './kv'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { agentInfoSignedSafe } from '../agent_info/signed'
+import { agentInfoSignedRawSafe, agentInfoSignedSafe } from '../agent_info/signed'
 import * as E from 'fp-ts/lib/Either'
+import * as D from 'io-ts/Decoder'
 
 const EXPIRES_AFTER: number = 60 * 10
 
@@ -20,11 +21,13 @@ async function _put(agentInfoSignedRawData:MP.MessagePackData):void|Error {
   let expires = Math.floor( baseTime / 1000 ) + EXPIRES_AFTER
 
   await BOOTSTRAP.put(key, value, {expiration: expires})
+  return null
  }
 
  return pipe(
   agentInfoSignedSafe.decode(agentInfoSignedRawData),
-  E.chain(async agentInfoSignedValue => await doPut(agentInfoSignedValue)),
+  E.chain(async agentInfoSignedValue => D.success(await doPut(agentInfoSignedValue))),
+  E.mapLeft(v => Error(JSON.stringify(v))),
  )
 }
 
@@ -32,8 +35,10 @@ export async function put(input:MP.MessagePackData):MP.MessagePackData|Error {
  // put literally puts the raw MessagePackData to the kv store if it validates.
  // the key is derived from the raw data.
  let p = await _put(input)
- if (p instanceof Error) {
-  return p
+ if (E.isLeft(p)) {
+  return p.left
  }
- return MP.encode(p)
+ else {
+  return MP.encode(p.right)
+ }
 }

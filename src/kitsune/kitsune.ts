@@ -1,4 +1,4 @@
-import { Ed25519 } from '../crypto/crypto'
+import * as Crypto from '../crypto/crypto'
 import * as D from 'io-ts/Decoder'
 import { Uint8ArrayDecoder, FixedSizeUint8ArrayDecoderBuilder } from '../io/io'
 
@@ -22,7 +22,7 @@ export type Agent = D.TypeOf<typeof Agent>
 
 // kitsuneSignature is a non-standard kitsuneBin.
 // It is 64 literal bytes for an Ed25519 signature WITHOUT location bytes.
-export const signatureLength = Ed25519.signatureLength
+export const signatureLength = Crypto.signatureLength
 export const Signature = FixedSizeUint8ArrayDecoderBuilder(signatureLength)
 export type Signature = D.TypeOf<typeof Signature>
 
