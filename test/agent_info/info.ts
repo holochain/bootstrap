@@ -33,13 +33,16 @@ describe('agent info ts-io', () => {
  })
 
  it('should decode signed_at_ms', () => {
-  let past = Date.now() - 10
+  // There should be some threshold on now that allows different agent times.
+  assert.ok(AgentInfo.now() > Date.now())
+
+  let past = AgentInfo.now() - 10
   assert.deepEqual(
    AgentInfo.signedAtMsSafe.decode(past),
    right(past),
   )
 
-  let now = Date.now()
+  let now = AgentInfo.now()
   assert.deepEqual(
    AgentInfo.signedAtMsSafe.decode(now),
    right(now),
@@ -50,7 +53,7 @@ describe('agent info ts-io', () => {
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(fractionalMs)))
 
   // Future times cannot be accepted.
-  let future = Date.now() + 10
+  let future = AgentInfo.now() + 10
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(future)))
 
   // Negative times cannot be accepted.
