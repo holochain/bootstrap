@@ -93,7 +93,7 @@ For example, this repository implements a bootstrap service as:
 
 - A simple POST based API that accepts signed agent info
 - A CloudFlare backed key/value store
-- Agent information automaticaly expires (is deleted) after 10 minutes
+- Agent information automaticaly expires (is deleted)
 - The service can be forked/copied by any hApp developer and deployed to their
   own CloudFlare account
 - 'Trusted' agent public keys can be set by the service owner to further
@@ -101,7 +101,7 @@ For example, this repository implements a bootstrap service as:
   availability nodes (not implemented yet)
 
 This allows nodes that want to safely join a DHT space to prepopulate their
-agent locations with everyone advertising themselves within the last 10 minutes.
+agent locations with everyone advertising themselves periodically.
 
 ## Limitations of the boostrap service
 
@@ -132,8 +132,8 @@ Mitigations:
 Anything that meaningfully raises the bar for entry above 'can sign data' is
 useful mitigation here.
 
-At the time of writing we are simply expiring all key/value pairs after 10
-minutes, which is a relatively weak challenge but at least sybils will fade
+At the time of writing we are simply expiring all key/value pairs after some
+time, which is a relatively weak challenge but at least sybils will fade
 quickly unless there is a dedicated machine somewhere actively generating them
 over a long period of time.
 
@@ -233,8 +233,13 @@ The main concern is that the `random` op is opaque from the caller's point of
 view and this is where CloudFlare could collude with (or be hacked by) an
 attacker to "randomly" only return malicious nodes.
 
-The additional ops `get` and `list` are provided so that extra paranoid agents
-can implement their own randomness at the expense of additional network hops.
+The main two defenses against CloudFlare are (not implemented yet):
+
+- Developers easily forking the service and users easily configuring many
+  bootstrap services in conductors (decentralised bootstrap).
+- Signed responses from bootstrap services as part of the API so that agents can
+  audit and cross-reference responses against what is found in the DHT and/or
+  other services, similar to how time audits work in the Roughtime protocol.
 
 ## API
 
@@ -290,9 +295,7 @@ The action to be performed is set by the `X-Op` header in the POST request.
 The possible values are:
 
 - `put`: store signed agent info
-- `list`: list all stored agent info
-- `get`: retrive a single agent info
-- `random`: retrieve up to N random agents (hybrid of list and get)
+- `random`: retrieve up to N random agents
 - `now`: get the current server time as a unix milliseconds timestamp
 
 ## Data structures
@@ -379,40 +382,11 @@ Successful response: Messagepack encoded `null`, i.e. `[ 192 ]` binary body.
 If the `AgentInfoSigned` data validates on the CloudFlare worker it will be
 saved under the kv key (see above) for the parsed `space` and `agent`.
 
-The value will expire (be deleted) 10 minutes after it is saved.
+The value will expire (be deleted) at signing time + expires after, as per the
+signed agent information.
 
-The expectation is that agents repost their current location at least once per
-10 minutes to maintain liveness.
-
-### List
-
-List all current signed agent info.
-
-`X-Op` header: `list`
-
-Request body: Messagepack serialized `space` bytes.
-
-Successful response: Messagepack serialized array of every `agent` pubkey
-                     currently in the `space`. If there are no agents a
-                     messagepack empty array, i.e. `[221, 0, 0, 0, 0]`.
-
-There are no limits on the size of this list other than the limits imposed by
-CloudFlare, e.g. for DOS mitigation.
-
-It will paginate across all agent pubkeys internally, not just the default first
-1000 keys limit internal to CloudFlare.
-
-### Get
-
-Get a specific `AgentInfoSigned` for a given kv key.
-
-`X-Op` header: `get`
-
-Request body: Messagepack serialized `space` + `agent` kv key bytes.
-
-Successful response: Messagepack serialized `AgentInfoSigned` data.
-                     The agent SHOULD verify the data redundantly themselves.
-                     Messagepack `null` i.e. `[ 192 ]` if not found.
+The expectation is that agents repost their current location periodically to
+maintain liveness.
 
 ### Random
 
@@ -438,8 +412,6 @@ Agents are encouraged to fetch as many random agents as they can comfortably
 handle to maximise the diversity of their view on the network before they
 attempt to join, which has benefits beyond eclipse protection.
 
-Paranoid agents can implement their own randomness using `get` and `list`.
-
 ### Now
 
 Get the time 'now' from the service as a millisecond unix timestamp.
@@ -454,9 +426,10 @@ An agent can call `now` once upon booting a conductor and then calculate an
 offset relative to their agent local time, then use the offset for as long as it
 is safe to assume that the local clock has not shifted relative to the service.
 
-A full clock sync algorithm like (S)NTP is not required, the signing time simply
+A full clock sync algorithm like (S)NTP is NOT required, the signing time simply
 needs to be within a few seconds on both machines and in the past from the
-perspective of the service.
+perspective of the service. A simple `min` comparison with the local time, or
+even direct deferral to the server time is likely sufficient.
 
 ## Validation
 
