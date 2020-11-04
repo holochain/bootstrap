@@ -294,6 +294,7 @@ The possible values are:
 - `list`: list all stored agent info
 - `get`: retrive a single agent info
 - `random`: retrieve up to N random agents (hybrid of list and get)
+- `now`: get the current server time as a unix milliseconds timestamp
 
 ## Data structures
 
@@ -440,6 +441,24 @@ attempt to join, which has benefits beyond eclipse protection.
 
 Paranoid agents can implement their own randomness using `get` and `list`.
 
+### Now
+
+Get the time 'now' from the service as a millisecond unix timestamp.
+
+The `signed_at_ms` MUST be in the past from the perspective of the bootstrap
+service otherwise agent info won't be accepted.
+
+If an agent wants to be sure that the signing time will be accepted by the
+service it can first call `now` and then use the returned timestamp for signing.
+
+An agent can call `now` once upon booting a conductor and then calculate an
+offset relative to their agent local time, then use the offset for as long as it
+is safe to assume that the local clock has not shifted relative to the service.
+
+A full clock sync algorithm like (S)NTP is not required, the signing time simply
+needs to be within a few seconds on both machines and in the past from the
+perspective of the service.
+
 ## Validation
 
 Validation rules are well defined for signed agent info and all other binary
@@ -467,6 +486,10 @@ error SHOULD be descriptive to aid logging and debugging.
 8. Check the `agent` bytes are equal to the `agent` bytes used to verify the
    signature above.
 9. Check the `urls` is an array of utf8 strings.
-10. Check the `signed_at_ms` is a positive number.
-11. Check the `signed_at_ms` is in the past relative to the bootstrap service's
+10. Check there are 256 or fewer `urls` in the array.
+11. Check every `url` is 2048 or fewer utf8 _bytes_, e.g. utf8 multibyte
+    characters are counted as several bytes towards the limit.
+12. Check the `signed_at_ms` is an integer.
+13. Check the `signed_at_ms` is a positive number.
+14. Check the `signed_at_ms` is in the past relative to the bootstrap service's
     local time, interpreted as a unix timestamp in milliseconds.

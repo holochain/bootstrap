@@ -6,10 +6,29 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import * as E from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 
-export const url = D.string
+// Size limit on URLs _as bytes_.
+// It is important that this counts the bytes and not string characters because
+// string handling is complex and subtle across different languages whereas the
+// utf8 byte length is always well defined.
+export const MAX_URL_SIZE = 2048
+export const MAX_URLS = 256
+
+export const url = pipe(
+ D.string,
+ D.refine(
+  (input): input is string => Buffer.byteLength(input, 'utf8') <= MAX_URL_SIZE,
+  `URL cannot be longer than ${MAX_URL_SIZE} bytes.`,
+ ),
+)
 export type Url = D.TypeOf<typeof url>
 
-export const urls = D.array(D.string)
+export const urls = pipe(
+ D.array(D.string),
+ D.refine(
+  (input): input is Array<string> => input.length <= MAX_URLS,
+  `Agents cannot have more than ${MAX_URLS} urls.`,
+ ),
+)
 export type Urls = D.TypeOf<typeof urls>
 
 export const agentInfoPacked = Uint8ArrayDecoder
@@ -23,6 +42,15 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
   return pipe(
    D.number.decode(a),
    E.chain(signedAtMs => {
+
+    // Milliseconds must be an integer.
+    if ( !Number.isInteger(signedAtMs) ) {
+     return D.failure(
+      a,
+      'signed at ms is not an integer ' + signedAtMs,
+     )
+    }
+
     // Time must be positive.
     if ( signedAtMs <= 0 ) {
      return D.failure(
@@ -30,6 +58,7 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
       'signed at ms is negative ' + signedAtMs,
      )
     }
+
     // Signatures must happen in the past.
     let now_ms = Date.now()
     if (now_ms < signedAtMs) {
@@ -38,6 +67,7 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
       'signed at ms ' + signedAtMs + ' is in the future relative to now ' + now_ms
      )
     }
+
     return D.success(a)
    })
   )

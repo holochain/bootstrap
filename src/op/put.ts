@@ -1,5 +1,5 @@
 import * as MP from '../msgpack/msgpack'
-import { agentKey } from './kv'
+import { agentKey } from '../kv/kv'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { agentInfoSignedRawSafe, agentInfoSignedSafe } from '../agent_info/signed'
 import * as E from 'fp-ts/lib/Either'

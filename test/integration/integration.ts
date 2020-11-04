@@ -116,6 +116,16 @@ describe('integration tests', () => {
    return MP.decode(Uint8Array.from(buffer))
   }
 
+  // now
+  let now = await doApi('now', null)
+  if (typeof now === 'number') {
+   assert.ok(Number.isInteger(now))
+   assert.ok(now > 1604318591241)
+  }
+  else {
+   assert.ok(false, 'now not a number')
+  }
+
   // put alice and bob
   for (let agent of [Agents.aliceAgentVaporSignedRaw, Agents.aliceAgentWikiSignedRaw, Agents.bobAgentVaporSignedRaw]) {
    assert.deepEqual(
