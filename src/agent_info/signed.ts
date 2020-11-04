@@ -1,4 +1,4 @@
-import { KitsuneBin, kitsuneSignature, kitsuneAgent } from '../kitsune/kitsune'
+import * as Kitsune from '../kitsune/kitsune'
 import { agentInfo, agentInfoSafe } from './info'
 import { Ed25519 } from '../crypto/crypto'
 import { MessagePackData, messagePackDecoder, messagePackData } from '../msgpack/msgpack'
@@ -9,8 +9,8 @@ import * as E from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 
 export const agentInfoSignedRaw = D.type({
- signature: kitsuneSignature,
- agent: kitsuneAgent,
+ signature: Kitsune.Signature,
+ agent: Kitsune.Agent,
  agent_info: messagePackData,
 })
 export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>
@@ -22,10 +22,11 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
    E.chain(value => messagePackDecoder.decode(value)),
    E.chain(value => agentInfoSignedRaw.decode(value)),
    E.chain(agentInfoSignedRawValue => {
+    // The signature must be valid for the agent's pubkey.
     if (Ed25519.verify(
      agentInfoSignedRawValue.agent_info,
      agentInfoSignedRawValue.signature,
-     agentInfoSignedRawValue.agent,
+     Kitsune.toPublicKey(agentInfoSignedRawValue.agent),
     )) {
      return D.success(agentInfoSignedRawValue)
     }
@@ -38,8 +39,8 @@ export const agentInfoSignedRawSafe: D.Decoder<MessagePackData, AgentInfoSignedR
 }
 
 export const agentInfoSigned = D.type({
- signature: kitsuneSignature,
- agent: kitsuneAgent,
+ signature: Kitsune.Signature,
+ agent: Kitsune.Agent,
  agent_info: agentInfo,
 })
 export type AgentInfoSigned = D.TypeOf<typeof agentInfoSigned>
@@ -55,6 +56,7 @@ export const agentInfoSignedSafe: D.Decoder<MessagePackData, AgentInfoSigned> = 
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
       agentInfoValue => {
+       // The inner and outer agent bytes need to be the same.
        if ( ! _.isEqual(agentInfoSignedRawSafeValue.agent, agentInfoValue.agent) ) {
         return D.failure(a, `Outer signed agent ${agentInfoSignedRawSafeValue.agent} does not match signed inner agent ${agentInfoValue.agent}.`)
        }

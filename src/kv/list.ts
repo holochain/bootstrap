@@ -1,11 +1,11 @@
-import { KitsuneAgent, KitsuneSpace, kitsuneSpace } from '../kitsune/kitsune'
+import * as Kitsune from '../kitsune/kitsune'
 import { atob64 } from '../base64/base64'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { encode, MessagePackData, messagePackDecoder } from '../msgpack/msgpack'
+import * as MP from '../msgpack/msgpack'
 import * as E from 'fp-ts/lib/Either'
 import { Uint8ArrayDecoder } from '../io/io'
 
-function agentPubKeyFromKey(prefix:string, key:string):KitsuneAgent {
+function agentFromKey(prefix:string, key:string):KitsuneAgent {
  if (key.indexOf(prefix) === 0) {
   return Uint8Array.from(Buffer.from(key.slice(prefix.length), 'base64'))
  }
@@ -30,16 +30,16 @@ export async function _list(space:KitsuneSpace):Array<KitsuneAgent> {
 
   more = !list.list_complete
   cursor = list.cursor
-  keys = keys.concat(list.keys.map(k => agentPubKeyFromKey(prefix, k.name)))
+  keys = keys.concat(list.keys.map(k => agentFromKey(prefix, k.name)))
  }
  return keys
 }
 
-export async function list(input:MessagePackData):MessagePackData|Error {
+export async function list(input:MP.MessagePackData):MP.MessagePackData|Error {
  return pipe(
   Uint8ArrayDecoder.decode(input),
-  E.chain(value => messagePackDecoder.decode(value)),
-  E.chain(value => kitsuneSpace.decode(value)),
-  E.chain(async spaceValue => encode(await _list(spaceValue))),
+  E.chain(value => MP.messagePackDecoder.decode(value)),
+  E.chain(value => Kitsune.Space.decode(value)),
+  E.chain(async spaceValue => MP.encode(await _list(spaceValue))),
  )
 }

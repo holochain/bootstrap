@@ -2,16 +2,31 @@ import { Ed25519 } from '../crypto/crypto'
 import * as D from 'io-ts/Decoder'
 import { Uint8ArrayDecoder, FixedSizeUint8ArrayDecoderBuilder } from '../io/io'
 
-export const kitsuneBin = Uint8ArrayDecoder
-export type KitsuneBin = D.TypeOf<typeof kitsuneBin>
+// kitsuneBin is the concatenation of:
+// - 4 byte location
+// - 32 byte hash
+// Total is 36 bytes.
+export const kitsuneBinLength = 36
+export const Bin = Uint8ArrayDecoder
+export type Bin = D.TypeOf<typeof Bin>
 
-export const spaceLength = 32
-export const kitsuneSpace = FixedSizeUint8ArrayDecoderBuilder(spaceLength)
-export type KitsuneSpace = D.TypeOf<typeof kitsuneSpace>
+// kitsuneSpace is a standard kitsuneBin that is the DNA hash for a DHT network.
+export const spaceLength = kitsuneBinLength
+export const Space = FixedSizeUint8ArrayDecoderBuilder(spaceLength)
+export type Space = D.TypeOf<typeof Space>
 
-export const agentLength = Ed25519.publicKeyLength
-export const kitsuneAgent = FixedSizeUint8ArrayDecoderBuilder(agentLength)
-export type KitsuneAgent = D.TypeOf<typeof kitsuneAgent>
+// kitsuneAgent is a standard kitsuneBin that is the agent public key.
+export const agentLength = kitsuneBinLength
+export const Agent = FixedSizeUint8ArrayDecoderBuilder(agentLength)
+export type Agent = D.TypeOf<typeof Agent>
 
-export const kitsuneSignature = FixedSizeUint8ArrayDecoderBuilder(Ed25519.signatureLength)
-export type KitsuneSignature = D.TypeOf<typeof kitsuneSignature>
+// kitsuneSignature is a non-standard kitsuneBin.
+// It is 64 literal bytes for an Ed25519 signature WITHOUT location bytes.
+export const signatureLength = Ed25519.signatureLength
+export const Signature = FixedSizeUint8ArrayDecoderBuilder(signatureLength)
+export type Signature = D.TypeOf<typeof Signature>
+
+// Extracting the public key from an Agent means stripping the additional
+// location bytes and hash prefix.
+export const toPublicKey = (bin:Bin):Uint8Array =>
+ bin.slice(0,-4)

@@ -1,7 +1,7 @@
-import { KitsuneSpace, KitsuneBin } from '../../src/kitsune/kitsune'
+import * as Kitsune from '../../src/kitsune/kitsune'
 
-export const vaporChatSpace:KitsuneBin = Uint8Array.from([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33])
+export const vaporChatSpace:Kitsune.Space = Uint8Array.from(Array(Kitsune.kitsuneBinLength).fill(0))
 
-export const wikiSpace:KitsuneBin = Uint8Array.from(Array(32))
+export const wikiSpace:Kitsune.Space = Uint8Array.from(Array(Kitsune.kitsuneBinLength).fill(1))
 
-export const emptySpace:KitsuneBin = Uint8Array.from([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+export const emptySpace:Kitsune.Space = Uint8Array.from(Array(Kitsune.kitsuneBinLength).fill(2))

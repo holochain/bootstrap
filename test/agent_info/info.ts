@@ -1,9 +1,10 @@
 import { AgentInfo, url, urls, agentInfoSafe, signedAtMsSafe } from '../../src/agent_info/info'
 import { aliceAgentVapor } from '../fixture/agents'
-import { aliceVaporEncodedInfo, aliceVaporEncodedInfoCorrupted, aliceVaporEncodedInfoMaliciousProperty } from '../fixture/requests'
 import { strict as assert } from 'assert'
 import { isRight, isLeft, right } from 'fp-ts/lib/Either'
-import { encode } from '../../src/msgpack/msgpack'
+import * as MP from '../../src/msgpack/msgpack'
+import * as _ from 'lodash'
+import * as Agents from '../fixture/agents'
 
 describe('agent info ts-io', () => {
  it('should decode url', () => {
@@ -46,12 +47,16 @@ describe('agent info ts-io', () => {
 
  it('should decode packed data', () => {
   // We must decode valid agent info data.
-  assert.ok(isRight(agentInfoSafe.decode(aliceVaporEncodedInfo)))
+  assert.ok(isRight(agentInfoSafe.decode(MP.encode(aliceAgentVapor))))
 
   // We must not decode anything with incorrect messagepack data.
-  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporEncodedInfoCorrupted)))
+  let aliceEncodedCorrupted = _.cloneDeep(Agents.aliceAgentVaporSignedRaw)
+  aliceEncodedCorrupted.agent_info[0] = 0
+  assert.ok(isLeft(agentInfoSafe.decode(MP.encode(aliceEncodedCorrupted))))
 
   // We must not decode anything with unexpected properties.
-  assert.ok(isLeft(agentInfoSafe.decode(aliceVaporEncodedInfoMaliciousProperty)))
+  let aliceMaliciousProperty = _.cloneDeep(Agents.aliceAgentVaporSignedRaw)
+  aliceMaliciousProperty.bad = true
+  assert.ok(isLeft(agentInfoSafe.decode(MP.encode(aliceMaliciousProperty))))
  })
 })
