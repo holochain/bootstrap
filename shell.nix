@@ -8,6 +8,7 @@ pkgs.stdenv.mkDerivation {
   pkgs.nodejs-14_x
   pkgs.cargo
   pkgs.rustc
+  pkgs.cloudflared
  ];
 
  shellHook = ''
