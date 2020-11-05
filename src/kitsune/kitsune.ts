@@ -29,4 +29,5 @@ export type Signature = D.TypeOf<typeof Signature>
 // Extracting the public key from an Agent means stripping the additional
 // location bytes and hash prefix.
 export const toPublicKey = (bin:Bin):Uint8Array =>
- bin.slice(0,-4)
+ // bin.slice(0,-4)
+ bin.slice(0)

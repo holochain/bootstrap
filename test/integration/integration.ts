@@ -86,7 +86,7 @@ describe('integration tests', () => {
   )
   assert.ok(
    (await badGetErr.text())
-   .includes('length must be exactly 72')
+   .includes('length must be exactly 68')
   )
 
  })
