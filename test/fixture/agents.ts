@@ -33,8 +33,8 @@ export const bob = {
 }
 
 export const publicKeyToKitsuneAgent = (publicKey:Uint8Array):Kitsune.Agent =>
- // Uint8Array.from([...publicKey, ...new Uint8Array(Array(4))])
- publicKey
+ Uint8Array.from([...publicKey, ...new Uint8Array(Array(4))])
+ // publicKey
 
 export const aliceAgentVapor:AgentInfo = {
  space: vaporChatSpace,

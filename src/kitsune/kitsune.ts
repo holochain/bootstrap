@@ -16,7 +16,7 @@ export const Space = FixedSizeUint8ArrayDecoderBuilder(spaceLength)
 export type Space = D.TypeOf<typeof Space>
 
 // kitsuneAgent is a standard kitsuneBin that is the agent public key.
-export const agentLength = 32
+export const agentLength = kitsuneBinLength
 export const Agent = FixedSizeUint8ArrayDecoderBuilder(agentLength)
 export type Agent = D.TypeOf<typeof Agent>
 
@@ -29,5 +29,5 @@ export type Signature = D.TypeOf<typeof Signature>
 // Extracting the public key from an Agent means stripping the additional
 // location bytes and hash prefix.
 export const toPublicKey = (bin:Bin):Uint8Array =>
- // bin.slice(0,-4)
- bin.slice(0)
+ bin.slice(0,-4)
+ // bin.slice(0)
