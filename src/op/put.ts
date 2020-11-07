@@ -20,7 +20,6 @@ async function _put(agentInfoSignedRawData:MP.MessagePackData):void|Error {
   let baseTime = ENVIRONMENT === 'production' ? agentInfoSigned.agent_info.signed_at_ms : Date.now()
   let expires = Math.floor( baseTime / 1000 ) + EXPIRES_AFTER
 
-  console.log('put', key, value)
   await BOOTSTRAP.put(key, value, {expirationTtl: expires})
   return null
  }
