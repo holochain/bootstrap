@@ -5,20 +5,16 @@ import { agentInfoSignedRawSafe, agentInfoSignedSafe } from '../agent_info/signe
 import * as E from 'fp-ts/lib/Either'
 import * as D from 'io-ts/Decoder'
 
-const EXPIRES_AFTER: number = 60 * 10
-
 // Store an AgentInfoSignedRaw under the relevant key.
 // Errors if the AgentInfoSignedRaw does not decode to a safe AgentInfo.
 async function _put(agentInfoSignedRawData:MP.MessagePackData):void|Error {
  let doPut = async agentInfoSigned => {
   let key = agentKey(agentInfoSigned.agent_info.space, agentInfoSigned.agent_info.agent)
   let value = agentInfoSignedRawData
-  // In production we want the keys to expire relative to the time they were
-  // signed to enforce that agents produce freshly signed info for each put.
-  // In testing this breaks our ability to use static fixtures so we use an
-  // expiry time relative to 'now' instead
-  let baseTime = ENVIRONMENT === 'production' ? agentInfoSigned.agent_info.signed_at_ms : Date.now()
-  let expires = Math.floor( baseTime / 1000 ) + EXPIRES_AFTER
+  // Info expires relative to the time they were signed to enforce that agents
+  // produce freshly signed info for each put.
+  // Agents MUST explicitly set an expiry time relative to their signature time.
+  let expires = Math.floor( ( agentInfoSigned.agent_info.expires_after_ms + agentInfoSigned.agent_info.signed_at_ms ) / 1000 )
 
   await BOOTSTRAP.put(key, value, {expirationTtl: expires})
   return null

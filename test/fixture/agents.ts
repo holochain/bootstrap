@@ -40,7 +40,8 @@ export const aliceAgentVapor:AgentInfo = {
  space: vaporChatSpace,
  agent: publicKeyToKitsuneAgent(alice.publicKey),
  urls: ['https://example.com', 'https://foo.com'],
- signed_at_ms: 1602767728019,
+ signed_at_ms: Date.now(),
+ expires_after_ms: 100000,
 }
 export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(aliceAgentVapor), alice.secretKey),
@@ -52,7 +53,8 @@ export const aliceAgentWiki:AgentInfo = {
  space: wikiSpace,
  agent: publicKeyToKitsuneAgent(alice.publicKey),
  urls: ["https://alice.com"],
- signed_at_ms: 1602767728020,
+ signed_at_ms: Date.now(),
+ expires_after_ms: 150000,
 }
 export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(aliceAgentWiki), alice.secretKey),
@@ -64,7 +66,8 @@ export const bobAgentVapor:AgentInfo = {
  space: vaporChatSpace,
  agent: publicKeyToKitsuneAgent(bob.publicKey),
  urls: ["https://bob.com"],
- signed_at_ms: 1602767738019,
+ signed_at_ms: Date.now(),
+ expires_after_ms: 100000,
 }
 export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(bobAgentVapor), bob.secretKey),

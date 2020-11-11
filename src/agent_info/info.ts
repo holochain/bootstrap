@@ -21,6 +21,16 @@ export const MAX_URLS = 256
 // is safe for use as a signature timestamp.
 export const NOW_THRESHOLD_MS = 100
 
+// The maximum number of milliseconds that agent info will be valid relative to
+// its signature time.
+// Equal to 1 hour.
+export const MAX_EXPIRES = 60 * 60 * 1000
+
+// The minimum number of milliseconds that agent info must be valid for relative
+// to its signature time.
+// Equal to 1 minute.
+export const MIN_EXPIRES = 60 * 1000
+
 export const now = ():number =>
  Date.now() + NOW_THRESHOLD_MS
 
@@ -79,18 +89,67 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
      )
     }
 
-    return D.success(a)
+    return D.success(signedAtMs)
    })
   )
  }
 }
 
+export const expiresAfterMs = D.number
+export type ExpiresAfterMs = D.TypeOf<typeof expiresAfterMs>
+
+export const expiresAfterMsSafe: D.Decoder<number, number> = {
+ decode: (a:number) => {
+  return pipe(
+   D.number.decode(a),
+   E.chain(expiresAfterMs => {
+
+    // Milliseconds must be an integer.
+    if ( !Number.isInteger(expiresAfterMs) ) {
+     return D.failure(
+      a,
+      'expires after time is not an integer ' + expiresAfterMs,
+     )
+    }
+
+    // Time must be positive.
+    if ( expiresAfterMs <= 0 ) {
+     return D.failure(
+      a,
+      'expires after time is negative ' + expiresAfterMs,
+     )
+    }
+
+    // Expiry times cannot be too short.
+    if ( expiresAfterMs < MIN_EXPIRES ) {
+     return D.failure(
+      a,
+      'expires after time ' + expiresAfterMs + ' is less than min expiry time ' + MIN_EXPIRES,
+     )
+    }
+
+    // Expiry times cannot be too long.
+    if ( expiresAfterMs > MAX_EXPIRES ) {
+     return D.failure(
+      a,
+      'expires after time ' + expiresAfterMs + ' is longer than max expiry time ' + MAX_EXPIRES,
+     )
+    }
+
+    return D.success(expiresAfterMs)
+   })
+  )
+ }
+}
 
 export const agentInfo = D.type({
  space: Kitsune.Space,
  agent: Kitsune.Agent,
  urls: urls,
+ // Unix timestamp milliseconds the info was signed.
  signed_at_ms: signedAtMsSafe,
+ // Milliseconds after which this info expires relative to the signature time.
+ expires_after_ms: expiresAfterMsSafe,
 })
 export type AgentInfo = D.TypeOf<typeof agentInfo>
 

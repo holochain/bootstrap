@@ -32,7 +32,7 @@ describe('agent info ts-io', () => {
   assert.ok(isLeft(AgentInfo.urls.decode(Array(AgentInfo.MAX_URLS + 1).fill('a'))))
  })
 
- it('should decode signed_at_ms', () => {
+ it('should decode times', () => {
   // There should be some threshold on now that allows different agent times.
   assert.ok(AgentInfo.now() > Date.now())
 
@@ -51,6 +51,7 @@ describe('agent info ts-io', () => {
   // Fractional times cannot be accepted.
   let fractionalMs = 1.1
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(fractionalMs)))
+  assert.ok(isLeft(AgentInfo.expiresAfterMsSafe.decode(fractionalMs)))
 
   // Future times cannot be accepted.
   let future = AgentInfo.now() + 10
@@ -59,6 +60,19 @@ describe('agent info ts-io', () => {
   // Negative times cannot be accepted.
   let negative = -10
   assert.ok(isLeft(AgentInfo.signedAtMsSafe.decode(negative)))
+  assert.ok(isLeft(AgentInfo.expiresAfterMsSafe.decode(negative)))
+
+  // Expiry times cannot be too short.
+  let shortExpiry = AgentInfo.MIN_EXPIRES - 1
+  assert.ok(isLeft(AgentInfo.expiresAfterMsSafe.decode(shortExpiry)))
+
+  // Expiry times cannot be too long.
+  let longExpiry = AgentInfo.MAX_EXPIRES + 1
+  assert.ok(isLeft(AgentInfo.expiresAfterMsSafe.decode(longExpiry)))
+
+  // Expiry times must be just right.
+  assert.ok(isRight(AgentInfo.expiresAfterMsSafe.decode(AgentInfo.MIN_EXPIRES)))
+  assert.ok(isRight(AgentInfo.expiresAfterMsSafe.decode(AgentInfo.MAX_EXPIRES)))
  })
 
  it('should decode packed data', () => {
