@@ -49,21 +49,13 @@ describe('integration tests', () => {
    badSignatureErr.status,
    500,
   )
+
   assert.ok(
    (await badSignatureErr.text())
    .includes('Signature does not verify for agent and agent_info data.')
   )
 
   let badSpace = Uint8Array.from([1, 2, 3])
-  let badSpaceErr = await errApi('list', badSpace)
-  assert.deepEqual(
-   badSpaceErr.status,
-   500,
-  )
-  assert.ok(
-   (await badSpaceErr.text())
-   .includes('length must be exactly 36')
-  )
 
   let badRandomQuery = {
    space: badSpace,
@@ -77,16 +69,6 @@ describe('integration tests', () => {
   assert.ok(
    (await badRandomQueryErr.text())
    .includes('length must be exactly 36')
-  )
-
-  let badGetErr = await errApi('get', badSpace)
-  assert.deepEqual(
-   badGetErr.status,
-   500,
-  )
-  assert.ok(
-   (await badGetErr.text())
-   .includes('length must be exactly 68')
   )
 
  })
@@ -133,51 +115,6 @@ describe('integration tests', () => {
     null
    )
   }
-
-  // vapor chat list pubkeys
-  let vaporPubKeys = await doApi('list', vaporChatSpace)
-  assert.deepEqual(
-   vaporPubKeys,
-   [ Agents.bob.publicKey, Agents.alice.publicKey ].map(Agents.publicKeyToKitsuneAgent),
-  )
-  // wiki list pubkeys
-  let wikiPubKeys = await doApi('list', wikiSpace)
-  assert.deepEqual(
-   wikiPubKeys,
-   [ Agents.alice.publicKey ].map(Agents.publicKeyToKitsuneAgent),
-  )
-  // empty list pubkeys
-  let emptyPubKeys = await doApi('list', emptySpace)
-  assert.deepEqual(
-   emptyPubKeys,
-   [ ],
-  )
-
-  // gets all work
-  let aliceVaporKey = new Uint8Array([...vaporChatSpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
-  let aliceVaporValue = await doApi('get', aliceVaporKey)
-  assert.deepEqual(
-   Agents.aliceAgentVaporSignedRaw,
-   aliceVaporValue,
-  )
-  let bobVaporKey = new Uint8Array([...vaporChatSpace, ...Agents.publicKeyToKitsuneAgent(Agents.bob.publicKey)])
-  let bobVaporValue = await doApi('get', bobVaporKey)
-  assert.deepEqual(
-   Agents.bobAgentVaporSignedRaw,
-   bobVaporValue,
-  )
-  let aliceWikiKey = new Uint8Array([...wikiSpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
-  let aliceWikiValue = await doApi('get', aliceWikiKey)
-  assert.deepEqual(
-   Agents.aliceAgentWikiSignedRaw,
-   aliceWikiValue,
-  )
-  let nobodyKey = new Uint8Array([...emptySpace, ...Agents.publicKeyToKitsuneAgent(Agents.alice.publicKey)])
-  let nobodyValue = await doApi('get', nobodyKey)
-  assert.deepEqual(
-   null,
-   nobodyValue,
-  )
 
   // random list
   let randomOne = await doApi('random', {
