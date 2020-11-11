@@ -52,6 +52,5 @@ export async function random(query:Query):MP.MessagePackData {
    break
   }
  }
-
  return await Promise.all(keys.map(k => Get.get(Uint8Array.from([...space, ...k]))))
 }

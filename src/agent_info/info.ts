@@ -19,7 +19,7 @@ export const MAX_URLS = 256
 // Agents are strongly encouraged to use the `now` op as a preflight task for a
 // conductor session in order to gauge for themselves whether their local time
 // is safe for use as a signature timestamp.
-export const NOW_THRESHOLD = 100
+export const NOW_THRESHOLD_MS = 100
 
 // The maximum number of milliseconds that agent info will be valid relative to
 // its signature time.
@@ -32,7 +32,7 @@ export const MAX_EXPIRES = 60 * 60 * 1000
 export const MIN_EXPIRES = 60 * 1000
 
 export const now = ():number =>
- Date.now() + NOW_THRESHOLD
+ Date.now() + NOW_THRESHOLD_MS
 
 export const url = pipe(
  D.string,

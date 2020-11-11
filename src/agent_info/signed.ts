@@ -9,8 +9,8 @@ import * as E from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 
 export const agentInfoSignedRaw = D.type({
- signature: Kitsune.Signature,
  agent: Kitsune.Agent,
+ signature: Kitsune.Signature,
  agent_info: MP.messagePackData,
 })
 export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>

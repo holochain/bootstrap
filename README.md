@@ -27,7 +27,7 @@ repository (not globally).
 We expect and encourage developers to fork and use this code for deployment on
 their own CloudFlare account.
 
-Simply update the `wrangler.toml` with your DF account details and ensure that
+Simply update the `wrangler.toml` with your CF account details and ensure that
 github secrets have `CF_API_TOKEN` set for production deployment.
 
 ## Why do holochain networks need a bootstrap service?
@@ -283,7 +283,8 @@ This is the same cryptography as holochain itself which means the signatures and
 validation used by the bootstrap service are the same as those used by the agent
 DHT by conductors.
 
-This implementation uses [tweetnacl](https://www.npmjs.com/package/tweetnacl).
+This implementation uses [tweetnacl](https://www.npmjs.com/package/tweetnacl) for validation
+but does not ever generate any signatures.
 
 ### Headers
 
