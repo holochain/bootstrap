@@ -7,6 +7,10 @@ import { Uint8ArrayDecoder, FixedSizeUint8ArrayDecoderBuilder } from '../io/io'
 // - 32 byte hash
 // Total is 36 bytes.
 export const kitsuneBinLength = 36
+// If kitsuneBin data has a prefix we need to slice it out.
+export const kitsuneBinPrefixLength = 0
+// If kitsuneBin data as a suffix we need to slice it out.
+export const kitsuneBinSuffixLength = 4
 export const Bin = Uint8ArrayDecoder
 export type Bin = D.TypeOf<typeof Bin>
 
@@ -29,5 +33,4 @@ export type Signature = D.TypeOf<typeof Signature>
 // Extracting the public key from an Agent means stripping the additional
 // location bytes and hash prefix.
 export const toPublicKey = (bin:Bin):Uint8Array =>
- bin.slice(0,-4)
- // bin.slice(0)
+ bin.slice(kitsuneBinPrefixLength,-kitsuneBinSuffixLength)

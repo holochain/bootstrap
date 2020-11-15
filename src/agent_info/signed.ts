@@ -1,5 +1,5 @@
 import * as Kitsune from '../kitsune/kitsune'
-import { agentInfo, agentInfoSafe } from './info'
+import { AgentInfo, AgentInfoSafe } from './info'
 import * as Crypto from '../crypto/crypto'
 import * as MP from '../msgpack/msgpack'
 import * as D from "io-ts/Decoder"
@@ -8,19 +8,19 @@ import { Uint8ArrayDecoder } from '../io/io'
 import * as E from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 
-export const agentInfoSignedRaw = D.type({
+export const AgentInfoSignedRaw = D.type({
  agent: Kitsune.Agent,
  signature: Kitsune.Signature,
  agent_info: MP.messagePackData,
 })
-export type AgentInfoSignedRaw = D.TypeOf<typeof agentInfoSignedRaw>
+export type AgentInfoSignedRaw = D.TypeOf<typeof AgentInfoSignedRaw>
 
-export const agentInfoSignedRawSafe: D.Decoder<MP.MessagePackData, AgentInfoSignedRaw> = {
+export const AgentInfoSignedRawSafe: D.Decoder<MP.MessagePackData, AgentInfoSignedRaw> = {
  decode: (a:MP.MessagePackData) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
    E.chain(value => MP.messagePackDecoder.decode(value)),
-   E.chain(value => agentInfoSignedRaw.decode(value)),
+   E.chain(value => AgentInfoSignedRaw.decode(value)),
    E.chain(agentInfoSignedRawValue => {
     // The signature must be valid for the agent's pubkey.
     if (Crypto.verify(
@@ -38,21 +38,21 @@ export const agentInfoSignedRawSafe: D.Decoder<MP.MessagePackData, AgentInfoSign
  }
 }
 
-export const agentInfoSigned = D.type({
+export const AgentInfoSigned = D.type({
  signature: Kitsune.Signature,
  agent: Kitsune.Agent,
- agent_info: agentInfo,
+ agent_info: AgentInfo,
 })
-export type AgentInfoSigned = D.TypeOf<typeof agentInfoSigned>
+export type AgentInfoSigned = D.TypeOf<typeof AgentInfoSigned>
 
-export const agentInfoSignedSafe: D.Decoder<MP.MessagePackData, AgentInfoSigned> = {
+export const AgentInfoSignedSafe: D.Decoder<MP.MessagePackData, AgentInfoSigned> = {
  decode: (a:MP.MessagePackData) => {
   return pipe(
-   agentInfoSignedRawSafe.decode(a),
+   AgentInfoSignedRawSafe.decode(a),
    E.fold(
     errors => D.failure(a, JSON.stringify(errors)),
     agentInfoSignedRawSafeValue => pipe(
-     agentInfoSafe.decode(agentInfoSignedRawSafeValue.agent_info),
+     AgentInfoSafe.decode(agentInfoSignedRawSafeValue.agent_info),
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
       agentInfoValue => {

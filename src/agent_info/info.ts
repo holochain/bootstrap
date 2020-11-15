@@ -11,6 +11,8 @@ import * as _ from 'lodash'
 // string handling is complex and subtle across different languages whereas the
 // utf8 byte length is always well defined.
 export const MAX_URL_SIZE = 2048
+
+// The maximum numbers of urls that a single agent can register.
 export const MAX_URLS = 256
 
 // The number of milliseconds we will accept for a signature in the future.
@@ -31,34 +33,48 @@ export const MAX_EXPIRES = 60 * 60 * 1000
 // Equal to 1 minute.
 export const MIN_EXPIRES = 60 * 1000
 
+// The local now as reported by the operating system and returned by the `now`
+// op + a threshold in milliseconds. If an agent has a clock ahead of us by less
+// than the threshold we will still accept it to compensate for minor jitter
+// such as networking issues.
+// The safety of this assumes that NOW_THRESHOLD_MS is negligible relative to
+// MIN_EXPIRES.
 export const now = ():number =>
  Date.now() + NOW_THRESHOLD_MS
 
-export const url = pipe(
+// A single url an agent can be found at.
+// Each url has a maximum size in bytes and is a valid utf8 string.
+export const Url = pipe(
  D.string,
  D.refine(
   (input): input is string => Buffer.byteLength(input, 'utf8') <= MAX_URL_SIZE,
   `URL cannot be longer than ${MAX_URL_SIZE} bytes.`,
  ),
 )
-export type Url = D.TypeOf<typeof url>
+export type Url = D.TypeOf<typeof Url>
 
-export const urls = pipe(
+// A list of urls an agent can be found at.
+// There is a limit to the numbers of urls a single agent can register.
+export const Urls = pipe(
  D.array(D.string),
  D.refine(
   (input): input is Array<string> => input.length <= MAX_URLS,
   `Agents cannot have more than ${MAX_URLS} urls.`,
  ),
 )
-export type Urls = D.TypeOf<typeof urls>
+export type Urls = D.TypeOf<typeof Urls>
 
-export const agentInfoPacked = Uint8ArrayDecoder
-export type AgentInfoPacked = D.TypeOf<typeof agentInfoPacked>
+// Messagepack serialized representation of AgentInfo.
+export const AgentInfoPacked = Uint8ArrayDecoder
+export type AgentInfoPacked = D.TypeOf<typeof AgentInfoPacked>
 
-export const signedAtMs = D.number
-export type SignedAtMs = D.TypeOf<typeof signedAtMs>
+// Time the agent signed the data, in the agent's own opinion.
+// Unix milliseconds.
+export const SignedAtMs = D.number
+export type SignedAtMs = D.TypeOf<typeof SignedAtMs>
 
-export const signedAtMsSafe: D.Decoder<number, number> = {
+// Decoded SignedAtMs with various sanity checks applied.
+export const SignedAtMsSafe: D.Decoder<number, number> = {
  decode: (a:number) => {
   return pipe(
    D.number.decode(a),
@@ -95,10 +111,17 @@ export const signedAtMsSafe: D.Decoder<number, number> = {
  }
 }
 
-export const expiresAfterMs = D.number
-export type ExpiresAfterMs = D.TypeOf<typeof expiresAfterMs>
+// Time the agent wishes to be found at the published location.
+// NOT a guarantee that the agent will be found at this location as disconnects
+// and other network issues are unavoidable. If many agents cannot be found
+// within their expiry times this may indicate some kind of attack or other
+// issue with the bootstrap service.
+// Time in milliseconds relative to the signing time.
+export const ExpiresAfterMs = D.number
+export type ExpiresAfterMs = D.TypeOf<typeof ExpiresAfterMs>
 
-export const expiresAfterMsSafe: D.Decoder<number, number> = {
+// Decoded ExpiresAfterMs with various sanity checks applied.
+export const ExpiresAfterMsSafe: D.Decoder<number, number> = {
  decode: (a:number) => {
   return pipe(
    D.number.decode(a),
@@ -109,14 +132,6 @@ export const expiresAfterMsSafe: D.Decoder<number, number> = {
      return D.failure(
       a,
       'expires after time is not an integer ' + expiresAfterMs,
-     )
-    }
-
-    // Time must be positive.
-    if ( expiresAfterMs <= 0 ) {
-     return D.failure(
-      a,
-      'expires after time is negative ' + expiresAfterMs,
      )
     }
 
@@ -142,18 +157,23 @@ export const expiresAfterMsSafe: D.Decoder<number, number> = {
  }
 }
 
-export const agentInfo = D.type({
+export const AgentInfo = D.type({
+ // Each agent info is specific to one space.
+ // Many active spaces implies many active agent infos, even if the network
+ // connection used by the agent is identical for all spaces.
  space: Kitsune.Space,
+ // The agent public key.
  agent: Kitsune.Agent,
- urls: urls,
+ // List of urls the agent can be connected to at.
+ urls: Urls,
  // Unix timestamp milliseconds the info was signed.
- signed_at_ms: signedAtMsSafe,
+ signed_at_ms: SignedAtMsSafe,
  // Milliseconds after which this info expires relative to the signature time.
- expires_after_ms: expiresAfterMsSafe,
+ expires_after_ms: ExpiresAfterMsSafe,
 })
-export type AgentInfo = D.TypeOf<typeof agentInfo>
+export type AgentInfo = D.TypeOf<typeof AgentInfo>
 
-export const agentInfoSafe: D.Decoder<MP.MessagePackData, AgentInfo> = {
+export const AgentInfoSafe: D.Decoder<MP.MessagePackData, AgentInfo> = {
  decode: (a: unknown) => {
   return pipe(
    Uint8ArrayDecoder.decode(a),
@@ -161,7 +181,7 @@ export const agentInfoSafe: D.Decoder<MP.MessagePackData, AgentInfo> = {
    E.fold(
     errors => D.failure(a, JSON.stringify(errors)),
     rawValue => pipe(
-     agentInfo.decode(rawValue),
+     AgentInfo.decode(rawValue),
      E.fold(
       errors => D.failure(a, JSON.stringify(errors)),
       agentInfoValue => {
