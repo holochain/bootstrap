@@ -1,4 +1,5 @@
 import * as Crypto from '../../src/crypto/crypto'
+import * as Base64 from '../../src/base64/base64'
 import { strict as assert } from 'assert'
 import * as Agents from '../fixture/agents'
 import * as NaCl from 'tweetnacl'
@@ -9,7 +10,7 @@ describe('base64 handling', () => {
   const bytes = Uint8Array.from([215, 109, 192, 4])
 
   assert.deepEqual(
-   Crypto.base64ToBytes(base64),
+   Base64.toBytes(base64),
    bytes,
   )
  })
@@ -22,10 +23,10 @@ describe('validate signatures', () => {
   const expectedSignature:Crypto.Signature = NaCl.sign.detached(message, Agents.alice.secretKey)
   assert.deepEqual(validSignature, expectedSignature)
 
-  // should verify true when everything lines up
+  // Should verify true when everything lines up.
   assert.ok(Crypto.verify(message, validSignature, Agents.alice.publicKey))
 
-  // none of these are valid
+  // None of these are valid.
   for (let [m, sig, pub] of [
    [Uint8Array.from([1, 2]), validSignature, Agents.alice.publicKey],
    [message, validSignature, Agents.bob.publicKey],
