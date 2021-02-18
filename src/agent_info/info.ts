@@ -170,8 +170,6 @@ export const AgentInfo = D.type({
  signed_at_ms: SignedAtMsSafe,
  // Milliseconds after which this info expires relative to the signature time.
  expires_after_ms: ExpiresAfterMsSafe,
- // Information that is not used for bootstrapping.
- meta_info: MP.messagePackData,
 })
 export type AgentInfo = D.TypeOf<typeof AgentInfo>
 

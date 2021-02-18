@@ -42,7 +42,6 @@ export const aliceAgentVapor:AgentInfo = {
  urls: ['https://example.com', 'https://foo.com'],
  signed_at_ms: Date.now(),
  expires_after_ms: 100000,
- meta_info: new Uint8Array(0),
 }
 export const aliceAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(aliceAgentVapor), alice.secretKey),
@@ -56,7 +55,6 @@ export const aliceAgentWiki:AgentInfo = {
  urls: ["https://alice.com"],
  signed_at_ms: Date.now(),
  expires_after_ms: 150000,
- meta_info: new Uint8Array(0),
 }
 export const aliceAgentWikiSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(aliceAgentWiki), alice.secretKey),
@@ -70,7 +68,6 @@ export const bobAgentVapor:AgentInfo = {
  urls: ["https://bob.com"],
  signed_at_ms: Date.now(),
  expires_after_ms: 100000,
- meta_info: new Uint8Array(0),
 }
 export const bobAgentVaporSignedRaw:AgentInfoSignedRaw = {
  signature: Crypto.sign(encode(bobAgentVapor), bob.secretKey),
