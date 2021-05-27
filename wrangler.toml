@@ -8,7 +8,7 @@ route = "devnet-bootstrap.holo.host/*"
 vars = { ENVIRONMENT = "dev" }
 
 kv_namespaces = [
- { binding = "BOOTSTRAP", id = "af6400fe4b724c4f871381d676a6f7d6" }
+ { binding = "BOOTSTRAP", id = "af6400fe4b724c4f871381d676a6f7d6", preview_id = "349a0cf3b1ea4b4999ffe11e66f0a7fc" }
 ]
 
 [env.mainnet]
