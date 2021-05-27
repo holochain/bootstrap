@@ -1,4 +1,4 @@
-name: Continuous Deployment to DevNet
+name: Continuous Deployment to MainNet
 
 on:
   push:
