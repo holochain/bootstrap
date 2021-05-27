@@ -37,7 +37,7 @@ branches:
           - peeech
           - zippy
         teams: []
-  - name: master
+  - name: main
     protection:
       required_pull_request_reviews:
         required_approving_review_count: 2
