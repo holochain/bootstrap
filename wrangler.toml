@@ -1,8 +1,20 @@
-name = "bootstrap-dev"
-type = "webpack"
-account_id = "18ff2b4e6205b938652998cfca0d8cff"
+name = "bootstrap-local"
+type = "javascript"
+zone_id = ""
+account_id = ""
+route = ""
 workers_dev = true
-webpack_config = "webpack.config.js"
+vars = { ENVIRONMENT = "dev" }
+compatibility_date = "2022-01-14"
+
+[build]
+command = "npm install && npm run build"
+[build.upload]
+format = "service-worker"
+
+[env.dev]
+name = "bootstrap-dev"
+account_id = "18ff2b4e6205b938652998cfca0d8cff"
 kv_namespaces = [
  { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c", preview_id = "30ff63d04cb5433db469a041f67783da" }
 ]
@@ -11,9 +23,9 @@ vars = { ENVIRONMENT = "dev" }
 [env.production]
 name = "bootstrap"
 workers_dev = false
-vars = { ENVIRONMENT = "production" }
 route = "bootstrap.holo.host"
 zone_id = "35f34e8f9d04ef8c87283ea9fb812989"
 kv_namespaces = [
  { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c" }
 ]
+vars = { ENVIRONMENT = "production" }

@@ -8,55 +8,21 @@ jobs:
   runs-on: ubuntu-latest
   strategy:
    matrix:
-    node: ['12', '14']
-
-  env:
-   CARGO_HOME: ${{ github.workspace }}/.cargo
-   CARGO_INSTALL_ROOT: ${{ github.workspace }}/.cargo
+    node: ['16'] # miniflare only runs on node >= 16.7.0
 
   steps:
+   # Checkout code
    - uses: actions/checkout@v2
-
-   # This does NOT work for using wrangler directly in other steps.
-   # For a start it installs wrangler in a location behind root permissions
-   # even with a chown it segfaults and doesn't pick up on the apiToken set here
-   # with a simple `wrangler whoami`
-   # overall it seeems easier to install wrangler directly
-   # e.g. https://github.com/holochain/bootstrap/runs/1319497106?check_suite_focus=true
-   # - uses: cloudflare/wrangler-action@1.3.0
-   #   with:
-   #     apiToken: ${{ secrets.CF_API_TOKEN }}
-   #     publish: false
-   # - run: sudo chown -R runner:docker ${{ github.workspace }}/.wrangler
-   # - run: echo "${{ github.workspace }}/.wrangler/bin" >> $GITHUB_PATH
-   # - run: wrangler whoami
-
-   # This DOES work even though it is more verbose and a bit slower to install
-   # wrangler from scratch via a direct cargo compile.
-   - run: echo "CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}" >> $GITHUB_ENV
-   - run: echo "${CARGO_INSTALL_ROOT}/bin" >> $GITHUB_PATH
-   - uses: actions/cache@v2
-     with:
-       path: |
-         ${{ env.CARGO_HOME }}/registry
-         ${{ env.CARGO_HOME }}/git
-         ${{ env.CARGO_INSTALL_ROOT }}
-         target
-       key: ${{ runner.os }}-cargo-${{ github.ref }}
-   - run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-   # The cargo install of wrangler is more reliable than the npm one, I found.
-   - run: cargo install wrangler
-   - run: wrangler whoami
 
    # Need to do the javascript builds for the wrangler to have compiled
    # typescript to work with.
-   - uses: actions/setup-node@v2-beta
+   - uses: actions/setup-node@v2
      with:
        node-version: ${{ matrix.node }}
-   - run: npm install
 
-   # Run wrangler dev in the background and hit it with the test suite.
-   - run: wrangler dev &
-   # This just waits for the detached background task to be ready.
-   - run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' 127.0.0.1:8787)" != "200" ]]; do sleep 1 && echo 'waiting for wrangler'; done
-   - run: npm test
+   # Install node dependencies
+   - run: npm ci
+
+   # Execute test script that runs miniflare in the background
+   # as a local cloudflare api simulator target.
+   - run: node ./test-exec.js

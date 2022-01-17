@@ -11,16 +11,10 @@ Tested on CI against node major versions `12` and `14` on ubuntu.
 
 Standard `npm install` to install.
 
-Running tests is `npm test` _but requires a running `wrangler dev`._
+Running tests is `npm test` _but requires a running `npm run miniflare`._
 
-Wrangler can be installed with npm globally as `npm i -g @cloudflare/wrangler`
-but this is simply wrapping a rust binary that can be compiled and installed
-directly with `cargo install wrangler`. I fould the latter can be more reliable
-if you're seeing issues like segfaults with the npm approach.
-
-If you're using nix there is a `shell.nix` that provides relevant `npm`,
-`cargo`, and `rustc`, with a shell hook to install npm and wrangler into the
-repository (not globally).
+- `npm run miniflare` - will run a local cloudflare simulator of the service worker with a correctly attached KV store.
+- `npm test` - will execute the test suite against this cloudflare simulator.
 
 ## Forking
 

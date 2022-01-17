@@ -1,8 +1,8 @@
 {
-  "name": "pname",
+  "name": "holochain-bootstrap",
   "version": "1.0.0",
-  "description": "Cloudflare worker TypeScript template",
-  "main": "index.js",
+  "description": "holochain bootstrap cloudflare worker",
+  "main": "dist/worker.js",
   "scripts": {
     "build": "webpack",
     "dev": "NODE_ENV=development npm run build",
@@ -15,6 +15,7 @@
   "license": "MIT OR Apache-2.0",
   "devDependencies": {
     "@cloudflare/workers-types": "^2.0.0",
+    "@cloudflare/wrangler": "^1.19.7",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
@@ -26,6 +27,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "miniflare": "^2.0.0",
     "mocha": "^8.0.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
@@ -41,6 +43,7 @@
     "@msgpack/msgpack": "^2.3.0",
     "@types/node": "^14.11.8",
     "@types/service-worker-mock": "^2.0.1",
+    "assert": "^2.0.0",
     "fp-ts": "^2.8.4",
     "io-ts": "^2.2.11",
     "lodash": "^4.17.20",
