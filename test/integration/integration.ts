@@ -1,4 +1,4 @@
-import * as fetch from 'node-fetch'
+import fetch from 'node-fetch'
 import * as Agents from '../fixture/agents'
 import { vaporChatSpace, wikiSpace, emptySpace } from '../fixture/spaces'
 import * as MP from '../../src/msgpack/msgpack'
@@ -22,6 +22,7 @@ describe('integration tests', () => {
 
  })
 
+/*
  it('should handle POST errors', async function() {
 
   // needs an extended timeout to post everything
@@ -72,7 +73,9 @@ describe('integration tests', () => {
   )
 
  })
+ */
 
+/*
  it('should POST correctly', async function() {
 
   // needs an extended timeout to post everything
@@ -175,5 +178,6 @@ describe('integration tests', () => {
   )
 
  })
+*/
 
 })

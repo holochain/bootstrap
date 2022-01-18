@@ -8,7 +8,7 @@ vars = { ENVIRONMENT = "dev" }
 compatibility_date = "2022-01-14"
 
 [build]
-command = "npm install && npm run build"
+command = "npm ci && npm run build"
 [build.upload]
 format = "service-worker"
 
