@@ -2,7 +2,7 @@
   "name": "holochain-bootstrap",
   "version": "1.0.0",
   "description": "holochain bootstrap cloudflare worker",
-  "main": "dist/worker.js",
+  "main": "dist/worker.production.js",
   "scripts": {
     "build": "webpack",
     "dev": "NODE_ENV=development npm run build",
@@ -14,10 +14,12 @@
   "author": "author",
   "license": "MIT OR Apache-2.0",
   "devDependencies": {
-    "@cloudflare/workers-types": "^2.0.0",
+    "@cloudflare/workers-types": "^3.3.1",
     "@cloudflare/wrangler": "^1.19.7",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
+    "@types/node": "^14.11.8",
+    "@types/service-worker-mock": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "chai": "^4.2.0",
@@ -29,24 +31,21 @@
     "eslint-plugin-standard": "^4.0.1",
     "miniflare": "^2.0.0",
     "mocha": "^8.0.1",
-    "prettier": "^2.0.5",
+    "node-fetch": "^2.6.1",
+    "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "service-worker-mock": "^2.0.5",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^9.2.6",
     "tweetnacl": "^1.0.3",
-    "typescript": "^3.9.5",
-    "webpack": "^5.1.3",
-    "webpack-cli": "^4"
+    "typescript": "^4.5.4",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
     "@holo-host/wasm-key-manager": "0.0.5",
-    "@msgpack/msgpack": "^2.3.0",
-    "@types/node": "^14.11.8",
-    "@types/service-worker-mock": "^2.0.1",
-    "assert": "^2.0.0",
+    "@msgpack/msgpack": "^2.7.1",
     "fp-ts": "^2.8.4",
     "io-ts": "^2.2.11",
-    "lodash": "^4.17.20",
-    "node-fetch": "^2.6.1"
+    "lodash": "^4.17.20"
   }
 }

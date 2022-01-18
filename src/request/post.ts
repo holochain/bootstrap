@@ -3,7 +3,6 @@ import { list } from '../op/list'
 import { get } from '../op/get'
 import { random } from '../op/random'
 import { now } from '../op/now'
-import { strict as assert } from 'assert'
 import * as MP from '../msgpack/msgpack'
 
 const DISPATCH_HEADER: string = 'X-Op'
@@ -40,5 +39,5 @@ export async function postHandler(event: Event): Promise<Response> {
     default:
       return new Response(MP.encode('unknown op'), { status: 500 })
   }
-  assert.unreachable('broken dispatch switch')
+  throw new Error('broken dispatch switch')
 }

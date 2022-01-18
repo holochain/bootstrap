@@ -12,7 +12,7 @@ function agentFromKey(prefix: Base64.Value, key: string): KitsuneAgent {
   if (key.indexOf(prefix) === 0) {
     return Base64.toBytes(key.slice(prefix.length))
   }
-  assert.unreachable(`${prefix} prefix not found at start of key ${key}`)
+  throw new Error(`${prefix} prefix not found at start of key ${key}`)
 }
 
 // Paginates through the kv list API using the space as a prefix.
