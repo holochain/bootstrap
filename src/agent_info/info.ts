@@ -74,7 +74,7 @@ export const SignedAtMs = D.number
 export type SignedAtMs = D.TypeOf<typeof SignedAtMs>
 
 // Decoded SignedAtMs with various sanity checks applied.
-export const SignedAtMsSafe: D.Decoder<any, number> = {
+export const SignedAtMsSafe: D.Decoder<number, number> = {
   decode: (a: number) => {
     return pipe(
       D.number.decode(a),
@@ -117,7 +117,7 @@ export const ExpiresAfterMs = D.number
 export type ExpiresAfterMs = D.TypeOf<typeof ExpiresAfterMs>
 
 // Decoded ExpiresAfterMs with various sanity checks applied.
-export const ExpiresAfterMsSafe: D.Decoder<any, number> = {
+export const ExpiresAfterMsSafe: D.Decoder<number, number> = {
   decode: (a: number) => {
     return pipe(
       D.number.decode(a),

@@ -12,11 +12,9 @@ import { pipe } from 'fp-ts/lib/pipeable'
 // Returns null if everything works and the put is successful.
 export async function put(
   agentInfoSignedRawData: MP.MessagePackData,
-): Promise<E.Either<Error, unknown>> {
+): void | Error {
   try {
-    let doPut = async (
-      agentInfoSigned: AgentSigned.AgentInfoSigned,
-    ): Promise<null> => {
+    let doPut = async (agentInfoSigned) => {
       let key = KV.agentKey(
         agentInfoSigned.agent_info.space,
         agentInfoSigned.agent_info.agent,
@@ -36,13 +34,13 @@ export async function put(
       return null
     }
 
-    let res = AgentSigned.AgentInfoSignedSafe.decode(agentInfoSignedRawData)
-    if (E.isLeft(res)) {
-      return E.left(new Error(JSON.stringify(res.left)))
-    } else {
-      await doPut(res.right)
-      return E.right(null)
-    }
+    return pipe(
+      AgentSigned.AgentInfoSignedSafe.decode(agentInfoSignedRawData),
+      E.chain(async (agentInfoSignedValue) =>
+        D.success(await doPut(agentInfoSignedValue)),
+      ),
+      E.mapLeft((v) => Error(JSON.stringify(v))),
+    )
   } catch (e) {
     return e
   }

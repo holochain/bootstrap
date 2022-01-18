@@ -7,7 +7,7 @@ import * as KVPut from '../kv/put'
 // Returns messagepack null if successful or the error if there is an error.
 export async function put(
   input: MP.MessagePackData,
-): Promise<MP.MessagePackData | Error> {
+): MP.MessagePackData | Error {
   try {
     let p = await KVPut.put(input)
     if (E.isLeft(p)) {

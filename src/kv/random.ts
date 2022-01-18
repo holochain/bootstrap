@@ -28,16 +28,14 @@ export const QuerySafe: D.Decoder<MP.MessagePackData, Query> = {
 
 // Shuffle with a lazy generator because the list may be very long internally.
 // Allows us to stop shuffling after `limit` entries have been returned.
-function* shuffle(array: any) {
+function* shuffle(array) {
   var i = array.length
   while (i--) {
     yield array.splice(Math.floor(Math.random() * (i + 1)), 1)[0]
   }
 }
 
-export async function random(
-  query: Query,
-): Promise<Array<MP.MessagePackData | Error>> {
+export async function random(query: Query): MP.MessagePackData {
   let { space, limit } = query
   // Need to be random over the complete list for the whole space even if we use
   // a generator to shuffle, otherwise we won't ever return agents after the

@@ -6,6 +6,16 @@
     "sourceMap": true,
     "experimentalDecorators": true,
     "lib": ["esnext"],
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "typeRoots": ["./type-fixes"],
+    "types": [
+      "@cloudflare/workers-types",
+      "@types/mocha",
+      "@types/service-worker-mock"
+    ]
+  },
+  "include": [
+    "./*.ts",
+    "./**/*.ts"
+  ]
 }

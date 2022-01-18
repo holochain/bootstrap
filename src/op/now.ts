@@ -6,7 +6,7 @@ import * as MP from '../msgpack/msgpack'
 // for agents to sync against, not to write or have data verified against.
 export const now = async (
   _: MP.MessagePackData,
-): Promise<MP.MessagePackData | Error> => {
+): MP.MessagePackData | Error => {
   try {
     return MP.encode(Date.now())
   } catch (e) {

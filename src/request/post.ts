@@ -39,5 +39,5 @@ export async function postHandler(event: Event): Promise<Response> {
     default:
       return new Response(MP.encode('unknown op'), { status: 500 })
   }
-  throw new Error('unreachable')
+  throw new Error('broken dispatch switch')
 }
