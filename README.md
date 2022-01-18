@@ -417,15 +417,19 @@ attempt to join, which has benefits beyond eclipse protection.
 
 Get the time 'now' from the service as a millisecond unix timestamp.
 
-The `signed_at_ms` MUST be in the past from the perspective of the bootstrap
-service otherwise agent info won't be accepted.
+The `signed_at_ms` SHOULD be in the past from the perspective of the bootstrap
+service but this is NOT enforced. The correctness of times remains between
+agents and so the bootstrap service is agnostic to far future signed and expiry
+times. That said, the bootstrap service will not hold data longer than an hour
+and peers are free to ignore bad times (in their opinion).
 
-If an agent wants to be sure that the signing time will be accepted by the
-service it can first call `now` and then use the returned timestamp for signing.
+If an agent wants some assurance that the signing time will be accepted by
+their peers it can first call `now` and then use the returned timestamp for
+signing.
 
 An agent can call `now` once upon booting a conductor and then calculate an
 offset relative to their agent local time, then use the offset for as long as it
-is safe to assume that the local clock has not shifted relative to the service.
+is safe to assume that the local clock has not shifted.
 
 A full clock sync algorithm like (S)NTP is NOT required, the signing time simply
 needs to be within a few seconds on both machines and in the past from the
@@ -464,10 +468,6 @@ error SHOULD be descriptive to aid logging and debugging.
     characters are counted as several bytes towards the limit.
 12. Check the `signed_at_ms` is an integer.
 13. Check the `signed_at_ms` is a positive number.
-14. Check the `signed_at_ms` is in the past relative to the bootstrap service's
-    local time, interpreted as a unix timestamp in milliseconds.
-    The `NOW_THRESHOLD_MS` offset is allowed if the signed time is slightly in
-    the future, to allow for networking issues.
 15. Check the `expires_after_ms` is an integer.
 16. Check the `expires_after_ms` is between `MIN_EXPIRES` and `MAX_EXPIRES`.
     These are currently 1 minute and 1 hour respectively, in milliseconds.

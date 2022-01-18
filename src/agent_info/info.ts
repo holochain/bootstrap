@@ -15,14 +15,6 @@ export const MAX_URL_SIZE = 2048
 // The maximum numbers of urls that a single agent can register.
 export const MAX_URLS = 256
 
-// The number of milliseconds we will accept for a signature in the future.
-// This allows leeway for agents with a clock that is 'slightly' different to
-// the server time.
-// Agents are strongly encouraged to use the `now` op as a preflight task for a
-// conductor session in order to gauge for themselves whether their local time
-// is safe for use as a signature timestamp.
-export const NOW_THRESHOLD_MS = 10000
-
 // The maximum number of milliseconds that agent info will be valid relative to
 // its signature time.
 // Equal to 1 hour.
@@ -32,15 +24,6 @@ export const MAX_EXPIRES = 60 * 60 * 1000
 // to its signature time.
 // Equal to 1 minute.
 export const MIN_EXPIRES = 60 * 1000
-
-// The local now as reported by the operating system and returned by the `now`
-// op + a threshold in milliseconds. If an agent has a clock ahead of us by less
-// than the threshold we will still accept it to compensate for minor jitter
-// such as networking issues.
-// The safety of this assumes that NOW_THRESHOLD_MS is negligible relative to
-// MIN_EXPIRES.
-export const now = ():number =>
- Date.now() + NOW_THRESHOLD_MS
 
 // A single url an agent can be found at.
 // Each url has a maximum size in bytes and is a valid utf8 string.
@@ -93,15 +76,6 @@ export const SignedAtMsSafe: D.Decoder<number, number> = {
      return D.failure(
       a,
       'signed at ms is negative ' + signedAtMs,
-     )
-    }
-
-    // Signatures must happen in the past.
-    let now_ms = now()
-    if (now_ms < signedAtMs) {
-     return D.failure(
-      a,
-      'signed at ms ' + signedAtMs + ' is in the future relative to now ' + now_ms
      )
     }
 
