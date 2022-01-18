@@ -1,4 +1,4 @@
-import * as D from "io-ts/Decoder"
+import * as D from 'io-ts/Decoder'
 import * as Kitsune from '../kitsune/kitsune'
 import * as MP from '../msgpack/msgpack'
 import { Uint8ArrayDecoder } from '../io/io'
@@ -39,28 +39,28 @@ export const MIN_EXPIRES = 60 * 1000
 // such as networking issues.
 // The safety of this assumes that NOW_THRESHOLD_MS is negligible relative to
 // MIN_EXPIRES.
-export const now = ():number =>
- Date.now() + NOW_THRESHOLD_MS
+export const now = (): number => Date.now() + NOW_THRESHOLD_MS
 
 // A single url an agent can be found at.
 // Each url has a maximum size in bytes and is a valid utf8 string.
 export const Url = pipe(
- D.string,
- D.refine(
-  (input): input is string => Buffer.byteLength(input, 'utf8') <= MAX_URL_SIZE,
-  `URL cannot be longer than ${MAX_URL_SIZE} bytes.`,
- ),
+  D.string,
+  D.refine(
+    (input): input is string =>
+      Buffer.byteLength(input, 'utf8') <= MAX_URL_SIZE,
+    `URL cannot be longer than ${MAX_URL_SIZE} bytes.`,
+  ),
 )
 export type Url = D.TypeOf<typeof Url>
 
 // A list of urls an agent can be found at.
 // There is a limit to the numbers of urls a single agent can register.
 export const Urls = pipe(
- D.array(D.string),
- D.refine(
-  (input): input is Array<string> => input.length <= MAX_URLS,
-  `Agents cannot have more than ${MAX_URLS} urls.`,
- ),
+  D.array(D.string),
+  D.refine(
+    (input): input is Array<string> => input.length <= MAX_URLS,
+    `Agents cannot have more than ${MAX_URLS} urls.`,
+  ),
 )
 export type Urls = D.TypeOf<typeof Urls>
 
@@ -75,40 +75,36 @@ export type SignedAtMs = D.TypeOf<typeof SignedAtMs>
 
 // Decoded SignedAtMs with various sanity checks applied.
 export const SignedAtMsSafe: D.Decoder<number, number> = {
- decode: (a:number) => {
-  return pipe(
-   D.number.decode(a),
-   E.chain(signedAtMs => {
+  decode: (a: number) => {
+    return pipe(
+      D.number.decode(a),
+      E.chain((signedAtMs) => {
+        // Milliseconds must be an integer.
+        if (!Number.isInteger(signedAtMs)) {
+          return D.failure(a, 'signed at ms is not an integer ' + signedAtMs)
+        }
 
-    // Milliseconds must be an integer.
-    if ( !Number.isInteger(signedAtMs) ) {
-     return D.failure(
-      a,
-      'signed at ms is not an integer ' + signedAtMs,
-     )
-    }
+        // Time must be positive.
+        if (signedAtMs <= 0) {
+          return D.failure(a, 'signed at ms is negative ' + signedAtMs)
+        }
 
-    // Time must be positive.
-    if ( signedAtMs <= 0 ) {
-     return D.failure(
-      a,
-      'signed at ms is negative ' + signedAtMs,
-     )
-    }
+        // Signatures must happen in the past.
+        let now_ms = now()
+        if (now_ms < signedAtMs) {
+          return D.failure(
+            a,
+            'signed at ms ' +
+              signedAtMs +
+              ' is in the future relative to now ' +
+              now_ms,
+          )
+        }
 
-    // Signatures must happen in the past.
-    let now_ms = now()
-    if (now_ms < signedAtMs) {
-     return D.failure(
-      a,
-      'signed at ms ' + signedAtMs + ' is in the future relative to now ' + now_ms
-     )
-    }
-
-    return D.success(signedAtMs)
-   })
-  )
- }
+        return D.success(signedAtMs)
+      }),
+    )
+  },
 }
 
 // Time the agent wishes to be found at the published location.
@@ -122,88 +118,95 @@ export type ExpiresAfterMs = D.TypeOf<typeof ExpiresAfterMs>
 
 // Decoded ExpiresAfterMs with various sanity checks applied.
 export const ExpiresAfterMsSafe: D.Decoder<number, number> = {
- decode: (a:number) => {
-  return pipe(
-   D.number.decode(a),
-   E.chain(expiresAfterMs => {
+  decode: (a: number) => {
+    return pipe(
+      D.number.decode(a),
+      E.chain((expiresAfterMs) => {
+        // Milliseconds must be an integer.
+        if (!Number.isInteger(expiresAfterMs)) {
+          return D.failure(
+            a,
+            'expires after time is not an integer ' + expiresAfterMs,
+          )
+        }
 
-    // Milliseconds must be an integer.
-    if ( !Number.isInteger(expiresAfterMs) ) {
-     return D.failure(
-      a,
-      'expires after time is not an integer ' + expiresAfterMs,
-     )
-    }
+        // Expiry times cannot be too short.
+        if (expiresAfterMs < MIN_EXPIRES) {
+          return D.failure(
+            a,
+            'expires after time ' +
+              expiresAfterMs +
+              ' is less than min expiry time ' +
+              MIN_EXPIRES,
+          )
+        }
 
-    // Expiry times cannot be too short.
-    if ( expiresAfterMs < MIN_EXPIRES ) {
-     return D.failure(
-      a,
-      'expires after time ' + expiresAfterMs + ' is less than min expiry time ' + MIN_EXPIRES,
-     )
-    }
+        // Expiry times cannot be too long.
+        if (expiresAfterMs > MAX_EXPIRES) {
+          return D.failure(
+            a,
+            'expires after time ' +
+              expiresAfterMs +
+              ' is longer than max expiry time ' +
+              MAX_EXPIRES,
+          )
+        }
 
-    // Expiry times cannot be too long.
-    if ( expiresAfterMs > MAX_EXPIRES ) {
-     return D.failure(
-      a,
-      'expires after time ' + expiresAfterMs + ' is longer than max expiry time ' + MAX_EXPIRES,
-     )
-    }
-
-    return D.success(expiresAfterMs)
-   })
-  )
- }
+        return D.success(expiresAfterMs)
+      }),
+    )
+  },
 }
 
 export const AgentInfo = D.type({
- // Each agent info is specific to one space.
- // Many active spaces implies many active agent infos, even if the network
- // connection used by the agent is identical for all spaces.
- space: Kitsune.Space,
- // The agent public key.
- agent: Kitsune.Agent,
- // List of urls the agent can be connected to at.
- urls: Urls,
- // Unix timestamp milliseconds the info was signed.
- signed_at_ms: SignedAtMsSafe,
- // Milliseconds after which this info expires relative to the signature time.
- expires_after_ms: ExpiresAfterMsSafe,
- // Information that is not used for bootstrapping.
- meta_info: MP.messagePackData,
+  // Each agent info is specific to one space.
+  // Many active spaces implies many active agent infos, even if the network
+  // connection used by the agent is identical for all spaces.
+  space: Kitsune.Space,
+  // The agent public key.
+  agent: Kitsune.Agent,
+  // List of urls the agent can be connected to at.
+  urls: Urls,
+  // Unix timestamp milliseconds the info was signed.
+  signed_at_ms: SignedAtMsSafe,
+  // Milliseconds after which this info expires relative to the signature time.
+  expires_after_ms: ExpiresAfterMsSafe,
+  // Information that is not used for bootstrapping.
+  meta_info: MP.messagePackData,
 })
 export type AgentInfo = D.TypeOf<typeof AgentInfo>
 
 export const AgentInfoSafe: D.Decoder<MP.MessagePackData, AgentInfo> = {
- decode: (a: unknown) => {
-  return pipe(
-   Uint8ArrayDecoder.decode(a),
-   E.chain(value => MP.messagePackDecoder.decode(value)),
-   E.fold(
-    errors => D.failure(a, JSON.stringify(errors)),
-    rawValue => pipe(
-     AgentInfo.decode(rawValue),
-     E.fold(
-      errors => D.failure(a, JSON.stringify(errors)),
-      agentInfoValue => {
-       // Ensure that the decoded AgentInfo matches the generic object.
-       // This flags the situation where additional properties were added to
-       // the object that were dropped on the AgentInfo. We don't accept this
-       // because honest nodes should always sign exactly valid data.
-       if (_.isEqual(agentInfoValue, rawValue)) {
-        return D.success(agentInfoValue)
-       }
-       else {
-        return D.failure(
-         a,
-         JSON.stringify(agentInfoValue) + ' does not equal ' + JSON.stringify(rawValue),
-        )
-       }
-      }
-     )
+  decode: (a: unknown) => {
+    return pipe(
+      Uint8ArrayDecoder.decode(a),
+      E.chain((value) => MP.messagePackDecoder.decode(value)),
+      E.fold(
+        (errors) => D.failure(a, JSON.stringify(errors)),
+        (rawValue) =>
+          pipe(
+            AgentInfo.decode(rawValue),
+            E.fold(
+              (errors) => D.failure(a, JSON.stringify(errors)),
+              (agentInfoValue) => {
+                // Ensure that the decoded AgentInfo matches the generic object.
+                // This flags the situation where additional properties were added to
+                // the object that were dropped on the AgentInfo. We don't accept this
+                // because honest nodes should always sign exactly valid data.
+                if (_.isEqual(agentInfoValue, rawValue)) {
+                  return D.success(agentInfoValue)
+                } else {
+                  return D.failure(
+                    a,
+                    JSON.stringify(agentInfoValue) +
+                      ' does not equal ' +
+                      JSON.stringify(rawValue),
+                  )
+                }
+              },
+            ),
+          ),
+      ),
     )
-   )
-  )
- }
+  },
 }

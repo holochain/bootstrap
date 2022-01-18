@@ -6,11 +6,11 @@
     "sourceMap": true,
     "experimentalDecorators": true,
     "lib": ["esnext", "webworker"],
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
   "include": [
-   "./*.ts",
-   "./**/*.ts",
-   "../node_modules/@cloudflare/workers-types/index.d.ts"
+    "./*.ts",
+    "./**/*.ts",
+    "../node_modules/@cloudflare/workers-types/index.d.ts"
   ]
 }

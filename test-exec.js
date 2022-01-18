@@ -13,7 +13,7 @@ let miniflare = null
 /**
  * Cleanup the miniflare sub-process
  */
-function cleanup () {
+function cleanup() {
   if (miniflare) {
     miniflare.kill()
     console.log('[text-exec]: cleanup')
@@ -23,7 +23,7 @@ function cleanup () {
 /**
  * Execute `npm test` taking care to exit with an error code on failure
  */
-function execTest (resolve, reject) {
+function execTest(resolve, reject) {
   try {
     // spawn `npm test`
     const proc = spawn('npm', ['test'], {
@@ -35,7 +35,7 @@ function execTest (resolve, reject) {
     proc.stdin.end()
 
     // set up events to handle exit conditions
-    proc.on('close', code => {
+    proc.on('close', (code) => {
       console.log('[test-exec]: npm test closed', code)
       if (typeof code === 'number' && code === 0) {
         resolve()
@@ -47,7 +47,7 @@ function execTest (resolve, reject) {
       console.log('[test-exec]: npm test disconnected')
       reject(new Error('npm test disconnect'))
     })
-    proc.on('exit', code => {
+    proc.on('exit', (code) => {
       console.log('[test-exec]: npm test exited', code)
       if (typeof code === 'number' && code === 0) {
         resolve()
@@ -55,7 +55,7 @@ function execTest (resolve, reject) {
         reject(new Error('npm test bad exit code: ' + code))
       }
     })
-    proc.on('error', err => {
+    proc.on('error', (err) => {
       console.error('[test-exec]: npm test errored', err)
       reject(err)
     })
@@ -67,7 +67,7 @@ function execTest (resolve, reject) {
 /**
  * Start a miniflare sub-process, then run `npm test` as a sub-process.
  */
-function main () {
+function main() {
   // make pathing easier, always relative to this script directory
   process.chdir(__dirname)
 
@@ -87,22 +87,29 @@ function main () {
     // rather than using ./node_modules/.bin/miniflare
     // because otherwise our kill command does not propagate down
     // and we end up creating zombie miniflare processes.
-    miniflare = spawn('node', [
-      '--experimental-vm-modules',
-      './node_modules/miniflare/dist/src/cli.js',
-      '--kv',
-      'BOOTSTRAP'
-    ], {
-      shell: false,
-      stdio: 'pipe',
-    })
+    miniflare = spawn(
+      'node',
+      [
+        '--experimental-vm-modules',
+        './node_modules/miniflare/dist/src/cli.js',
+        '--kv',
+        'BOOTSTRAP',
+      ],
+      {
+        shell: false,
+        stdio: 'pipe',
+      },
+    )
 
     // close the sub-process stdin
     miniflare.stdin.end()
 
     // set up events to handle exit conditions
-    miniflare.stdout.on('data', data => {
-      console.log('[test-exec:STDOUT]:' + data.toString().replaceAll('\n','\n[test-exec:STDOUT]:'))
+    miniflare.stdout.on('data', (data) => {
+      console.log(
+        '[test-exec:STDOUT]:' +
+          data.toString().replaceAll('\n', '\n[test-exec:STDOUT]:'),
+      )
 
       // when the local server is listening, we can spawn the test
       if (data.toString().includes('- http://127.0.0.1:8787')) {
@@ -112,10 +119,13 @@ function main () {
         execTest(resolve, reject)
       }
     })
-    miniflare.stderr.on('data', data => {
-      console.log('[test-exec:STDERR]:' + data.toString().replaceAll('\n','\n[test-exec:STDERR]:'))
+    miniflare.stderr.on('data', (data) => {
+      console.log(
+        '[test-exec:STDERR]:' +
+          data.toString().replaceAll('\n', '\n[test-exec:STDERR]:'),
+      )
     })
-    miniflare.on('close', code => {
+    miniflare.on('close', (code) => {
       console.log('[test-exec]: miniflare closed', code)
       if (typeof code === 'number' && code === 0) {
         resolve()
@@ -127,7 +137,7 @@ function main () {
       console.log('[test-exec]: miniflare disconnected')
       reject(new Error('miniflare disconnect'))
     })
-    miniflare.on('exit', code => {
+    miniflare.on('exit', (code) => {
       console.log('[test-exec]: miniflare exited', code)
       if (typeof code === 'number' && code === 0) {
         resolve()
@@ -135,7 +145,7 @@ function main () {
         reject(new Error('miniflare bad exit code: ' + code))
       }
     })
-    miniflare.on('error', err => {
+    miniflare.on('error', (err) => {
       console.error('[test-exec]: miniflare errored', err)
       reject(err)
     })
@@ -147,11 +157,14 @@ function main () {
 }
 
 // entrypoint
-main().then(() => {
-  cleanup()
-  console.error('[test-exec]: done')
-}, err => {
-  cleanup()
-  console.error('[test-exec]:', err)
-  process.exitCode = 1
-})
+main().then(
+  () => {
+    cleanup()
+    console.error('[test-exec]: done')
+  },
+  (err) => {
+    cleanup()
+    console.error('[test-exec]:', err)
+    process.exitCode = 1
+  },
+)
