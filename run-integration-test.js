@@ -26,7 +26,7 @@ function cleanup() {
 function execTest(resolve, reject) {
   try {
     // spawn `npm test`
-    const proc = spawn('npm', ['test'], {
+    const proc = spawn('./node_modules/.bin/ts-mocha', ['integration/integration.ts'], {
       shell: false,
       stdio: ['pipe', 'inherit', 'inherit'],
     })

@@ -25,4 +25,4 @@ jobs:
 
    # Execute test script that runs miniflare in the background
    # as a local cloudflare api simulator target.
-   - run: node ./test-exec.js
+   - run: npm test

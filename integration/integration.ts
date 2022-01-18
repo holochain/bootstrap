@@ -1,9 +1,9 @@
 import * as fetch from 'node-fetch'
-import * as Agents from '../fixture/agents'
-import { vaporChatSpace, wikiSpace, emptySpace } from '../fixture/spaces'
-import * as MP from '../../src/msgpack/msgpack'
-import { strict as assert } from 'assert'
-import * as Kitsune from '../../src/kitsune/kitsune'
+import { assert } from 'chai'
+import * as Agents from '../test/fixture/agents'
+import { vaporChatSpace, wikiSpace, emptySpace } from '../test/fixture/spaces'
+import * as MP from '../src/msgpack/msgpack'
+import * as Kitsune from '../src/kitsune/kitsune'
 import * as _ from 'lodash'
 
 describe('integration tests', () => {
@@ -83,6 +83,7 @@ describe('integration tests', () => {
           return res.buffer()
         })
         .catch((err) => console.log(err))
+
       return MP.decode(Uint8Array.from(buffer))
     }
 
@@ -95,13 +96,15 @@ describe('integration tests', () => {
       assert.ok(false, 'now not a number')
     }
 
+
     // put alice and bob
     for (let agent of [
       Agents.aliceAgentVaporSignedRaw,
       Agents.aliceAgentWikiSignedRaw,
       Agents.bobAgentVaporSignedRaw,
     ]) {
-      assert.deepEqual(await doApi('put', agent), null)
+      let res = await doApi('put', agent)
+      assert.deepEqual(res, null)
     }
 
     // random list
