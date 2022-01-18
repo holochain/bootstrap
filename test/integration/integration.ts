@@ -7,22 +7,17 @@ import * as Kitsune from '../../src/kitsune/kitsune'
 import * as _ from 'lodash'
 
 describe('integration tests', () => {
+  let url = 'http://127.0.0.1:8787'
 
- let url = 'http://127.0.0.1:8787'
+  it('should GET correctly', async function () {
+    this.timeout(0)
 
- it('should GET correctly', async function() {
-  this.timeout(0)
+    let ok = await fetch(url).then((res) => res.text())
 
-  let ok = await fetch(url).then(res => res.text())
+    assert.deepEqual('OK', ok)
+  })
 
-  assert.deepEqual(
-   'OK',
-   ok,
-  )
-
- })
-
-/*
+  /*
  it('should handle POST errors', async function() {
 
   // needs an extended timeout to post everything
@@ -75,7 +70,7 @@ describe('integration tests', () => {
  })
  */
 
-/*
+  /*
  it('should POST correctly', async function() {
 
   // needs an extended timeout to post everything
@@ -179,5 +174,4 @@ describe('integration tests', () => {
 
  })
 */
-
 })

@@ -10,10 +10,7 @@
     "preserveConstEnums": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": [
-      "@cloudflare/workers-types",
-      "@types/node"
-    ]
+    "types": ["@cloudflare/workers-types", "@types/node"]
   },
   "include": [
     "./src/*.ts",
