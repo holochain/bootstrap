@@ -468,6 +468,6 @@ error SHOULD be descriptive to aid logging and debugging.
     characters are counted as several bytes towards the limit.
 12. Check the `signed_at_ms` is an integer.
 13. Check the `signed_at_ms` is a positive number.
-15. Check the `expires_after_ms` is an integer.
-16. Check the `expires_after_ms` is between `MIN_EXPIRES` and `MAX_EXPIRES`.
+14. Check the `expires_after_ms` is an integer.
+15. Check the `expires_after_ms` is between `MIN_EXPIRES` and `MAX_EXPIRES`.
     These are currently 1 minute and 1 hour respectively, in milliseconds.
