@@ -31,7 +31,7 @@ export const Url = pipe(
   D.string,
   D.refine(
     (input): input is string =>
-      Buffer.byteLength(input, 'utf8') <= MAX_URL_SIZE,
+      new TextEncoder().encode(input).length <= MAX_URL_SIZE,
     `URL cannot be longer than ${MAX_URL_SIZE} bytes.`,
   ),
 )
