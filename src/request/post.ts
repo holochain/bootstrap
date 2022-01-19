@@ -1,6 +1,4 @@
 import { put } from '../op/put'
-import { list } from '../op/list'
-import { get } from '../op/get'
 import { random } from '../op/random'
 import { now } from '../op/now'
 import * as MP from '../msgpack/msgpack'
@@ -11,7 +9,7 @@ const OP_RANDOM: string = 'random'
 const OP_NOW: string = 'now'
 
 async function handle(
-  f: (bytes: Uint8Array) => MP.MessagePackData | Error,
+  f: (bytes: Uint8Array) => Promise<MP.MessagePackData | Error>,
   input: MP.MessagePackData,
 ): Promise<Response> {
   // Every f needs to handle messagepack decoding itself so that the deserialized
@@ -19,7 +17,7 @@ async function handle(
   let tryF = await f(input)
 
   if (tryF instanceof Error) {
-    console.error('messagepack input:', input.toString('base64'))
+    console.error('messagepack input:', input.toString())
     console.error('error:', '' + tryF)
     return new Response('' + tryF, { status: 500 })
   }
@@ -27,7 +25,7 @@ async function handle(
   return new Response(tryF)
 }
 
-export async function postHandler(event: Event): Promise<Response> {
+export async function postHandler(event: FetchEvent): Promise<Response> {
   let input = new Uint8Array(await event.request.arrayBuffer())
   switch (event.request.headers.get(DISPATCH_HEADER)) {
     case OP_PUT:

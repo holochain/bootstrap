@@ -1,6 +1,6 @@
 import { postHandler } from './post'
 
-export async function eventDispatch(event: Event): Promise<Response> {
+export async function eventDispatch(event: FetchEvent): Promise<Response> {
   if (event.request.method === 'POST') {
     return postHandler(event)
   }
