@@ -29,7 +29,7 @@ export const messagePackDecoder: D.Decoder<Uint8Array, unknown> = {
     try {
       return D.success(Lib.decode(a))
     } catch (e) {
-      return D.failure(a, e)
+      return D.failure(a, JSON.stringify(e))
     }
   },
 }

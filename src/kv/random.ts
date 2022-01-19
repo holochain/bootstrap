@@ -35,7 +35,9 @@ function* shuffle(array: any) {
   }
 }
 
-export async function random(query: Query): Promise<MP.MessagePackData> {
+export async function random(
+  query: Query,
+): Promise<Array<MP.MessagePackData | Error>> {
   let { space, limit } = query
   // Need to be random over the complete list for the whole space even if we use
   // a generator to shuffle, otherwise we won't ever return agents after the

@@ -9,21 +9,25 @@ import * as KVRandom from '../kv/random'
 // @see random as documented under kv.
 export async function random(
   input: MP.MessagePackData,
-): MP.MessagePackData | Error {
+): Promise<MP.MessagePackData | Error> {
   try {
     let result = await pipe(
       KVRandom.QuerySafe.decode(input),
-      E.chain(async (queryValue) =>
-        D.success(MP.encode(await KVRandom.random(queryValue))),
-      ),
       E.mapLeft((v) => Error(JSON.stringify(v))),
+      E.map(async (queryValue) => {
+        return MP.encode(await KVRandom.random(queryValue))
+      }),
     )
     if (E.isLeft(result)) {
       return result.left
     } else {
-      return result.right
+      return await result.right
     }
   } catch (e) {
-    return e
+    if (e instanceof Error) {
+      return e
+    } else {
+      return new Error(JSON.stringify(e))
+    }
   }
 }
