@@ -11,10 +11,7 @@ Tested on CI against node major versions `12` and `14` on ubuntu.
 
 Standard `npm install` to install.
 
-Running tests is `npm test` _but requires a running `npm run miniflare`._
-
-- `npm run miniflare` - will run a local cloudflare simulator of the service worker with a correctly attached KV store.
-- `npm test` - will execute the test suite against this cloudflare simulator.
+Standard `npm test` to test. Unit tests will be run via ts-node/ts-mocha. Integration tests use the provided `run-integration-test.js` script which first launches a `miniflare` local cloudflare simulator, then executes the integration test suite making api calls against this simulator.
 
 ## Forking
 
@@ -390,15 +387,15 @@ Get _up to_ `limit` random `AgentInfoSigned` for a given `space`.
 `X-Op` header: `random`
 
 Request body: Messagepack serialized `{ space: Uint8Array, limit: number }`.
-The `limit` must be a positive integer.
+              The `limit` must be a positive integer.
 
 Successful response: Messagepack serialized array of `AgentInfoSigned` data.
-If there are at least `limit` agents in the `space` then
-there will always be `limit` random agents returned.
-If there are less than `limit` agents in the `space` then
-`limit` agents will be returned in random order.
-If there are no agents a messagepack empty array,
-i.e. `[221, 0, 0, 0, 0]`.
+                     If there are at least `limit` agents in the `space` then
+                     there will always be `limit` random agents returned.
+                     If there are less than `limit` agents in the `space` then
+                     `limit` agents will be returned in random order.
+                     If there are no agents a messagepack empty array,
+                     i.e. `[221, 0, 0, 0, 0]`.
 
 This is the default and recommended way for an agent to fetch node information
 as it balances network efficiency against eclipse mitigation via randomness.
