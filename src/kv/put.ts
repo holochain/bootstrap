@@ -6,6 +6,11 @@ import * as D from 'io-ts/Decoder'
 import * as E from 'fp-ts/lib/Either'
 import { pipe } from 'fp-ts/lib/pipeable'
 
+// The maximum number of milliseconds that agent info will be held by the
+// bootstrap service.
+// Equal to 1 hour.
+export const MAX_HOLD = 60 * 60 * 1000
+
 // Store an AgentInfoSignedRaw under the relevant key.
 // Returns error if the AgentInfoSignedRaw does not decode to a safe AgentInfo.
 // This includes validation issues such as invalid cryptographic signatures.
@@ -18,7 +23,10 @@ export async function put(agentInfoSignedRawData:MP.MessagePackData):void|Error 
    // Info expires relative to the time they were signed to enforce that agents
    // produce freshly signed info for each put.
    // Agents MUST explicitly set an expiry time relative to their signature time.
-   let expires = Math.floor( ( agentInfoSigned.agent_info.expires_after_ms + agentInfoSigned.agent_info.signed_at_ms ) / 1000 )
+   let expires = Math.min(
+       Math.floor( ( agentInfoSigned.agent_info.expires_after_ms + agentInfoSigned.agent_info.signed_at_ms ) / 1000 ),
+       Date.now() + MAX_HOLD
+   )
 
    // Cloudflare binds this global to the kv store.
    await BOOTSTRAP.put(key, value, {expiration: expires})
