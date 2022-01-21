@@ -10,7 +10,15 @@ compatibility_date = "2022-01-14"
 [build]
 command = "npm ci && npm run build"
 [build.upload]
-format = "service-worker"
+dir    = "./dist"
+format = "modules"
+main   = "./worker.js"
+[[build.upload.rules]]
+globs = ["**/*.js"]
+type  = "ESModule"
+[[build.upload.rules]]
+globs = ["**/*.wasm"]
+type  = "CompiledWasm"
 
 [env.dev]
 name = "bootstrap-dev"

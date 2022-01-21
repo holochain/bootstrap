@@ -1,3 +1,4 @@
+import { Ctx } from '../ctx'
 import * as Kitsune from '../kitsune/kitsune'
 import * as Base64 from '../base64/base64'
 import { pipe } from 'fp-ts/lib/pipeable'
@@ -18,6 +19,7 @@ function agentFromKey(prefix: Base64.Value, key: string): Kitsune.Agent {
 // Returns all pubkeys for all agents currently registered in the space.
 export async function list(
   space: Kitsune.Space,
+  ctx: Ctx,
 ): Promise<Array<Kitsune.Agent>> {
   let prefix = Base64.fromBytes(space)
   let keys: any[] = []
@@ -37,7 +39,7 @@ export async function list(
     }
 
     // This comes from cloudflare in the kv binding.
-    let list = await BOOTSTRAP.list(options)
+    let list = await ctx.BOOTSTRAP.list(options)
 
     more = !list.list_complete
     cursor = list.cursor
