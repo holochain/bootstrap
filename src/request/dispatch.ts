@@ -3,21 +3,8 @@ import { postHandler } from './post'
 import rust_to_wasm from '../rust-ffi'
 
 export async function requestDispatch(ctx: Ctx): Promise<Response> {
-  console.error('@@@@@', rust_to_wasm)
-  console.error('@@@@@', rust_to_wasm.wasm_test_fn('hello'))
-  /*
-  const R2W = await loadWasm()
-  const testRes = await R2W.proxy_list({
-    kv_list: async (limit: any, prefix: any, cursor: any) => {
-      return new Promise((res, _rej) => {
-        setTimeout(() => {
-          res('got: ' + JSON.stringify({ limit, prefix, cursor }))
-        }, 1)
-      })
-    },
-  })
+  const testRes = await rust_to_wasm.proxy_list(ctx.BOOTSTRAP)
   console.error('@@-r2w-proxy_list-test-@@', testRes)
-   */
 
   if (ctx.request.method === 'POST') {
     return postHandler(ctx)

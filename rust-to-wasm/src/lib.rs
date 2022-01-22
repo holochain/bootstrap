@@ -1,23 +1,34 @@
+#![deny(unsafe_code)]
+#![deny(missing_docs)]
+#![deny(warnings)]
+//! Holochain Bootstrap Code Cloudflare Typescript / Rust Wasm FFI Bindings
+
 use wasm_bindgen::prelude::*;
+use std::future::Future;
 
-pub type Result = std::result::Result<JsValue, JsValue>;
+use wasm_bindgen::JsCast;
+use std::iter::FromIterator;
 
+/// Generic Javascript Result Type
+pub type JsResult<T> = std::result::Result<T, JsValue>;
+
+mod kv;
+pub use kv::*;
+
+/// List the active proxy servers stored in cloudflare BOOTSTRAP KV store
 #[wasm_bindgen]
-pub fn wasm_test_fn(input: JsValue) -> Result {
-    Ok(format!("got: {:?}", input).into())
-}
+pub async fn proxy_list(kv: JsValue) -> JsResult<JsValue> {
+    let kv = KV(kv);
+    kv.put("active_proxy:test-entry", b"my-proxy-url:0.0.0.0:0/hurray", 60.0)?.await?;
+    let res = kv.list(None, Some("active_proxy:".to_string()), None)?.await?;
 
-/*
-#[wasm_bindgen]
-pub async fn proxy_list(hooks: JsValue) -> Result {
-    let this = JsValue::null();
-    let limit: JsValue = <Option<f64>>::None.into();
-    let prefix: JsValue = Some("active_proxy:".to_string()).into();
-    let cursor: JsValue = <Option<String>>::None.into();
-    let func: js_sys::Function = js_sys::Reflect::get(&hooks, &"kv_list".into())?.into();
-    let res = func.call3(&this, &limit, &prefix, &cursor)?;
-    let res: js_sys::Promise = res.into();
-    let res = wasm_bindgen_futures::JsFuture::from(res).await?;
-    Ok(res)
+    let mut output = Vec::with_capacity(res.keys.len());
+
+    for key in &res.keys {
+        output.push(JsValue::from(String::from_utf8_lossy(&kv.get(key)?.await?).to_string()));
+    }
+
+    let output = js_sys::Array::from_iter(output.into_iter());
+
+    Ok(output.into())
 }
-*/

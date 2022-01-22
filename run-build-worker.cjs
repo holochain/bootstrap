@@ -47,7 +47,7 @@ async function cleanBuildDir () {
   const buildDir = path.resolve('.', 'rust-to-wasm', 'build')
   fs.unlinkSync(path.resolve(buildDir, '.gitignore'))
   fs.unlinkSync(path.resolve(buildDir, 'package.json'))
-  fs.unlinkSync(path.resolve(buildDir, 'README.md'))
+  //fs.unlinkSync(path.resolve(buildDir, 'README.md'))
   fs.unlinkSync(path.resolve(buildDir, 'rust_to_wasm.js'))
 }
 
