@@ -27,8 +27,10 @@ async function handle(
   return new Response(tryF)
 }
 
-export async function postHandler(ctx: Ctx): Promise<Response> {
-  let input = new Uint8Array(await ctx.request.arrayBuffer())
+export async function postHandler(
+  ctx: Ctx,
+  input: Uint8Array,
+): Promise<Response> {
   switch (ctx.request.headers.get(DISPATCH_HEADER)) {
     case OP_PUT:
       return handle(put, input, ctx)
