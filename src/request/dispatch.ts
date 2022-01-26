@@ -22,6 +22,7 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
       headers: new Headers(response.headers),
     })
   } catch (e) {
+    console.error('@@@@@', e)
     // for now, ignore errors and fall back to legacy logic
     // return new Response('' + e, { status: 500 })
   }

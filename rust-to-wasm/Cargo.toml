@@ -16,3 +16,5 @@ holochain_bootstrap_core = { path = "../holochain_bootstrap_core" }
 [profile.release]
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
+# also include link-time optimizations
+lto = true

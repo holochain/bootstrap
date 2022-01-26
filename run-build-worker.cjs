@@ -39,7 +39,11 @@ async function checkWasmPackInstalled () {
 
 async function wasmPackBuild () {
   console.log('[rbw:wasmPackBuild]')
-  await execCmd('wasm-pack build --release --no-typescript --out-dir build --out-name rust_to_wasm', 'rust-to-wasm')
+  if (process.env.NODE_ENV === 'development') {
+    await execCmd('wasm-pack build --dev --no-typescript --out-dir build --out-name rust_to_wasm', 'rust-to-wasm')
+  } else {
+    await execCmd('wasm-pack build --release --no-typescript --out-dir build --out-name rust_to_wasm', 'rust-to-wasm')
+  }
 }
 
 async function cleanBuildDir () {

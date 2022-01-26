@@ -61,7 +61,7 @@ pub async fn handle_request(
     let kv = DKV(kv);
 
     let mut dispatcher = HandlerDispatcher::new(kv);
-    dispatcher.attach_handler(Demo);
+    dispatcher.attach_handler(handlers::PostPut);
 
     let dispatcher = std::sync::Arc::new(dispatcher);
 
