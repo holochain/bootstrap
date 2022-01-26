@@ -27,11 +27,15 @@ pub fn boxfut<'a, R, F: Future<Output = R> + 'a>(f: F) -> BoxFut<'a, R> {
 }
 
 /// Helper type for fmt_err macro
-#[derive(Debug)]
 pub struct FmtErr(pub String);
+impl std::fmt::Debug for FmtErr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
 impl std::fmt::Display for FmtErr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        std::fmt::Debug::fmt(self, f)
     }
 }
 impl std::error::Error for FmtErr {}
