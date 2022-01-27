@@ -1,6 +1,6 @@
 import { Ctx } from '../ctx'
 import { postHandler } from './post'
-import rust_to_wasm from '../rust-ffi'
+import bootstrap_wasm from '../rust-wasm'
 
 export async function requestDispatch(ctx: Ctx): Promise<Response> {
   // first, dispatch to wasm, if the rust ffi errors,
@@ -11,24 +11,20 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
   const input = new Uint8Array(await ctx.request.arrayBuffer())
 
   try {
-    const response = await rust_to_wasm.handle_request(
+    const response = await bootstrap_wasm.handle_request(
       ctx.BOOTSTRAP,
       method,
       op,
-      input.slice(),
+      input,
     )
     return new Response(response.body, {
       status: response.status,
       headers: new Headers(response.headers),
     })
   } catch (e) {
-    console.error('@@@@@', e)
+    console.error('@wasm:error@', e)
     // for now, ignore errors and fall back to legacy logic
-    // return new Response('' + e, { status: 500 })
   }
-
-  //const testRes = await rust_to_wasm.proxy_list(ctx.BOOTSTRAP)
-  //console.error('@@-r2w-proxy_list-test-@@', testRes)
 
   if (method === 'POST') {
     return postHandler(ctx, op, input)

@@ -18,10 +18,7 @@ pub struct KV(pub JsValue);
 
 impl KV {
     /// Internal helper for getting a specific function from the KV object
-    fn get_func_prop(
-        &self,
-        name: &str,
-    ) -> JsResult<js_sys::Function> {
+    fn get_func_prop(&self, name: &str) -> JsResult<js_sys::Function> {
         let func: JsValue = js_sys::Reflect::get(&self.0, &name.into())?;
         if !func.is_function() {
             return Err(format!("{} is not a function", name).into());
@@ -57,10 +54,7 @@ impl KV {
     }
 
     /// Get an item from the KV store
-    pub fn get(
-        &self,
-        key: &str,
-    ) -> JsResult<impl Future<Output = JsResult<Box<[u8]>>>> {
+    pub fn get(&self, key: &str) -> JsResult<impl Future<Output = JsResult<Box<[u8]>>>> {
         let func = self.get_func_prop("get")?;
 
         let key: JsValue = key.into();
@@ -105,8 +99,12 @@ impl KV {
         Ok(async move {
             let res = wasm_bindgen_futures::JsFuture::from(res).await?;
 
-            let list_complete = js_sys::Reflect::get(&res, &"list_complete".into())?.as_bool().ok_or(JsValue::from("list_complete must be a boolean"))?;
-            let cursor = js_sys::Reflect::get(&res, &"cursor".into())?.as_string().ok_or(JsValue::from("cursor must be a string"))?;
+            let list_complete = js_sys::Reflect::get(&res, &"list_complete".into())?
+                .as_bool()
+                .ok_or_else(|| JsValue::from("list_complete must be a boolean"))?;
+            let cursor = js_sys::Reflect::get(&res, &"cursor".into())?
+                .as_string()
+                .ok_or_else(|| JsValue::from("cursor must be a string"))?;
             let js_keys = js_sys::Reflect::get(&res, &"keys".into())?;
             if !js_keys.is_instance_of::<js_sys::Array>() {
                 return Err("keys must be an array".into());
@@ -115,7 +113,9 @@ impl KV {
 
             let mut keys = Vec::with_capacity(js_keys.length() as usize);
             for key in js_keys.values() {
-                let name = js_sys::Reflect::get(&key?, &"name".into())?.as_string().ok_or(JsValue::from("key.name must be a string"))?;
+                let name = js_sys::Reflect::get(&key?, &"name".into())?
+                    .as_string()
+                    .ok_or_else(|| JsValue::from("key.name must be a string"))?;
                 keys.push(name);
             }
 

@@ -5,7 +5,6 @@ edition = "2021"
 
 ## NOTE! We must be very careful with our dependencies
 ## lest we will blow up the WASM size for the cloudflare worker
-## MAYBE: should we use RMP directly without serde??
 
 [dependencies]
 base64 = { version = "0.13.0", default-features = false, features = [ "alloc" ] }

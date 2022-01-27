@@ -23,9 +23,7 @@ struct AgentInfoSignedRef<'a> {
 fn read_map_len(r: &mut std::io::Cursor<&[u8]>) -> BcResult<usize> {
     let map_marker = rmp::decode::read_marker(r).unwrap();
     match &map_marker {
-        rmp::Marker::FixMap(_)
-        | rmp::Marker::Map16
-        | rmp::Marker::Map32 => (),
+        rmp::Marker::FixMap(_) | rmp::Marker::Map16 | rmp::Marker::Map32 => (),
         _ => panic!("expected map"),
     }
     let count = rmp::decode::marker_to_len(r, map_marker).unwrap();
@@ -34,14 +32,15 @@ fn read_map_len(r: &mut std::io::Cursor<&[u8]>) -> BcResult<usize> {
 
 fn read_str<'a>(r: &mut std::io::Cursor<&[u8]>, buf: &'a [u8]) -> BcResult<&'a str> {
     let len = rmp::decode::read_str_len(r).unwrap() as usize;
-    let out = std::str::from_utf8(&buf[r.position() as usize..r.position() as usize+len]).unwrap();
+    let out =
+        std::str::from_utf8(&buf[r.position() as usize..r.position() as usize + len]).unwrap();
     r.set_position(r.position() + len as u64);
     Ok(out)
 }
 
 fn read_bin<'a>(r: &mut std::io::Cursor<&[u8]>, buf: &'a [u8]) -> BcResult<&'a [u8]> {
     let len = rmp::decode::read_bin_len(r).unwrap() as usize;
-    let out = &buf[r.position() as usize..r.position() as usize+len];
+    let out = &buf[r.position() as usize..r.position() as usize + len];
     r.set_position(r.position() + len as u64);
     Ok(out)
 }
@@ -56,7 +55,7 @@ fn read_str_array<'a>(r: &mut std::io::Cursor<&[u8]>, buf: &'a [u8]) -> BcResult
     Ok(out)
 }
 
-fn read_agent_info<'a>(buf: &'a [u8]) -> BcResult<AgentInfoRef<'a>> {
+fn read_agent_info(buf: &[u8]) -> BcResult<AgentInfoRef> {
     let mut cursor = std::io::Cursor::new(buf);
     let map_len = read_map_len(&mut cursor)?;
     if map_len != 6 {
@@ -73,8 +72,18 @@ fn read_agent_info<'a>(buf: &'a [u8]) -> BcResult<AgentInfoRef<'a>> {
             "space" => space = Some(read_bin(&mut cursor, buf)?),
             "agent" => agent = Some(read_bin(&mut cursor, buf)?),
             "urls" => urls = Some(read_str_array(&mut cursor, buf)?),
-            "signed_at_ms" => signed_at_ms = Some(rmp::decode::read_int::<u64, _>(&mut cursor).map_err(|e| fmt_err!("{:?}", e))?),
-            "expires_after_ms" => expires_after_ms = Some(rmp::decode::read_int::<u64, _>(&mut cursor).map_err(|e| fmt_err!("{:?}", e))?),
+            "signed_at_ms" => {
+                signed_at_ms = Some(
+                    rmp::decode::read_int::<u64, _>(&mut cursor)
+                        .map_err(|e| fmt_err!("{:?}", e))?,
+                )
+            }
+            "expires_after_ms" => {
+                expires_after_ms = Some(
+                    rmp::decode::read_int::<u64, _>(&mut cursor)
+                        .map_err(|e| fmt_err!("{:?}", e))?,
+                )
+            }
             "meta_info" => meta_info = Some(read_bin(&mut cursor, buf)?),
             oth => return Err(fmt_err!("unexpected key: '{}'", oth)),
         }
@@ -83,7 +92,8 @@ fn read_agent_info<'a>(buf: &'a [u8]) -> BcResult<AgentInfoRef<'a>> {
     let agent = agent.ok_or(fmt_err!("map did not contain key 'agent'"))?;
     let urls = urls.ok_or(fmt_err!("map did not contain key 'urls'"))?;
     let signed_at_ms = signed_at_ms.ok_or(fmt_err!("map did not contain key 'signed_at_ms'"))?;
-    let expires_after_ms = expires_after_ms.ok_or(fmt_err!("map did not contain key 'expires_after_ms'"))?;
+    let expires_after_ms =
+        expires_after_ms.ok_or(fmt_err!("map did not contain key 'expires_after_ms'"))?;
     let meta_info = meta_info.ok_or(fmt_err!("map did not contain key 'meta_info'"))?;
     Ok(AgentInfoRef {
         space,
@@ -91,11 +101,11 @@ fn read_agent_info<'a>(buf: &'a [u8]) -> BcResult<AgentInfoRef<'a>> {
         urls,
         signed_at_ms,
         expires_after_ms,
-        meta_info
+        meta_info,
     })
 }
 
-fn read_agent_info_signed<'a>(buf: &'a [u8]) -> BcResult<AgentInfoSignedRef<'a>> {
+fn read_agent_info_signed(buf: &[u8]) -> BcResult<AgentInfoSignedRef> {
     let mut cursor = std::io::Cursor::new(buf);
     let map_len = read_map_len(&mut cursor)?;
     if map_len != 3 {
@@ -118,7 +128,7 @@ fn read_agent_info_signed<'a>(buf: &'a [u8]) -> BcResult<AgentInfoSignedRef<'a>>
     Ok(AgentInfoSignedRef {
         agent,
         signature,
-        agent_info
+        agent_info,
     })
 }
 
@@ -160,8 +170,12 @@ mod test {
     #[test]
     fn test_manual_decoding() {
         let info = AgentInfo {
-            space: b"123456789012345678901234567890123456".to_vec().into_boxed_slice(),
-            agent: b"123456789012345678901234567890123456".to_vec().into_boxed_slice(),
+            space: b"123456789012345678901234567890123456"
+                .to_vec()
+                .into_boxed_slice(),
+            agent: b"123456789012345678901234567890123456"
+                .to_vec()
+                .into_boxed_slice(),
             urls: vec!["http://zombie".to_string()],
             signed_at_ms: 42,
             expires_after_ms: 42,
@@ -169,7 +183,9 @@ mod test {
         };
         let info = rmp_serde::to_vec_named(&info).unwrap();
         let signed = AgentInfoSigned {
-            agent: b"123456789012345678901234567890123456".to_vec().into_boxed_slice(),
+            agent: b"123456789012345678901234567890123456"
+                .to_vec()
+                .into_boxed_slice(),
             signature: vec![0; 64].into_boxed_slice(),
             agent_info: info.clone().into_boxed_slice(),
         };
@@ -200,13 +216,17 @@ impl AsRequestHandler for PostPut {
             let agent_sig = read_agent_info_signed(input)?;
             //let agent_sig: AgentInfoSigned = rmp_serde::from_read_ref(input).map_err(|e| fmt_err!("{:?}", e))?;
 
-            let pubkey = ed25519_dalek::PublicKey::from_bytes(&agent_sig.agent[0..32]).map_err(|e| fmt_err!("{:?}", e))?;
-            let sig = ed25519_dalek::Signature::from_bytes(&agent_sig.signature[0..64]).map_err(|e| fmt_err!("{:?}", e))?;
+            let pubkey = ed25519_dalek::PublicKey::from_bytes(&agent_sig.agent[0..32])
+                .map_err(|e| fmt_err!("{:?}", e))?;
+            let sig = ed25519_dalek::Signature::from_bytes(&agent_sig.signature[0..64])
+                .map_err(|e| fmt_err!("{:?}", e))?;
             use ed25519_dalek::Verifier;
-            pubkey.verify(&agent_sig.agent_info, &sig).map_err(|e| fmt_err!("{:?}", e))?;
+            pubkey
+                .verify(agent_sig.agent_info, &sig)
+                .map_err(|e| fmt_err!("{:?}", e))?;
 
             //let agent_info: AgentInfo = rmp_serde::from_read_ref(&agent_sig.agent_info).map_err(|e| fmt_err!("{:?}", e))?;
-            let agent_info = read_agent_info(&agent_sig.agent_info)?;
+            let agent_info = read_agent_info(agent_sig.agent_info)?;
 
             if agent_sig.agent != agent_info.agent {
                 return Err(fmt_err!("agent_info_signed.agent != agent_info.agent"));
@@ -215,7 +235,11 @@ impl AsRequestHandler for PostPut {
             let space64 = base64::encode(agent_info.space);
             let agent64 = base64::encode(agent_info.agent);
 
-            Err(fmt_err!("wasm put disabled, would have put '{}{}'", space64, agent64))
+            Err(fmt_err!(
+                "wasm put disabled, would have put '{}{}'",
+                space64,
+                agent64
+            ))
             /*
             let put_fut = kv.put("zombies", input);
             Ok(boxfut(async move {
@@ -229,9 +253,6 @@ impl AsRequestHandler for PostPut {
             }))
             */
         })();
-        boxfut(async move {
-            fut?.await
-        })
+        boxfut(async move { fut?.await })
     }
 }
-

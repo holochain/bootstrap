@@ -4,8 +4,8 @@
 //! Holochain Bootstrap Core logic to be shared with cloudflare worker
 //! and standalone rust binary.
 
-use std::future::Future;
 use std::collections::HashMap;
+use std::future::Future;
 
 /// re-exported dependencies
 pub mod dependencies {
@@ -87,13 +87,7 @@ pub trait AsRequestHandler: 'static {
 /// Maps request method/ops to correct handlers
 pub struct HandlerDispatcher {
     kv: Box<dyn AsKV + 'static>,
-    map: HashMap<
-        &'static str,
-        HashMap<
-            &'static str,
-            Box<dyn AsRequestHandler + 'static>,
-        >,
-    >,
+    map: HashMap<&'static str, HashMap<&'static str, Box<dyn AsRequestHandler + 'static>>>,
 }
 
 impl HandlerDispatcher {
@@ -116,20 +110,21 @@ impl HandlerDispatcher {
     }
 
     /// dispatch a request to appropriate handler and return response
-    pub fn handle<'a> (
+    pub fn handle<'a>(
         &'a self,
         method: &'a str,
         op: &'a str,
         input: &'a [u8],
     ) -> impl Future<Output = BcResult<HttpResponse>> + 'a {
         let fut: BcResult<BoxFut<BcResult<HttpResponse>>> = (|| {
-            let map = self.map.get(method).ok_or_else(|| fmt_err!("invalid method: {}", method))?;
+            let map = self
+                .map
+                .get(method)
+                .ok_or_else(|| fmt_err!("invalid method: {}", method))?;
             let h = map.get(op).ok_or_else(|| fmt_err!("invalid op: {}", op))?;
             Ok(h.handle(&*self.kv, input))
         })();
-        async move {
-            fut?.await
-        }
+        async move { fut?.await }
     }
 }
 

@@ -4,14 +4,18 @@
   "description": "holochain bootstrap cloudflare worker",
   "main": "dist/worker.js",
   "scripts": {
-    "build:wasm-pack": "node ./run-build-worker.cjs",
-    "build": "npm run build:wasm-pack && webpack",
+    "rust:fmt": "cd rust && cargo fmt -- --check",
+    "rust:clippy": "cd rust && cargo clippy",
+    "rust:test": "cd rust && cargo test",
+    "rust:build": "node ./run-build-worker.cjs",
+    "build": "npm run rust:build && webpack",
     "dev": "NODE_ENV=development npm run build",
     "format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts' 'test/**/*.ts'",
+    "test:rust": "npm run rust:fmt && npm run rust:clippy && npm run rust:test",
     "test:unit": "npx ts-mocha 'test/**/*.ts'",
     "test:integration": "node ./run-integration-test.cjs",
-    "test": "npm run format:check && npm run test:unit && npm run test:integration"
+    "test": "npm run test:rust && npm run format:check && npm run test:unit && npm run test:integration"
   },
   "author": "author",
   "license": "MIT OR Apache-2.0",

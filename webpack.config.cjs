@@ -11,6 +11,8 @@ if (process.env.NODE_ENV === 'development') {
   devtool = 'inline-source-map'
 }
 
+const wasmBuild = path.join(__dirname, 'rust', 'target', 'wasm-build')
+
 module.exports = {
   mode,
   devtool,
@@ -33,12 +35,12 @@ module.exports = {
   },
   externals: [
     function ({ context, request }, callback) {
-      if (request.endsWith('/rust_to_wasm_bg.wasm')) {
-        return callback(null, './rust_to_wasm_bg.wasm', 'module')
-      } else if (request.endsWith('/rust_to_wasm_bg.js')) {
-        return callback(null, './rust_to_wasm_bg.js', 'module')
-      } else if (request.endsWith('/rust_to_wasm_export.js')) {
-        return callback(null, './rust_to_wasm_export.js', 'module')
+      if (request.endsWith('/holochain_bootstrap_wasm_bg.wasm')) {
+        return callback(null, './holochain_bootstrap_wasm_bg.wasm', 'module')
+      } else if (request.endsWith('/holochain_bootstrap_wasm_bg.js')) {
+        return callback(null, './holochain_bootstrap_wasm_bg.js', 'module')
+      } else if (request.endsWith('/holochain_bootstrap_wasm_export.js')) {
+        return callback(null, './holochain_bootstrap_wasm_export.js', 'module')
       } else {
         return callback()
       }
@@ -48,16 +50,16 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: './rust-to-wasm/build/rust_to_wasm_bg.wasm',
-          to: 'rust_to_wasm_bg.wasm',
+          from: path.join(wasmBuild, 'holochain_bootstrap_wasm_bg.wasm'),
+          to: 'holochain_bootstrap_wasm_bg.wasm',
         },
         {
-          from: './rust-to-wasm/build/rust_to_wasm_bg.js',
-          to: 'rust_to_wasm_bg.js',
+          from: path.join(wasmBuild, 'holochain_bootstrap_wasm_bg.js'),
+          to: 'holochain_bootstrap_wasm_bg.js',
         },
         {
-          from: './rust-to-wasm/build/rust_to_wasm_export.js',
-          to: 'rust_to_wasm_export.js',
+          from: path.join(wasmBuild, 'holochain_bootstrap_wasm_export.js'),
+          to: 'holochain_bootstrap_wasm_export.js',
         },
       ],
     })
