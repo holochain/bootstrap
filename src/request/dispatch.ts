@@ -30,12 +30,12 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
   //const testRes = await rust_to_wasm.proxy_list(ctx.BOOTSTRAP)
   //console.error('@@-r2w-proxy_list-test-@@', testRes)
 
-  if (ctx.request.method === 'POST') {
-    return postHandler(ctx, input)
+  if (method === 'POST') {
+    return postHandler(ctx, op, input)
   }
 
   // Respond with a simple pong for any GET to help with smoke testing.
-  if (ctx.request.method === 'GET') {
+  if (method === 'GET') {
     return new Response('OK')
   }
 

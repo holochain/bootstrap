@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// vim: set syntax=javascript:
+
 // This test script uses the `miniflare` cloudflare simulation library.
 // This simulator is run on the local machine with a connected KV store
 // named `BOOTSTRAP` just as a production cloudflare would.

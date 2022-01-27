@@ -4,7 +4,6 @@ import { random } from '../op/random'
 import { now } from '../op/now'
 import * as MP from '../msgpack/msgpack'
 
-const DISPATCH_HEADER: string = 'X-Op'
 const OP_PUT: string = 'put'
 const OP_RANDOM: string = 'random'
 const OP_NOW: string = 'now'
@@ -29,9 +28,10 @@ async function handle(
 
 export async function postHandler(
   ctx: Ctx,
+  op: string,
   input: Uint8Array,
 ): Promise<Response> {
-  switch (ctx.request.headers.get(DISPATCH_HEADER)) {
+  switch (op) {
     case OP_PUT:
       return handle(put, input, ctx)
     case OP_RANDOM:
