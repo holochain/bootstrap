@@ -1,0 +1,8 @@
+[package]
+name = "holochain_bootstrap_core"
+version = "0.0.1"
+edition = "2021"
+
+## NOTE! We must be very careful with our dependencies
+## lest we will blow up the WASM size for the cloudflare worker
+## MAYBE: should we use RMP directly without serde??
