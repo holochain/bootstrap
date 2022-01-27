@@ -1,3 +1,4 @@
+import { Ctx } from '../ctx'
 import * as D from 'io-ts/Decoder'
 import * as MP from '../msgpack/msgpack'
 import { pipe } from 'fp-ts/lib/pipeable'
@@ -9,13 +10,14 @@ import * as KVRandom from '../kv/random'
 // @see random as documented under kv.
 export async function random(
   input: MP.MessagePackData,
+  ctx: Ctx,
 ): Promise<MP.MessagePackData | Error> {
   try {
     let result = await pipe(
       KVRandom.QuerySafe.decode(input),
       E.mapLeft((v) => Error(JSON.stringify(v))),
       E.map(async (queryValue) => {
-        return MP.encode(await KVRandom.random(queryValue))
+        return MP.encode(await KVRandom.random(queryValue, ctx))
       }),
     )
     if (E.isLeft(result)) {

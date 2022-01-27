@@ -1,3 +1,4 @@
+import { Ctx } from '../ctx'
 import * as MP from '../msgpack/msgpack'
 import * as AgentInfo from '../agent_info/info'
 import * as AgentSigned from '../agent_info/signed'
@@ -17,6 +18,7 @@ export const MAX_HOLD = 60 * 60 * 1000
 // Returns null if everything works and the put is successful.
 export async function put(
   agentInfoSignedRawData: MP.MessagePackData,
+  ctx: Ctx,
 ): Promise<E.Either<Error, unknown>> {
   try {
     let doPut = async (
@@ -41,7 +43,7 @@ export async function put(
         )
 
         // Cloudflare binds this global to the kv store.
-        await BOOTSTRAP.put(key, value, { expiration: expires })
+        await ctx.BOOTSTRAP.put(key, value, { expiration: expires })
         return E.right(null)
       } catch (e) {
         if (e instanceof Error) {
