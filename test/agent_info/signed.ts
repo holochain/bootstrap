@@ -11,6 +11,7 @@ import * as MP from '../../src/msgpack/msgpack'
 import { isRight, isLeft } from 'fp-ts/lib/Either'
 import * as _ from 'lodash'
 import * as Crypto from '../../src/crypto/crypto'
+import * as base64 from '../../src/base64/base64'
 
 describe('agent info signed', () => {
   it('should decode AgentInfoSignedRaw correctly', () => {

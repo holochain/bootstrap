@@ -4,7 +4,11 @@
 //! Holochain Bootstrap Core logic to be shared with cloudflare worker
 //! and standalone rust binary.
 
-/// Maps request method/ops to correct handlers
-pub struct HandlerDispatcher {
-    // stub
-}
+pub mod types;
+
+mod dispatcher;
+pub use dispatcher::*;
+
+pub mod decode;
+
+pub mod agent_info;
