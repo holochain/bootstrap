@@ -12,3 +12,5 @@ pub use dispatcher::*;
 pub mod decode;
 
 pub mod agent_info;
+
+pub mod handlers;

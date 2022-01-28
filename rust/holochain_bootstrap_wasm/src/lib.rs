@@ -24,7 +24,8 @@ pub async fn handle_request(
     input: JsValue,
 ) -> JsResult<JsValue> {
     let kv = KV::new(kv)?;
-    let dispatch = HandlerDispatcher::new(kv);
+    let mut dispatch = HandlerDispatcher::new(kv);
+    dispatch.attach_handler(handlers::PostPut);
 
     let method = method
         .as_string()
