@@ -11,26 +11,25 @@
 // downstream.
 import * as Lib from '@msgpack/msgpack'
 import { Uint8ArrayDecoder } from '../io/io'
-import * as D from "io-ts/Decoder"
+import * as D from 'io-ts/Decoder'
 
-export function encode(data:unknown):MessagePackData {
- return Lib.encode(data)
+export function encode(data: unknown): MessagePackData {
+  return Lib.encode(data)
 }
 
-export function decode(bytes:Uint8Array):any {
- return Lib.decode(bytes)
+export function decode(bytes: Uint8Array): any {
+  return Lib.decode(bytes)
 }
 
 export const messagePackData = Uint8ArrayDecoder
 export type MessagePackData = D.TypeOf<typeof messagePackData>
 
 export const messagePackDecoder: D.Decoder<Uint8Array, unknown> = {
- decode: (a: Uint8Array) => {
-  try {
-   return D.success(Lib.decode(a))
-  }
-  catch (e) {
-   return D.failure(a, e)
-  }
- }
+  decode: (a: Uint8Array) => {
+    try {
+      return D.success(Lib.decode(a))
+    } catch (e) {
+      return D.failure(a, e)
+    }
+  },
 }
