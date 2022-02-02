@@ -11,16 +11,7 @@ Tested on CI against node major versions `12` and `14` on ubuntu.
 
 Standard `npm install` to install.
 
-Running tests is `npm test` _but requires a running `wrangler dev`._
-
-Wrangler can be installed with npm globally as `npm i -g @cloudflare/wrangler`
-but this is simply wrapping a rust binary that can be compiled and installed
-directly with `cargo install wrangler`. I fould the latter can be more reliable
-if you're seeing issues like segfaults with the npm approach.
-
-If you're using nix there is a `shell.nix` that provides relevant `npm`,
-`cargo`, and `rustc`, with a shell hook to install npm and wrangler into the
-repository (not globally).
+Standard `npm test` to test. Unit tests will be run via ts-node/ts-mocha. Integration tests use the provided `run-integration-test.js` script which first launches a `miniflare` local cloudflare simulator, then executes the integration test suite making api calls against this simulator.
 
 ## Forking
 

@@ -1,26 +1,24 @@
+import { Ctx } from '../ctx'
 import { put } from '../op/put'
-import { list } from '../op/list'
-import { get } from '../op/get'
 import { random } from '../op/random'
 import { now } from '../op/now'
-import { strict as assert } from 'assert'
 import * as MP from '../msgpack/msgpack'
 
-const DISPATCH_HEADER: string = 'X-Op'
 const OP_PUT: string = 'put'
 const OP_RANDOM: string = 'random'
 const OP_NOW: string = 'now'
 
 async function handle(
-  f: (bytes: Uint8Array) => MP.MessagePackData | Error,
+  f: (bytes: Uint8Array, ctx: Ctx) => Promise<MP.MessagePackData | Error>,
   input: MP.MessagePackData,
+  ctx: Ctx,
 ): Promise<Response> {
   // Every f needs to handle messagepack decoding itself so that the deserialized
   // object can sanity check itself.
-  let tryF = await f(input)
+  let tryF = await f(input, ctx)
 
   if (tryF instanceof Error) {
-    console.error('messagepack input:', input.toString('base64'))
+    console.error('messagepack input:', input.toString())
     console.error('error:', '' + tryF)
     return new Response('' + tryF, { status: 500 })
   }
@@ -28,17 +26,20 @@ async function handle(
   return new Response(tryF)
 }
 
-export async function postHandler(event: Event): Promise<Response> {
-  let input = new Uint8Array(await event.request.arrayBuffer())
-  switch (event.request.headers.get(DISPATCH_HEADER)) {
+export async function postHandler(
+  ctx: Ctx,
+  op: string,
+  input: Uint8Array,
+): Promise<Response> {
+  switch (op) {
     case OP_PUT:
-      return handle(put, input)
+      return handle(put, input, ctx)
     case OP_RANDOM:
-      return handle(random, input)
+      return handle(random, input, ctx)
     case OP_NOW:
-      return handle(now, input)
+      return handle(now, input, ctx)
     default:
       return new Response(MP.encode('unknown op'), { status: 500 })
   }
-  assert.unreachable('broken dispatch switch')
+  throw new Error('broken dispatch switch')
 }

@@ -1,3 +1,4 @@
+import { Ctx } from '../ctx'
 import * as D from 'io-ts/Decoder'
 import * as E from 'fp-ts/lib/Either'
 import * as Kitsune from '../kitsune/kitsune'
@@ -28,19 +29,22 @@ export const QuerySafe: D.Decoder<MP.MessagePackData, Query> = {
 
 // Shuffle with a lazy generator because the list may be very long internally.
 // Allows us to stop shuffling after `limit` entries have been returned.
-function* shuffle(array) {
+function* shuffle(array: any) {
   var i = array.length
   while (i--) {
     yield array.splice(Math.floor(Math.random() * (i + 1)), 1)[0]
   }
 }
 
-export async function random(query: Query): MP.MessagePackData {
+export async function random(
+  query: Query,
+  ctx: Ctx,
+): Promise<Array<MP.MessagePackData | Error>> {
   let { space, limit } = query
   // Need to be random over the complete list for the whole space even if we use
   // a generator to shuffle, otherwise we won't ever return agents after the
   // first page (1000 items on cloudflare).
-  let everyone = shuffle(await List.list(space))
+  let everyone = shuffle(await List.list(space, ctx))
   let keys = []
   let i = 0
   let k: Kitsune.Agent
@@ -54,6 +58,6 @@ export async function random(query: Query): MP.MessagePackData {
     }
   }
   return await Promise.all(
-    keys.map((k) => Get.get(Uint8Array.from([...space, ...k]))),
+    keys.map((k) => Get.get(Uint8Array.from([...space, ...k]), ctx)),
   )
 }

@@ -1,0 +1,11 @@
+[workspace]
+members = [
+  "holochain_bootstrap_core",
+  "holochain_bootstrap_wasm",
+]
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"
+# also include link-time optimizations
+lto = true

@@ -6,7 +6,7 @@ import * as NaCl from 'tweetnacl'
 
 describe('base64 handling', () => {
   it('should convert base64 strings to u8 int arrays', () => {
-    const base64 = '123ABC'
+    const base64 = '123ABC=='
     const bytes = Uint8Array.from([215, 109, 192, 4])
 
     assert.deepEqual(Base64.toBytes(base64), bytes)
