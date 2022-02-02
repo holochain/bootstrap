@@ -1,6 +1,9 @@
 //! Bootstrap Core Types Module
 
-use std::future::Future;
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
+use core::future::Future;
 
 /// The Bootstrap Core Error Type should be as transparent as possible
 /// so it is light-weight in WASM (and translates well into largely
@@ -47,20 +50,8 @@ impl From<&str> for BCoreError {
     }
 }
 
-impl BCoreError {
-    /// promote a custom error type to a BCoreError::EDecode
-    pub fn decode(e: impl Into<Box<dyn std::error::Error + Send + Sync>>) -> Self {
-        BCoreError::EDecode(e.into().to_string())
-    }
-
-    /// promote a custom error type to a BCoreError::EOther
-    pub fn other(e: impl Into<Box<dyn std::error::Error + Send + Sync>>) -> Self {
-        BCoreError::EOther(e.into().to_string())
-    }
-}
-
-impl std::fmt::Debug for BCoreError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for BCoreError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         use BCoreError::*;
         match self {
             EBadPubKey => f.write_str("EBadPubKey"),
@@ -83,27 +74,25 @@ impl std::fmt::Debug for BCoreError {
     }
 }
 
-impl std::fmt::Display for BCoreError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(self, f)
+impl core::fmt::Display for BCoreError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Debug::fmt(self, f)
     }
 }
-
-impl std::error::Error for BCoreError {}
 
 /// build a BCoreError::EOther from `format!()`-style parameters
 #[macro_export]
 macro_rules! bcore_err {
     ($($arg: tt)*) => {{
-        $crate::types::BCoreError::EOther(::std::format!($($arg)*))
+        $crate::types::BCoreError::EOther(::alloc::format!($($arg)*))
     }};
 }
 
 /// Bootstrap Core Result Type
-pub type BCoreResult<T> = std::result::Result<T, BCoreError>;
+pub type BCoreResult<T> = core::result::Result<T, BCoreError>;
 
 /// Future type for trait declarations
-pub type BCoreFut<'a, T> = std::pin::Pin<Box<dyn Future<Output = T> + 'a>>;
+pub type BCoreFut<'a, T> = core::pin::Pin<Box<dyn Future<Output = T> + 'a>>;
 
 /// Helper fn to generate a BCoreFut type
 pub fn bcore_fut<'a, R, F: Future<Output = R> + 'a>(f: F) -> BCoreFut<'a, R> {

@@ -1,7 +1,9 @@
 //! Agent Info Structs
 
-use crate::decode::*;
 use crate::types::*;
+use msgpackin_core::decode::*;
+
+use alloc::vec::Vec;
 
 /// Struct for decoding agent info
 pub struct AgentInfoRef<'a> {
@@ -15,18 +17,18 @@ pub struct AgentInfoRef<'a> {
     pub urls: Vec<&'a str>,
 
     /// timestamp this blob was signed
-    pub signed_at_ms: f64,
+    pub signed_at_ms: u64,
 
     /// WARNING this is NOT an absolute timestamp,
     /// but an offset from the signed_at_ms field
-    pub expires_after_ms: f64,
+    pub expires_after_ms: u64,
 
     /// additional opaque meta-info
     pub meta_info: &'a [u8],
 }
 
-impl std::fmt::Debug for AgentInfoRef<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for AgentInfoRef<'_> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let space = base64::encode(self.space);
         let agent = base64::encode(self.agent);
         let meta_info = base64::encode(self.meta_info);
@@ -41,11 +43,67 @@ impl std::fmt::Debug for AgentInfoRef<'_> {
     }
 }
 
+fn get_map_len(iter: &mut TokenIter<'_, '_>) -> BCoreResult<u32> {
+    Ok(match iter.next() {
+        Some(Token::Len(LenType::Map, l)) => l,
+        _ => return Err(BCoreError::EDecode("expected map".into())),
+    })
+}
+
+fn get_str<'dec, 'buf>(iter: &mut TokenIter<'dec, 'buf>) -> BCoreResult<&'buf str> {
+    let _len = match iter.next() {
+        Some(Token::Len(LenType::Str, l)) => l,
+        _ => return Err(BCoreError::EDecode("expected str_len".into())),
+    };
+
+    match iter.next() {
+        Some(Token::Bin(s)) => {
+            core::str::from_utf8(s).map_err(|_| BCoreError::EDecode("str utf8 error".into()))
+        }
+        _ => Err(BCoreError::EDecode("expected str".into())),
+    }
+}
+
+fn get_bin<'dec, 'buf>(iter: &mut TokenIter<'dec, 'buf>) -> BCoreResult<&'buf [u8]> {
+    let _len = match iter.next() {
+        Some(Token::Len(LenType::Bin, l)) => l,
+        _ => return Err(BCoreError::EDecode("expected bin_len".into())),
+    };
+
+    match iter.next() {
+        Some(Token::Bin(b)) => Ok(b),
+        _ => Err(BCoreError::EDecode("expected bin".into())),
+    }
+}
+
+fn get_str_arr<'dec, 'buf>(iter: &mut TokenIter<'dec, 'buf>) -> BCoreResult<Vec<&'buf str>> {
+    let len = match iter.next() {
+        Some(Token::Len(LenType::Arr, l)) => l,
+        _ => return Err(BCoreError::EDecode("expected array".into())),
+    };
+
+    let mut out = Vec::with_capacity(len as usize);
+
+    for _ in 0..len {
+        out.push(get_str(iter)?);
+    }
+
+    Ok(out)
+}
+
+fn get_u64(iter: &mut TokenIter<'_, '_>) -> BCoreResult<u64> {
+    match iter.next() {
+        Some(Token::U8(u)) => Ok(u as u64),
+        Some(Token::U16(u)) => Ok(u as u64),
+        Some(Token::U32(u)) => Ok(u as u64),
+        Some(Token::U64(u)) => Ok(u),
+        _ => Err(BCoreError::EDecode("expected unsigned int".into())),
+    }
+}
+
 impl AgentInfoRef<'_> {
     /// parse an encoded message-pack agent-info blob into an AgentInfoRef
     pub fn decode(buf: &[u8]) -> BCoreResult<AgentInfoRef<'_>> {
-        let tmp = MpValue::decode(buf)?;
-
         let mut space = None;
         let mut agent = None;
         let mut urls = None;
@@ -53,21 +111,21 @@ impl AgentInfoRef<'_> {
         let mut expires_after_ms = None;
         let mut meta_info = None;
 
-        for (key, val) in tmp.into_map()? {
-            match key.into_str()? {
-                "space" => space = Some(val.into_bin()?),
-                "agent" => agent = Some(val.into_bin()?),
-                "urls" => {
-                    let arr = val.into_arr()?;
-                    let mut out = Vec::with_capacity(arr.len());
-                    for u in arr {
-                        out.push(u.into_str()?);
-                    }
-                    urls = Some(out);
-                }
-                "signed_at_ms" => signed_at_ms = Some(val.into_num()?),
-                "expires_after_ms" => expires_after_ms = Some(val.into_num()?),
-                "meta_info" => meta_info = Some(val.into_bin()?),
+        let mut dec = Decoder::new();
+        let mut iter = dec.parse(buf);
+
+        let len = get_map_len(&mut iter)?;
+
+        for _ in 0..len {
+            let key = get_str(&mut iter)?;
+
+            match key {
+                "space" => space = Some(get_bin(&mut iter)?),
+                "agent" => agent = Some(get_bin(&mut iter)?),
+                "urls" => urls = Some(get_str_arr(&mut iter)?),
+                "signed_at_ms" => signed_at_ms = Some(get_u64(&mut iter)?),
+                "expires_after_ms" => expires_after_ms = Some(get_u64(&mut iter)?),
+                "meta_info" => meta_info = Some(get_bin(&mut iter)?),
                 oth => return Err(BCoreError::EDecode(format!("unexpected key: {}", oth))),
             }
         }
@@ -97,8 +155,8 @@ pub struct AgentInfoSignedRef<'a> {
     pub agent_info: &'a [u8],
 }
 
-impl std::fmt::Debug for AgentInfoSignedRef<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for AgentInfoSignedRef<'_> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let agent = base64::encode(self.agent);
         let signature = base64::encode(self.signature);
         let agent_info = base64::encode(self.agent_info);
@@ -113,17 +171,22 @@ impl std::fmt::Debug for AgentInfoSignedRef<'_> {
 impl AgentInfoSignedRef<'_> {
     /// parse an encoded message-pack agent-info blob into an AgentInfoRef
     pub fn decode(buf: &[u8]) -> BCoreResult<AgentInfoSignedRef<'_>> {
-        let tmp = MpValue::decode(buf)?;
-
         let mut agent = None;
         let mut signature = None;
         let mut agent_info = None;
 
-        for (key, val) in tmp.into_map()? {
-            match key.into_str()? {
-                "agent" => agent = Some(val.into_bin()?),
-                "signature" => signature = Some(val.into_bin()?),
-                "agent_info" => agent_info = Some(val.into_bin()?),
+        let mut dec = Decoder::new();
+        let mut iter = dec.parse(buf);
+
+        let len = get_map_len(&mut iter)?;
+
+        for _ in 0..len {
+            let key = get_str(&mut iter)?;
+
+            match key {
+                "agent" => agent = Some(get_bin(&mut iter)?),
+                "signature" => signature = Some(get_bin(&mut iter)?),
+                "agent_info" => agent_info = Some(get_bin(&mut iter)?),
                 oth => return Err(BCoreError::EDecode(format!("unexpected key: {}", oth))),
             }
         }
@@ -177,8 +240,6 @@ mod tests {
         let sign = base64::decode(TEST_SIG_1).unwrap();
 
         let sign = AgentInfoSignedRef::decode(&sign).unwrap();
-        let info = sign.verify_and_decode_agent_info().unwrap();
-
-        println!("{:?}", info);
+        let _info = sign.verify_and_decode_agent_info().unwrap();
     }
 }

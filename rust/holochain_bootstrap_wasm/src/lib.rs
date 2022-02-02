@@ -1,8 +1,12 @@
+#![no_std]
 #![allow(clippy::unused_unit)] // doesn't pick up #[wasm_bindgen]...
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
 #![deny(warnings)]
 //! Holochain Bootstrap Code Cloudflare Typescript / Rust Wasm FFI Bindings
+
+#[macro_use]
+extern crate alloc;
 
 use holochain_bootstrap_core::types::*;
 use holochain_bootstrap_core::*;
@@ -10,7 +14,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
 /// Generic Javascript Result Type
-pub type JsResult<T> = std::result::Result<T, JsValue>;
+pub type JsResult<T> = core::result::Result<T, JsValue>;
 
 mod kv;
 use kv::*;

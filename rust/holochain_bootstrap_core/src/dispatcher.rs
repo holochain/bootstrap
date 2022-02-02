@@ -1,5 +1,9 @@
 use crate::types::*;
 
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use alloc::vec::Vec;
+
 /// Maps request method/ops to correct handlers
 pub struct HandlerDispatcher {
     // reference to KV store

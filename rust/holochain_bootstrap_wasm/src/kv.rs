@@ -1,5 +1,9 @@
 use super::*;
 
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec::Vec;
+
 /// Js-2-Rust KV ffi bindings
 pub struct KV;
 
