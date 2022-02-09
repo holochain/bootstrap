@@ -93,10 +93,7 @@ fn get_str_arr<'dec, 'buf>(iter: &mut TokenIter<'dec, 'buf>) -> BCoreResult<Vec<
 
 fn get_u64(iter: &mut TokenIter<'_, '_>) -> BCoreResult<u64> {
     match iter.next() {
-        Some(Token::U8(u)) => Ok(u as u64),
-        Some(Token::U16(u)) => Ok(u as u64),
-        Some(Token::U32(u)) => Ok(u as u64),
-        Some(Token::U64(u)) => Ok(u),
+        Some(Token::Num(u)) => Ok(u.to()),
         _ => Err(BCoreError::EDecode("expected unsigned int".into())),
     }
 }
