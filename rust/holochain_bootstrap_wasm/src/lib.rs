@@ -30,6 +30,7 @@ pub async fn handle_request(
     let kv = KV::new(kv)?;
     let mut dispatch = HandlerDispatcher::new(kv);
     dispatch.attach_handler(handlers::PostPut);
+    dispatch.attach_handler(handlers::PostProxyList);
 
     let method = method
         .as_string()
@@ -43,7 +44,23 @@ pub async fn handle_request(
     let input = js_sys::Uint8Array::from(input).to_vec();
 
     match dispatch.handle(&method, &op, &input).await {
-        Ok(res) => Err(format!("stub handler would have: {:?}", res).into()),
+        Ok(res) => {
+            let out = js_sys::Object::new();
+            let status = res.status.into();
+            js_sys::Reflect::set(&out, &"status".into(), &status)?;
+            let headers = js_sys::Array::new_with_length(res.headers.len() as u32);
+            for (i, (key, val)) in res.headers.iter().enumerate() {
+                let item = js_sys::Array::new_with_length(2);
+                item.set(0, key.into());
+                item.set(1, val.into());
+                headers.set(i as u32, item.into());
+            }
+            let headers = headers.into();
+            js_sys::Reflect::set(&out, &"headers".into(), &headers)?;
+            let body = js_sys::Uint8Array::from(res.body.as_slice()).into();
+            js_sys::Reflect::set(&out, &"body".into(), &body)?;
+            Ok(out.into())
+        }
         Err(err) => Err(format!("{:?}", err).into()),
     }
 }

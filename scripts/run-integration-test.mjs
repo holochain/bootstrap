@@ -5,6 +5,8 @@
 import { spawn } from 'child_process'
 import { Miniflare, Log, LogLevel } from 'miniflare'
 
+let server = null
+
 async function main() {
   console.log('@@@@@-start')
 
@@ -18,18 +20,16 @@ async function main() {
   })
 
   const ns = await mf.getKVNamespace('BOOTSTRAP')
-  await ns.put('proxyZombie:1', 'https://www.ggogol.com')
-  await ns.put('proxyZombie:2', 'https://www.ooontnen.com')
+  await ns.put('proxy_pool:https://test.holo.host/this/is/a/test?noodle=true', '1')
+  await ns.put('proxy_pool:https://test2.holo.host/another/test/this/is?a=b#yada', '1')
 
-  const server = await mf.startServer()
+  server = await mf.startServer()
 
   console.log('@@@@@-test')
 
   await execTest()
 
   console.log('@@@@@-done')
-
-  server.close()
 }
 
 function execTest() {
@@ -77,9 +77,15 @@ function execTest() {
 // entrypoint
 main().then(
   () => {
+    if (server) {
+      server.close()
+    }
     console.error('[test-exec]: done')
   },
   (err) => {
+    if (server) {
+      server.close()
+    }
     console.error('[test-exec]:', err)
     process.exitCode = 1
   },
