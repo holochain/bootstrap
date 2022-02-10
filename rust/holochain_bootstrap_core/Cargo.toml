@@ -4,5 +4,12 @@ version = "0.0.1"
 edition = "2021"
 
 ## NOTE! We must be very careful with our dependencies
-## lest we will blow up the WASM size for the cloudflare worker
-## MAYBE: should we use RMP directly without serde??
+## lest we blow up the WASM size for the cloudflare worker
+
+[dependencies]
+base64 = { version = "0.13.0", default-features = false, features = [ "alloc" ] }
+ed25519-dalek = { version = "1.0.1", default-features = false, features = [ "u32_backend" ] }
+msgpackin_core = { version = "0.0.2" }
+
+[dev-dependencies]
+futures = "0.3.19"

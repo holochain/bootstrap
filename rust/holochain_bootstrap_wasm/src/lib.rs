@@ -1,23 +1,49 @@
+#![no_std]
 #![allow(clippy::unused_unit)] // doesn't pick up #[wasm_bindgen]...
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
 #![deny(warnings)]
 //! Holochain Bootstrap Code Cloudflare Typescript / Rust Wasm FFI Bindings
 
+#[macro_use]
+extern crate alloc;
+
+use holochain_bootstrap_core::types::*;
+use holochain_bootstrap_core::*;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 
 /// Generic Javascript Result Type
-pub type JsResult<T> = std::result::Result<T, JsValue>;
+pub type JsResult<T> = core::result::Result<T, JsValue>;
+
+mod kv;
+use kv::*;
 
 /// Handle an incoming request building up a response
 #[wasm_bindgen]
 pub async fn handle_request(
-    _kv: JsValue,
-    _method: JsValue,
-    _op: JsValue,
-    _input: JsValue,
+    kv: JsValue,
+    method: JsValue,
+    op: JsValue,
+    input: JsValue,
 ) -> JsResult<JsValue> {
-    let _stub = holochain_bootstrap_core::HandlerDispatcher {};
+    let kv = KV::new(kv)?;
+    let mut dispatch = HandlerDispatcher::new(kv);
+    dispatch.attach_handler(handlers::PostPut);
 
-    Err("stub".into())
+    let method = method
+        .as_string()
+        .ok_or_else(|| JsValue::from(format!("expect method as string: {:?}", method)))?;
+    let op = op
+        .as_string()
+        .ok_or_else(|| JsValue::from(format!("expect op as string: {:?}", op)))?;
+    if !input.is_instance_of::<js_sys::Uint8Array>() {
+        return Err("input must be a Uint8Array".into());
+    }
+    let input = js_sys::Uint8Array::from(input).to_vec();
+
+    match dispatch.handle(&method, &op, &input).await {
+        Ok(res) => Err(format!("stub handler would have: {:?}", res).into()),
+        Err(err) => Err(format!("{:?}", err).into()),
+    }
 }
