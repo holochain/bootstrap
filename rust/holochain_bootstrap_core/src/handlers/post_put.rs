@@ -1,17 +1,19 @@
 use crate::agent_info::*;
 use crate::types::*;
 
+const OP_PUT: &str = "put";
+
 /// Handler for method: "POST", op: "put".
 /// Validate and store an agent_info_signed struct in the bootstrap kv store.
 pub struct PostPut;
 
 impl AsRequestHandler for PostPut {
     fn handles_method(&self) -> &'static str {
-        "POST"
+        super::METHOD_POST
     }
 
     fn handles_op(&self) -> &'static str {
-        "put"
+        OP_PUT
     }
 
     fn handle<'a>(

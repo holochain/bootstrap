@@ -1,16 +1,18 @@
 use crate::types::*;
 
+const OP_PROXY_LIST: &str = "proxy_list";
+
 /// Handler for method: "POST", op: "proxy_list".
 /// List all entries in the kv with a prefix of "proxy_pool:".
 pub struct PostProxyList;
 
 impl AsRequestHandler for PostProxyList {
     fn handles_method(&self) -> &'static str {
-        "POST"
+        super::METHOD_POST
     }
 
     fn handles_op(&self) -> &'static str {
-        "proxy_list"
+        OP_PROXY_LIST
     }
 
     fn handle<'a>(
