@@ -12,7 +12,7 @@ command = "npm ci && npm run build"
 [build.upload]
 dir    = "./dist"
 format = "modules"
-main   = "./worker.js"
+main   = "./cf_worker_entry.js"
 [[build.upload.rules]]
 globs = ["**/*.js"]
 type  = "ESModule"
@@ -35,5 +35,16 @@ route = "bootstrap.holo.host"
 zone_id = "35f34e8f9d04ef8c87283ea9fb812989"
 kv_namespaces = [
  { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c" }
+]
+vars = { ENVIRONMENT = "production" }
+
+[env.neonphog]
+name = "neonphog"
+workers_dev = false
+route = "worker.neonphog.com/*"
+account_id = "2628b4b23d00d785c1d177aaeb9d8ccb"
+zone_id = "44b36a22d05cc4dddc9617eeadbd7f33"
+kv_namespaces = [
+  { binding = "BOOTSTRAP", id = "99df026852624e44b31e7ef004f4e141" }
 ]
 vars = { ENVIRONMENT = "production" }

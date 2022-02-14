@@ -1,6 +1,5 @@
 import { Ctx } from '../ctx'
 import { postHandler } from './post'
-import bootstrap_wasm from '../rust-wasm'
 
 export async function requestDispatch(ctx: Ctx): Promise<Response> {
   const method = ctx.request.method
@@ -8,7 +7,7 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
   const input = new Uint8Array(await ctx.request.arrayBuffer())
 
   try {
-    const response = await bootstrap_wasm.handle_request(
+    const response = await ctx.bootstrapWasm.handle_request(
       ctx.BOOTSTRAP,
       method,
       op,
