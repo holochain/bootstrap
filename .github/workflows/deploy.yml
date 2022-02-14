@@ -4,7 +4,6 @@ on:
  push:
   branches:
    - main
-   - fix-deploy
 
 jobs:
  deploy:
@@ -19,17 +18,17 @@ jobs:
 
    - run: npm ci
 
-   - name: Deploy:Neonphog
-     run: npx wrangler publish -e neonphog
+   #- name: Deploy:Neonphog
+   #  run: npx wrangler publish -e neonphog
+   #  env:
+   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+
+   - name: Deploy:Dev
+     run: npx wrangler publish -e dev
      env:
-       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
-   #- name: Deploy:Dev
-   #  run: npx wrangler publish -e dev
-   #  env:
-   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-
-   #- name: Deploy:Production
-   #  run: npx wrangler publish -e production
-   #  env:
-   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+   - name: Deploy:Production
+     run: npx wrangler publish -e production
+     env:
+       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
