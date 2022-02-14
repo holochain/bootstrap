@@ -62,6 +62,29 @@ describe('integration tests', () => {
     )
   })
 
+  it('should POST/proxy_list correctly', async function () {
+    const raw = await fetch(url, {
+      method: 'POST',
+      body: new Uint8Array(0),
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'X-Op': 'proxy_list',
+      },
+    })
+
+    if (raw.status !== 200) {
+      throw new Error(JSON.stringify(raw))
+    }
+
+    const buffer = await raw.buffer()
+    const res = MP.decode(buffer)
+
+    assert.deepEqual([
+      'https://test.holo.host/this/is/a/test?noodle=true',
+      'https://test2.holo.host/another/test/this/is?a=b#yada',
+    ], res.sort())
+  })
+
   it('should POST correctly', async function () {
     // needs an extended timeout to post everything
     this.timeout(0)

@@ -124,7 +124,7 @@ pub trait AsKV: 'static {
     fn delete<'a>(&'a self, key: &str) -> BCoreFut<'a, BCoreResult<()>>;
 
     /// list keys from the KV
-    fn list<'a>(&self, prefix: Option<&str>) -> BCoreFut<'a, BCoreResult<Vec<String>>>;
+    fn list<'a>(&'a self, prefix: Option<&str>) -> BCoreFut<'a, BCoreResult<Vec<String>>>;
 }
 
 /// Individual Handler Logic
