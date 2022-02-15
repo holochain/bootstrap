@@ -34,8 +34,8 @@ jobs:
 
    - name: Test
      run: for i in "${{ matrix.proxy-pool }}"; do echo $i; done
-       env:
-         CF_API_TOKEN: ${{ secrets[matrix.token] }}
+     env:
+       CF_API_TOKEN: ${{ secrets[matrix.token] }}
 
      #- name: Deploy
      #  run: npx wrangler publish -e ${{ matrix.cf-env }}
