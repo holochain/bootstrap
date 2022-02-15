@@ -79,6 +79,9 @@ async function replaceGeneratedImportWithCustomImpl () {
     "import * as wasm from './holochain_bootstrap_wasm_bg.wasm';",
     "import wasm from './holochain_bootstrap_wasm_export.js';",
   )
+    + "\nimport * as myself from './holochain_bootstrap_wasm_bg.js';"
+    + "\nexport default myself;"
+    + "\n"
   fs.unlinkSync(fn)
   fs.writeFileSync(fn, customData)
 }

@@ -12,10 +12,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const wasmBuild = path.join(__dirname, 'rust', 'target', 'wasm-build')
+const scripts = path.join(__dirname, 'scripts')
 
 module.exports = {
   mode,
   devtool,
+  target: 'web',
   output: {
     publicPath: './',
     module: true,
@@ -24,28 +26,12 @@ module.exports = {
     library: {
       type: 'module',
     },
-    environment: {
-      module: true,
-      dynamicImport: true,
-    },
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.mjs', '.js'],
     plugins: [],
+    fallback: { 'crypto': false },
   },
-  externals: [
-    function ({ context, request }, callback) {
-      if (request.endsWith('/holochain_bootstrap_wasm_bg.wasm')) {
-        return callback(null, './holochain_bootstrap_wasm_bg.wasm', 'module')
-      } else if (request.endsWith('/holochain_bootstrap_wasm_bg.js')) {
-        return callback(null, './holochain_bootstrap_wasm_bg.js', 'module')
-      } else if (request.endsWith('/holochain_bootstrap_wasm_export.js')) {
-        return callback(null, './holochain_bootstrap_wasm_export.js', 'module')
-      } else {
-        return callback()
-      }
-    },
-  ],
   plugins: [
     new CopyPlugin({
       patterns: [
@@ -60,6 +46,10 @@ module.exports = {
         {
           from: path.join(wasmBuild, 'holochain_bootstrap_wasm_export.js'),
           to: 'holochain_bootstrap_wasm_export.js',
+        },
+        {
+          from: path.join(scripts, 'cf_worker_entry.js'),
+          to: 'cf_worker_entry.js',
         },
       ],
     })
