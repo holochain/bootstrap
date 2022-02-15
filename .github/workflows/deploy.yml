@@ -17,7 +17,6 @@ jobs:
           token: CF_API_TOKEN_NEONPHOG
           proxy-pool: >-
             "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
-            "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
         #- cf-env: dev
         #  token: CF_API_TOKEN
         #- cf-env: production
@@ -32,17 +31,12 @@ jobs:
 
    - run: npm ci
 
-   - name: Test
-     run: for i in ${{ matrix.proxy-pool }}; do npx wrangler -e neonphog kv:key put "proxy_pool:$i" "1" --binding BOOTSTRAP; done
+   - name: Deploy
+     run: npx wrangler publish -e ${{ matrix.cf-env }}
      env:
        CF_API_TOKEN: ${{ secrets[matrix.token] }}
 
-     #- name: Deploy
-     #  run: npx wrangler publish -e ${{ matrix.cf-env }}
-     #  env:
-     #    CF_API_TOKEN: ${{ secrets[matrix.token] }}
-
-     #- name: ProxyPool
-     #  run: npx wrangler -e neonphog kv:key put $'proxy_pool:kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--' "1" --binding BOOTSTRAP
-     #  env:
-     #    CF_API_TOKEN: ${{ secrets[matrix.token] }}
+   - name: ProxyPool
+     run: for i in ${{ matrix.proxy-pool }}; do npx wrangler -e neonphog kv:key put "proxy_pool:$i" "1" --binding BOOTSTRAP; done
+     env:
+       CF_API_TOKEN: ${{ secrets[matrix.token] }}
