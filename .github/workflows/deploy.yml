@@ -33,7 +33,7 @@ jobs:
    - run: npm ci
 
    - name: Test
-     run: for i in "${{ matrix.proxy-pool }}"; do echo $i; done
+     run: for i in ${{ '"' + matrix.proxy-pool.join('" "') + '"' }}; do echo $i; done
      env:
        CF_API_TOKEN: ${{ secrets[matrix.token] }}
 
