@@ -4,6 +4,7 @@ on:
  push:
   branches:
    - main
+   - fix-deploy
 
 jobs:
  deploy:
@@ -18,17 +19,22 @@ jobs:
 
    - run: npm ci
 
-   #- name: Deploy:Neonphog
-   #  run: npx wrangler publish -e neonphog
+   - name: Deploy:Neonphog
+     run: npx wrangler publish -e neonphog
+     env:
+       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+
+   - name: Publish:ProxyPool
+     run: npx wrangler -e neonphog kv:key put $'proxy_pool:kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--' "1" --binding BOOTSTRAP
+     env:
+       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+
+   #- name: Deploy:Dev
+   #  run: npx wrangler publish -e dev
    #  env:
-   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
-   - name: Deploy:Dev
-     run: npx wrangler publish -e dev
-     env:
-       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-
-   - name: Deploy:Production
-     run: npx wrangler publish -e production
-     env:
-       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+   #- name: Deploy:Production
+   #  run: npx wrangler publish -e production
+   #  env:
+   #    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
