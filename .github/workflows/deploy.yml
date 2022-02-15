@@ -33,7 +33,10 @@ jobs:
    - run: npm ci
 
    - name: Test
-     run: for i in ${{ matrix.proxy-pool }}; do echo $i; done
+     run: >-
+       for i in ${{ matrix.proxy-pool }}; do
+          npx wrangler -e neonphog kv:key put "$i" --binding BOOTSTRAP;
+       done
      env:
        CF_API_TOKEN: ${{ secrets[matrix.token] }}
 
