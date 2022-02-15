@@ -10,6 +10,16 @@ jobs:
  deploy:
   name: deploy
   runs-on: ubuntu-latest
+  strategy:
+    matrix:
+      include:
+        - cf-env: neonphog
+          token: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+        #- cf-env: dev
+        #  token: CF_API_TOKEN
+        #- cf-env: production
+        #  token: CF_API_TOKEN
+
   steps:
    - uses: actions/checkout@v2
 
@@ -19,15 +29,15 @@ jobs:
 
    - run: npm ci
 
-   - name: Deploy:Neonphog
-     run: npx wrangler publish -e neonphog
+   - name: Deploy
+     run: npx wrangler publish -e ${{ matrix.cf-env }}
      env:
-       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+       CF_API_TOKEN: ${{ matrix.token }}
 
-   - name: Publish:ProxyPool
+   - name: ProxyPool
      run: npx wrangler -e neonphog kv:key put $'proxy_pool:kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--' "1" --binding BOOTSTRAP
      env:
-       CF_API_TOKEN: ${{ secrets.CF_API_TOKEN_NEONPHOG }}
+       CF_API_TOKEN: ${{ matrix.token }}
 
    #- name: Deploy:Dev
    #  run: npx wrangler publish -e dev
