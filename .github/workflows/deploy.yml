@@ -4,7 +4,6 @@ on:
  push:
   branches:
    - main
-   - fix-deploy
 
 jobs:
  deploy:
@@ -13,14 +12,18 @@ jobs:
   strategy:
     matrix:
       include:
-        - cf-env: neonphog
-          token: CF_API_TOKEN_NEONPHOG
+        #- cf-env: neonphog
+        #  token: CF_API_TOKEN_NEONPHOG
+        #  proxy-pool: >-
+        #    "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
+        - cf-env: dev
+          token: CF_API_TOKEN
           proxy-pool: >-
             "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
-        #- cf-env: dev
-        #  token: CF_API_TOKEN
-        #- cf-env: production
-        #  token: CF_API_TOKEN
+        - cf-env: production
+          token: CF_API_TOKEN
+          proxy-pool: >-
+            "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
 
   steps:
    - uses: actions/checkout@v2
