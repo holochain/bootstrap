@@ -20,6 +20,7 @@ function wrangler(env, args) {
   return execSync(cmd, {
     shell: false,
     encoding: 'utf8',
+    maxBuffer: 1024 * 1024 * 1024,
   })
 }
 
