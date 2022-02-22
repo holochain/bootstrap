@@ -4,6 +4,7 @@ on:
  push:
   branches:
    - main
+   - set-proxy-pool
 
 jobs:
  deploy:
@@ -12,18 +13,20 @@ jobs:
   strategy:
     matrix:
       include:
-        #- cf-env: neonphog
-        #  token: CF_API_TOKEN_NEONPHOG
+        - cf-env: neonphog
+          token: CF_API_TOKEN_NEONPHOG
+          proxy-pool: >-
+            "kitsune-proxy://SYVd4CF3BdJ4DS7KwLLgeU3_DbHoZ34Y-qroZ79DOs8/kitsune-quic/h/165.22.32.11/p/5779/--"
+        #    "kitsune-proxy://nFCWLsuRC0X31UMv8cJxioL-lBRFQ74UQAsb8qL4XyM/kitsune-quic/h/165.22.32.11/p/5778/--"
+        #    "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
+        #- cf-env: dev
+        #  token: CF_API_TOKEN
         #  proxy-pool: >-
         #    "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
-        - cf-env: dev
-          token: CF_API_TOKEN
-          proxy-pool: >-
-            "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
-        - cf-env: production
-          token: CF_API_TOKEN
-          proxy-pool: >-
-            "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
+        #- cf-env: production
+        #  token: CF_API_TOKEN
+        #  proxy-pool: >-
+        #    "kitsune-proxy://f3gH2VMkJ4qvZJOXx0ccL_Zo5n-s_CnBjSzAsEHHDCA/kitsune-quic/h/137.184.142.208/p/5788/--"
 
   steps:
    - uses: actions/checkout@v2
@@ -40,6 +43,6 @@ jobs:
        CF_API_TOKEN: ${{ secrets[matrix.token] }}
 
    - name: ProxyPool
-     run: for i in ${{ matrix.proxy-pool }}; do npx wrangler -e ${{ matrix.cf-env }} kv:key put "proxy_pool:$i" "1" --binding BOOTSTRAP; done
+     run: node ./scripts/set-proxy-pool.cjs ${{ matrix.cf-env }} ${{ matrix.proxy-pool }}
      env:
        CF_API_TOKEN: ${{ secrets[matrix.token] }}
