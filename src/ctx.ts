@@ -9,6 +9,8 @@ export interface BootstrapWasm {
     headers: Array<[string, string]>
     body: Uint8Array
   }>
+
+  handle_scheduled: (kv: KVNamespace) => Promise<void>
 }
 
 export class Ctx {

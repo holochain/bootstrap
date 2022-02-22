@@ -10,4 +10,11 @@ export default {
     const ctx = new Ctx(request, env.BOOTSTRAP, bootstrapWasm)
     return await requestDispatch(ctx)
   },
+
+  async scheduled(
+    env: { BOOTSTRAP: KVNamespace },
+    bootstrapWasm: BootstrapWasm,
+  ): Promise<void> {
+    await bootstrapWasm.handle_scheduled(env.BOOTSTRAP)
+  },
 }
