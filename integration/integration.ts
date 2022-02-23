@@ -90,6 +90,7 @@ describe('integration tests', () => {
   it.only('should trigger_scheduled / metrics correctly', async function () {
     this.timeout(0)
 
+    // add some random agents to 3 different spaces
     for (let s = 0; s < 3; ++s) {
       let space = Uint8Array.from(Array(36).fill(s))
       for (let a = 0; a < 3; ++a) {
@@ -118,6 +119,7 @@ describe('integration tests', () => {
       }
     }
 
+    // trigger the scheduled aggregation 3 times
     for (let i = 0; i < 3; ++i) {
       await fetch(url, {
         method: 'POST',
@@ -128,6 +130,7 @@ describe('integration tests', () => {
       })
     }
 
+    // pull down the aggregated metrics
     const raw = await fetch(url, {
       method: 'GET',
       headers: {
@@ -139,7 +142,10 @@ describe('integration tests', () => {
       throw new Error(JSON.stringify(raw))
     }
 
+    // decode as json
     const res = JSON.parse((new TextDecoder()).decode(await raw.buffer()))
+
+    // print for debugging
     console.log(res)
 
     // make sure we only got 1 entry for the three triggers above
