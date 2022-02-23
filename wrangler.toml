@@ -9,10 +9,9 @@ compatibility_date = "2022-01-14"
 
 [triggers]
 # trigger scheduled tasks like metrics aggregation
-# internally, only one aggregation will happen per hour, having the
-# idempotent trigger run more frequently just ensures the metrics will
-# be aggregated sometime at the beginning of the hour. plus, 29 is prime
-crons = ["*/29 * * * *"]
+# internally, only one aggregation will happen per hour
+# setting this to run at 15 to make sure we're within the hour bucket
+crons = ["15 * * * *"]
 
 [build]
 command = "npm ci && npm run build"
