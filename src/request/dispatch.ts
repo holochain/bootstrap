@@ -1,14 +1,20 @@
 import { Ctx } from '../ctx'
 import { postHandler } from './post'
 
+function opFromPath(url: string): string {
+  const res = new RegExp('\\/([^\\/]*)', 'g').exec(new URL(url).pathname)
+  return Array.isArray(res) && typeof res[1] === 'string' ? res[1] : ''
+}
+
 export async function requestDispatch(ctx: Ctx): Promise<Response> {
   const method = ctx.request.method
-  const op = ctx.request.headers.get('X-Op') || ''
+  const op = ctx.request.headers.get('X-Op') || opFromPath(ctx.request.url)
   const input = new Uint8Array(await ctx.request.arrayBuffer())
 
   try {
     const response = await ctx.bootstrapWasm.handle_request(
       ctx.BOOTSTRAP,
+      ctx.wasmHost,
       method,
       op,
       input,

@@ -18,6 +18,7 @@ impl AsRequestHandler for PostTriggerScheduled {
     fn handle<'a>(
         &'a self,
         kv: &'a dyn AsKV,
+        host: &'a dyn AsFromHost,
         input: &'a [u8],
     ) -> BCoreFut<'a, BCoreResult<HttpResponse>> {
         bcore_fut(async move {
@@ -25,7 +26,7 @@ impl AsRequestHandler for PostTriggerScheduled {
                 return Err("body must be empty for 'POST/trigger_scheduled'".into());
             }
 
-            crate::exec_scheduled(kv).await?;
+            crate::exec_scheduled(kv, host).await?;
 
             Ok(HttpResponse {
                 status: 200,

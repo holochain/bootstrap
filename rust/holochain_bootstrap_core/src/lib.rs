@@ -8,6 +8,10 @@
 #[macro_use]
 extern crate alloc;
 
+pub(crate) const PROXY_PREFIX: &str = "proxy_pool:";
+
+pub(crate) mod metrics;
+
 pub mod types;
 
 mod dispatcher;

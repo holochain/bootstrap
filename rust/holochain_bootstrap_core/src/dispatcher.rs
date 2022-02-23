@@ -9,6 +9,9 @@ pub struct HandlerDispatcher {
     // reference to KV store
     kv: Box<dyn AsKV + 'static>,
 
+    // reference to host interface
+    host: Box<dyn AsFromHost + 'static>,
+
     // rather than using a true map type, we shouldn't have
     // very many handlers, so it results in smaller wasm
     // and not bad performance to just search them each time.
@@ -17,10 +20,12 @@ pub struct HandlerDispatcher {
 
 impl HandlerDispatcher {
     /// construct a new handler dispatcher
-    pub fn new<KV: AsKV>(kv: KV) -> Self {
+    pub fn new<KV: AsKV, H: AsFromHost>(kv: KV, host: H) -> Self {
         let kv: Box<dyn AsKV + 'static> = Box::new(kv);
+        let host: Box<dyn AsFromHost + 'static> = Box::new(host);
         Self {
             kv,
+            host,
             map: Vec::new(),
         }
     }
@@ -33,7 +38,7 @@ impl HandlerDispatcher {
 
     /// dispatch a request to appropriate handler and return response
     pub async fn handle(&self, method: &str, op: &str, input: &[u8]) -> BCoreResult<HttpResponse> {
-        let Self { kv, map } = self;
+        let Self { kv, host, map } = self;
 
         for h in map.iter() {
             if h.handles_method() != method {
@@ -42,7 +47,7 @@ impl HandlerDispatcher {
             if h.handles_op() != op {
                 continue;
             }
-            return h.handle(&**kv, input).await;
+            return h.handle(&**kv, &**host, input).await;
         }
 
         Err(BCoreError::EBadOp {

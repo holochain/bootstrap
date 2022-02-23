@@ -18,6 +18,7 @@ impl AsRequestHandler for PostProxyList {
     fn handle<'a>(
         &'a self,
         kv: &'a dyn AsKV,
+        _host: &'a dyn AsFromHost,
         input: &'a [u8],
     ) -> BCoreFut<'a, BCoreResult<HttpResponse>> {
         bcore_fut(async move {
@@ -25,7 +26,7 @@ impl AsRequestHandler for PostProxyList {
                 return Err("body must be empty for 'POST/proxy_list'".into());
             }
 
-            let entries = kv.list(Some("proxy_pool:")).await?;
+            let entries = kv.list(Some(crate::PROXY_PREFIX)).await?;
 
             let mut enc = msgpackin_core::encode::Encoder::new();
             let mut body = alloc::vec::Vec::new();

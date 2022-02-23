@@ -8,7 +8,7 @@ vars = { ENVIRONMENT = "dev" }
 compatibility_date = "2022-01-14"
 
 [triggers]
-crons = ["*/13 * * * *"]
+crons = ["*/53 * * * *"]
 
 [build]
 command = "npm ci && npm run build"

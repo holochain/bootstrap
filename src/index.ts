@@ -1,4 +1,4 @@
-import { BootstrapWasm, Ctx } from './ctx'
+import { BootstrapWasm, Ctx, wasmHost } from './ctx'
 import { requestDispatch } from './request/dispatch'
 
 export default {
@@ -15,6 +15,6 @@ export default {
     env: { BOOTSTRAP: KVNamespace },
     bootstrapWasm: BootstrapWasm,
   ): Promise<void> {
-    await bootstrapWasm.handle_scheduled(env.BOOTSTRAP)
+    await bootstrapWasm.handle_scheduled(env.BOOTSTRAP, wasmHost)
   },
 }

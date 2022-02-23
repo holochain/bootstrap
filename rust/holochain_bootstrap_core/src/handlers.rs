@@ -1,6 +1,10 @@
 //! Built-in common bootstrap handlers
 
+const METHOD_GET: &str = "GET";
 const METHOD_POST: &str = "POST";
+
+mod get_metrics;
+pub use get_metrics::*;
 
 mod post_put;
 pub use post_put::*;
