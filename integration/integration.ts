@@ -92,7 +92,7 @@ describe('integration tests', () => {
 
     // add some random agents to 3 different spaces
     for (let s = 0; s < 3; ++s) {
-      let space = Uint8Array.from(Array(36).fill(s))
+      let space = Uint8Array.from(Array(36).fill(100 - s))
       for (let a = 0; a < 3; ++a) {
         const {publicKey, secretKey} = keypair()
         const info = {
