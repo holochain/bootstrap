@@ -2,7 +2,7 @@ import { Ctx } from '../ctx'
 import { postHandler } from './post'
 
 function opFromPath(url: string): string {
-  const res = new RegExp('\\/([^\\/]*)', 'g').exec(new URL(url).pathname)
+  const res = new RegExp('^\\/([^\\/]*)').exec(new URL(url).pathname)
   return Array.isArray(res) && typeof res[1] === 'string' ? res[1] : ''
 }
 
