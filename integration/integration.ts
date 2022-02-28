@@ -87,7 +87,7 @@ describe('integration tests', () => {
     ], res.sort())
   })
 
-  it.only('should trigger_scheduled / metrics correctly', async function () {
+  it('should trigger_scheduled / metrics correctly', async function () {
     this.timeout(0)
 
     // add some random agents to 3 different spaces
