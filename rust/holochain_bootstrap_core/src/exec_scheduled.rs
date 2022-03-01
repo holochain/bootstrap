@@ -38,9 +38,17 @@ pub async fn exec_scheduled(kv: &dyn AsKV, host: &dyn AsFromHost) -> BCoreResult
                 } else if &bkey[..PROXY_PREFIX.as_bytes().len()] == PROXY_PREFIX.as_bytes() {
                     metrics.total_proxy_count += 1;
                 } else {
-                    let space = &bkey[..bkey.len() / 2];
-                    let space = base64::decode(space)
-                        .map_err(|e| BCoreError::from(format!("{:?} full_key: {}", e, key)))?;
+                    // alas, there's some wiggle room in the way
+                    // space / agents are currently encoded as keys
+                    let space = match base64::decode(&bkey[..bkey.len() / 2]) {
+                        Ok(space) => space,
+                        Err(_) => match base64::decode(&bkey[..=bkey.len() / 2]) {
+                            Ok(space) => space,
+                            Err(e) => {
+                                return Err(BCoreError::from(format!("{:?} full_key: {}", e, key,)))
+                            }
+                        },
+                    };
                     space_set.insert(space);
                     metrics.total_agent_count += 1;
                 }
