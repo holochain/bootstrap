@@ -32,15 +32,15 @@ pub async fn exec_scheduled(kv: &dyn AsKV, host: &dyn AsFromHost) -> BCoreResult
         None,
         Box::new(|keys| {
             for key in keys.drain(..) {
-                let key = key.as_bytes();
-                if &key[..METRIC_PREFIX.as_bytes().len()] == METRIC_PREFIX.as_bytes() {
+                let bkey = key.as_bytes();
+                if &bkey[..METRIC_PREFIX.as_bytes().len()] == METRIC_PREFIX.as_bytes() {
                     // ignore
-                } else if &key[..PROXY_PREFIX.as_bytes().len()] == PROXY_PREFIX.as_bytes() {
+                } else if &bkey[..PROXY_PREFIX.as_bytes().len()] == PROXY_PREFIX.as_bytes() {
                     metrics.total_proxy_count += 1;
                 } else {
-                    let space = &key[..key.len() / 2];
-                    let space =
-                        base64::decode(space).map_err(|e| BCoreError::from(format!("{:?}", e)))?;
+                    let space = &bkey[..bkey.len() / 2];
+                    let space = base64::decode(space)
+                        .map_err(|e| BCoreError::from(format!("{:?} full_key: {}", e, key)))?;
                     space_set.insert(space);
                     metrics.total_agent_count += 1;
                 }
