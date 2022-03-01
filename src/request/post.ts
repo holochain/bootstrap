@@ -20,10 +20,10 @@ async function handle(
   if (tryF instanceof Error) {
     console.error('messagepack input:', input.toString())
     console.error('error:', '' + tryF)
-    return new Response('' + tryF, { status: 500 })
+    return ctx.newResponse('' + tryF, { status: 500 })
   }
 
-  return new Response(tryF)
+  return ctx.newResponse(tryF)
 }
 
 export async function postHandler(
@@ -39,7 +39,7 @@ export async function postHandler(
     case OP_NOW:
       return handle(now, input, ctx)
     default:
-      return new Response(MP.encode('unknown op'), { status: 500 })
+      return ctx.newResponse(MP.encode('unknown op'), { status: 500 })
   }
   throw new Error('broken dispatch switch')
 }

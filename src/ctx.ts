@@ -23,6 +23,7 @@ export const wasmHost = {
 }
 
 export class Ctx {
+  public wasmError?: string = undefined
   public wasmHost: WasmHost = wasmHost
 
   constructor(
@@ -30,4 +31,13 @@ export class Ctx {
     public BOOTSTRAP: KVNamespace,
     public bootstrapWasm: BootstrapWasm,
   ) {}
+
+  newResponse(bodyInit?: BodyInit | null, maybeInit?: ResponseInit): Response {
+    maybeInit = maybeInit || {}
+    maybeInit.headers = new Headers(maybeInit.headers)
+    if (this.wasmError) {
+      maybeInit.headers.append('X-WasmError', this.wasmError)
+    }
+    return new Response(bodyInit, maybeInit)
+  }
 }

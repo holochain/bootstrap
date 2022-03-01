@@ -24,6 +24,7 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
       headers: new Headers(response.headers),
     })
   } catch (e) {
+    ctx.wasmError = ('' + e).replace(/\r/g, '').replace(/\n/g, '')
     console.error('@wasm:error@', e)
     // for now, ignore errors and fall back to legacy logic
   }
@@ -34,8 +35,8 @@ export async function requestDispatch(ctx: Ctx): Promise<Response> {
 
   // Respond with a simple pong for any GET to help with smoke testing.
   if (method === 'GET') {
-    return new Response('OK')
+    return ctx.newResponse('OK')
   }
 
-  return new Response('unhandled request', { status: 500 })
+  return ctx.newResponse('unhandled request', { status: 500 })
 }
