@@ -19,6 +19,7 @@ impl AsRequestHandler for PostPut {
     fn handle<'a>(
         &'a self,
         _kv: &'a dyn AsKV,
+        _host: &'a dyn AsFromHost,
         input: &'a [u8],
     ) -> BCoreFut<'a, BCoreResult<HttpResponse>> {
         bcore_fut(async move {

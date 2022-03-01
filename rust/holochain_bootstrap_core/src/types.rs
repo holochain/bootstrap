@@ -112,6 +112,13 @@ pub struct HttpResponse {
     pub body: Vec<u8>,
 }
 
+/// Trait representing some functionality supplied by the host environment
+/// i.e. wasm
+pub trait AsFromHost: 'static {
+    /// get milliseconds timestamp
+    fn get_timestamp_millis(&self) -> BCoreResult<i64>;
+}
+
 /// Trait representing a KV implementation
 pub trait AsKV: 'static {
     /// put data into the KV
@@ -123,8 +130,33 @@ pub trait AsKV: 'static {
     /// delete a key from the KV
     fn delete<'a>(&'a self, key: &str) -> BCoreFut<'a, BCoreResult<()>>;
 
+    /// list keys from the KV progressively
+    fn list_progressive<'a, 'b: 'a>(
+        &'a self,
+        prefix: Option<&str>,
+        cb: Box<dyn FnMut(&mut Vec<String>) -> BCoreResult<()> + 'b>,
+    ) -> BCoreFut<'a, BCoreResult<()>>;
+
+    // -- provided -- //
+
     /// list keys from the KV
-    fn list<'a>(&'a self, prefix: Option<&str>) -> BCoreFut<'a, BCoreResult<Vec<String>>>;
+    fn list<'a, 'b: 'a>(
+        &'a self,
+        prefix: Option<&'b str>,
+    ) -> BCoreFut<'a, BCoreResult<Vec<String>>> {
+        Box::pin(async move {
+            let mut out = Vec::new();
+            self.list_progressive(
+                prefix,
+                Box::new(|keys| {
+                    out.append(keys);
+                    Ok(())
+                }),
+            )
+            .await?;
+            Ok(out)
+        })
+    }
 }
 
 /// Individual Handler Logic
@@ -139,6 +171,7 @@ pub trait AsRequestHandler: 'static {
     fn handle<'a>(
         &'a self,
         kv: &'a dyn AsKV,
+        host: &'a dyn AsFromHost,
         input: &'a [u8],
     ) -> BCoreFut<'a, BCoreResult<HttpResponse>>;
 }

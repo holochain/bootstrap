@@ -19,18 +19,35 @@ pub type JsResult<T> = core::result::Result<T, JsValue>;
 mod kv;
 use kv::*;
 
+mod host;
+use host::*;
+
+/// Handle a scheduled event
+#[wasm_bindgen]
+pub async fn handle_scheduled(kv: JsValue, host: JsValue) -> JsResult<()> {
+    let kv = KV::new(kv)?;
+    let host = Host::new(host)?;
+    exec_scheduled(&kv, &host)
+        .await
+        .map_err(|e| format!("{:?}", e).into())
+}
+
 /// Handle an incoming request building up a response
 #[wasm_bindgen]
 pub async fn handle_request(
     kv: JsValue,
+    host: JsValue,
     method: JsValue,
     op: JsValue,
     input: JsValue,
 ) -> JsResult<JsValue> {
     let kv = KV::new(kv)?;
-    let mut dispatch = HandlerDispatcher::new(kv);
+    let host = Host::new(host)?;
+    let mut dispatch = HandlerDispatcher::new(kv, host);
+    dispatch.attach_handler(handlers::GetMetrics);
     dispatch.attach_handler(handlers::PostPut);
     dispatch.attach_handler(handlers::PostProxyList);
+    dispatch.attach_handler(handlers::PostTriggerScheduled);
 
     let method = method
         .as_string()

@@ -1,6 +1,8 @@
 import * as fetch from 'node-fetch'
 import { assert } from 'chai'
 import * as Agents from '../test/fixture/agents'
+import { keypair } from '../test/fixture/crypto'
+import * as Crypto from '../src/crypto/crypto'
 import { vaporChatSpace, wikiSpace, emptySpace } from '../test/fixture/spaces'
 import * as MP from '../src/msgpack/msgpack'
 import * as Kitsune from '../src/kitsune/kitsune'
@@ -83,6 +85,80 @@ describe('integration tests', () => {
       'https://test.holo.host/this/is/a/test?noodle=true',
       'https://test2.holo.host/another/test/this/is?a=b#yada',
     ], res.sort())
+  })
+
+  it('should trigger_scheduled / metrics correctly', async function () {
+    this.timeout(0)
+
+    // add some random agents to 3 different spaces
+    for (let s = 0; s < 3; ++s) {
+      let space = Uint8Array.from(Array(36).fill(100 - s))
+      for (let a = 0; a < 3; ++a) {
+        const {publicKey, secretKey} = keypair()
+        const info = {
+          space,
+          agent: Agents.publicKeyToKitsuneAgent(publicKey),
+          urls: ['https://foo.com'],
+          signed_at_ms: Date.now(),
+          expires_after_ms: 100000,
+          meta_info: new Uint8Array(0),
+        }
+        const infoEnc = MP.encode(info)
+        const signed = MP.encode({
+          signature: Crypto.sign(infoEnc, secretKey),
+          agent: info.agent,
+          agent_info: infoEnc,
+        })
+        await fetch(url, {
+          method: 'POST',
+          body: signed,
+          headers: {
+            'X-Op': 'put',
+          },
+        })
+      }
+    }
+
+    // trigger the scheduled aggregation 3 times
+    for (let i = 0; i < 3; ++i) {
+      await fetch(url, {
+        method: 'POST',
+        body: new Uint8Array(0),
+        headers: {
+          'X-Op': 'trigger_scheduled',
+        },
+      })
+    }
+
+    // pull down the aggregated metrics
+    const raw = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-Op': 'metrics',
+      },
+    })
+
+    if (raw.status !== 200) {
+      throw new Error(JSON.stringify(raw))
+    }
+
+    // decode as json
+    const res = JSON.parse((new TextDecoder()).decode(await raw.buffer()))
+
+    // print for debugging
+    console.log(res)
+
+    // make sure we only got 1 entry for the three triggers above
+    assert.equal(1, res.data.length)
+
+    // make sure we have at least the agents we added
+    assert(res.data[0][1] >= 9)
+
+    // make sure we have at least the spaces we added
+    assert(res.data[0][2] >= 3)
+
+    // make sure we recorded the two proxy urls in the proxy pool
+    assert.equal(2, res.data[0][3])
   })
 
   it('should POST correctly', async function () {

@@ -83,9 +83,12 @@ impl AsKV for KV {
         bcore_fut(async move { Err("unimplemented".into()) })
     }
 
-    fn list<'a>(&'a self, prefix: Option<&str>) -> BCoreFut<'a, BCoreResult<Vec<String>>> {
+    fn list_progressive<'a, 'b: 'a>(
+        &'a self,
+        prefix: Option<&str>,
+        mut cb: Box<dyn FnMut(&mut Vec<String>) -> BCoreResult<()> + 'b>,
+    ) -> BCoreFut<'a, BCoreResult<()>> {
         let prefix: Option<JsValue> = prefix.map(|p| p.into());
-
         bcore_fut(async move {
             let func = self.get_func_prop("list")?;
             let mut cursor: Option<JsValue> = None;
@@ -125,6 +128,9 @@ impl AsKV for KV {
                     out.push(name);
                 }
 
+                cb(&mut out)?;
+                out.clear();
+
                 let list_complete = js_sys::Reflect::get(&res, &"list_complete".into())
                     .map_err(|e| bcore_err!("{:?}", e))?
                     .as_bool()
@@ -139,7 +145,7 @@ impl AsKV for KV {
                 cursor = Some(c)
             }
 
-            Ok(out)
+            Ok(())
         })
     }
 }
