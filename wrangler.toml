@@ -37,7 +37,7 @@ vars = { ENVIRONMENT = "dev" }
 [env.production]
 name = "bootstrap"
 workers_dev = false
-route = "bootstrap.holo.host"
+route = "bootstrap.holo.host/*"
 zone_id = "35f34e8f9d04ef8c87283ea9fb812989"
 kv_namespaces = [
  { binding = "BOOTSTRAP", id = "95561bdb2dbc41e8bf6e2975e49a1f6c" }

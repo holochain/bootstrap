@@ -1,6 +1,6 @@
 use crate::types::*;
 
-const OP_PROXY_LIST: &str = "trigger_scheduled";
+const OP_TRIGGER_SCHEDULED: &str = "trigger_scheduled";
 
 /// Handler for method: "POST", op: "trigger_scheduled".
 /// Manually trigger the "scheduled" cron event
@@ -12,7 +12,7 @@ impl AsRequestHandler for PostTriggerScheduled {
     }
 
     fn handles_op(&self) -> &'static str {
-        OP_PROXY_LIST
+        OP_TRIGGER_SCHEDULED
     }
 
     fn handle<'a>(
