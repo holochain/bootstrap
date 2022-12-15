@@ -35,7 +35,7 @@ async function main() {
 function execTest() {
   return new Promise((resolve, reject) => {
     try {
-      const proc = spawn('./node_modules/.bin/ts-mocha', ['integration/integration.ts'], {
+      const proc = spawn('./node_modules/.bin/mocha', ['test-dist/integration.cjs'], {
         shell: false,
         stdio: ['pipe', 'inherit', 'inherit'],
       })

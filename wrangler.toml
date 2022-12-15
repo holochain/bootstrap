@@ -5,7 +5,7 @@ account_id = ""
 route = ""
 workers_dev = true
 vars = { ENVIRONMENT = "dev" }
-compatibility_date = "2022-01-14"
+compatibility_date = "2022-08-04"
 
 [triggers]
 # trigger scheduled tasks like metrics aggregation

@@ -12,4 +12,4 @@ ed25519-dalek = { version = "1.0.1", default-features = false, features = [ "u32
 msgpackin_core = { version = "0.0.3" }
 
 [dev-dependencies]
-futures = "0.3.19"
+futures = "0.3.25"
