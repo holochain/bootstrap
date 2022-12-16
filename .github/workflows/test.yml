@@ -8,7 +8,7 @@ jobs:
   runs-on: ubuntu-latest
   strategy:
    matrix:
-    node: ['16'] # miniflare only runs on node >= 16.7.0
+    node: ['18']
 
   steps:
    # Checkout code

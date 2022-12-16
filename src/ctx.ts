@@ -34,10 +34,11 @@ export class Ctx {
 
   newResponse(bodyInit?: BodyInit | null, maybeInit?: ResponseInit): Response {
     maybeInit = maybeInit || {}
-    maybeInit.headers = new Headers(maybeInit.headers)
+    const headers = new Headers(maybeInit.headers)
     if (this.wasmError) {
-      maybeInit.headers.append('X-WasmError', this.wasmError)
+      headers.append('X-WasmError', this.wasmError)
     }
+    maybeInit.headers = headers
     return new Response(bodyInit, maybeInit)
   }
 }

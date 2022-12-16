@@ -1,4 +1,4 @@
-import * as fetch from 'node-fetch'
+import fetch from 'node-fetch'
 import { assert } from 'chai'
 import * as Agents from '../test/fixture/agents'
 import { keypair } from '../test/fixture/crypto'

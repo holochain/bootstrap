@@ -131,6 +131,7 @@ pub trait AsKV: 'static {
     fn delete<'a>(&'a self, key: &str) -> BCoreFut<'a, BCoreResult<()>>;
 
     /// list keys from the KV progressively
+    #[allow(clippy::type_complexity)]
     fn list_progressive<'a, 'b: 'a>(
         &'a self,
         prefix: Option<&str>,

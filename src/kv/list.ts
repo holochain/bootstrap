@@ -39,10 +39,15 @@ export async function list(
     }
 
     // This comes from cloudflare in the kv binding.
-    let list = await ctx.BOOTSTRAP.list(options)
+    const list = await ctx.BOOTSTRAP.list(options)
 
-    more = !list.list_complete
-    cursor = list.cursor
+    if (list.list_complete) {
+      more = false
+    } else {
+      more = true
+      cursor = list.cursor
+    }
+
     keys = keys.concat(list.keys.map((k) => agentFromKey(prefix, k.name)))
   }
   return keys
