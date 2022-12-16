@@ -4,6 +4,7 @@
   "description": "holochain bootstrap cloudflare worker",
   "main": "dist/worker.js",
   "scripts": {
+    "start": "node --experimental-vm-modules ./scripts/run-mininet.mjs",
     "rust:fmt": "cd rust && cargo fmt -- --check",
     "rust:clippy": "cd rust && cargo clippy",
     "rust:test": "cd rust && cargo test",
