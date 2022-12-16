@@ -29,7 +29,7 @@ async function main () {
   const list = JSON.parse(wrangler(env, ['kv:key', 'list']))
   for (const item of list) {
     if (item.name.startsWith('proxy_pool:')) {
-      console.log(wrangler(env, ['kv:key', 'delete', '-f', item.name]))
+      console.log(wrangler(env, ['kv:key', 'delete', item.name]))
     }
   }
   for (const poolItem of process.argv.slice(3)) {
