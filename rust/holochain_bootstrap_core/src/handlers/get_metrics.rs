@@ -30,28 +30,12 @@ impl AsRequestHandler for GetMetrics {
             body.extend_from_slice(
                 br#"{
   "header": ["timestamp", "total_agent_count", "total_space_count", "total_proxy_count"],
-  "data": ["#,
+  "data": [
+"#,
             );
 
-            let entries = kv.list(Some(METRIC_PREFIX)).await?;
-            let mut first = true;
-            for key in entries {
-                let val = kv.get(&key).await?;
-                let val = Metrics::decode(&val);
-                if first {
-                    first = false;
-                    body.extend_from_slice(b"\n    [");
-                } else {
-                    body.extend_from_slice(b",\n    [");
-                }
-                body.extend_from_slice(&key.as_bytes()[METRIC_PREFIX.len()..]);
-                body.extend_from_slice(
-                    &format!(
-                        ", {}, {}, {}]",
-                        val.total_agent_count, val.total_space_count, val.total_proxy_count,
-                    )
-                    .into_bytes(),
-                );
+            if let Ok(agg) = kv.get(METRICS_AGG).await {
+                body.extend_from_slice(&agg);
             }
 
             body.extend_from_slice(b"\n  ]\n}\n");
