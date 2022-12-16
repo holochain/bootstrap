@@ -22,7 +22,7 @@
   "type": "module",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20221111.1",
-    "@cloudflare/wrangler": "^1.20.0",
+    "wrangler": "^2.6.2",
     "@types/chai": "^4.3.0",
     "@types/lodash": "^4.14.178",
     "@types/mocha": "^9.0.0",
