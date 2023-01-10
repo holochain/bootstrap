@@ -51,7 +51,8 @@ pub async fn exec_scheduled(
             None,
             Box::new(|keys| {
                 for key in keys.drain(..) {
-                    let bkey = key.as_bytes();
+                    let bkey = key.replace("%2F", "/").replace("%2f", "/");
+                    let bkey = bkey.as_bytes();
                     if bkey == MA_LAST_RUN.as_bytes()
                         || bkey == METRICS_AGG.as_bytes()
                         || &bkey[..METRIC_PREFIX.as_bytes().len()] == METRIC_PREFIX.as_bytes()
