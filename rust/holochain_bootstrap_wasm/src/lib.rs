@@ -27,9 +27,10 @@ use host::*;
 pub async fn handle_scheduled(kv: JsValue, host: JsValue) -> JsResult<()> {
     let kv = KV::new(kv)?;
     let host = Host::new(host)?;
-    exec_scheduled(&kv, &host)
+    exec_scheduled(&kv, &host, false)
         .await
         .map_err(|e| format!("{:?}", e).into())
+        .map(|_| ())
 }
 
 /// Handle an incoming request building up a response
@@ -48,6 +49,7 @@ pub async fn handle_request(
     dispatch.attach_handler(handlers::PostPut);
     dispatch.attach_handler(handlers::PostProxyList);
     dispatch.attach_handler(handlers::PostTriggerScheduled);
+    dispatch.attach_handler(handlers::PostTriggerScheduledForce);
 
     let method = method
         .as_string()
