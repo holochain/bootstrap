@@ -67,7 +67,7 @@ pub async fn exec_scheduled(
                         // because we can reasonably assume that is unique
                         let space = &bkey[..40];
                         let space = base64::decode(space)
-                            .map_err(|e| BCoreError::from(format!("{:?} full_key: {}", e, key)))?;
+                            .map_err(|e| BCoreError::from(format!("{e:?} full_key: {key}")))?;
                         space_set.insert(space);
                         total_agent_count += 1;
                     }
@@ -81,8 +81,7 @@ pub async fn exec_scheduled(
         let total_space_count = space_set.len() as u64;
 
         agg.push(format!(
-            "    [{}, {}, {}, {}]",
-            cur_bucket, total_agent_count, total_space_count, total_proxy_count,
+            "    [{cur_bucket}, {total_agent_count}, {total_space_count}, {total_proxy_count}]",
         ));
 
         kv.put(METRICS_AGG, agg.join(",\n").as_bytes(), ONE_WEEK_S)
@@ -93,6 +92,6 @@ pub async fn exec_scheduled(
     .await
     {
         Ok(r) => Ok(r),
-        Err(err) => Ok(format!("{:?}", err)),
+        Err(err) => Ok(format!("{err:?}")),
     }
 }

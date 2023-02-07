@@ -1,3 +1,5 @@
+// sometimes it's less confusing to be explicit
+#![allow(clippy::needless_lifetimes)]
 //! Agent Info Structs
 
 use crate::types::*;
@@ -123,7 +125,7 @@ impl AgentInfoRef<'_> {
                 "signed_at_ms" => signed_at_ms = Some(get_u64(&mut iter)?),
                 "expires_after_ms" => expires_after_ms = Some(get_u64(&mut iter)?),
                 "meta_info" => meta_info = Some(get_bin(&mut iter)?),
-                oth => return Err(BCoreError::EDecode(format!("unexpected key: {}", oth))),
+                oth => return Err(BCoreError::EDecode(format!("unexpected key: {oth}"))),
             }
         }
 
@@ -184,7 +186,7 @@ impl AgentInfoSignedRef<'_> {
                 "agent" => agent = Some(get_bin(&mut iter)?),
                 "signature" => signature = Some(get_bin(&mut iter)?),
                 "agent_info" => agent_info = Some(get_bin(&mut iter)?),
-                oth => return Err(BCoreError::EDecode(format!("unexpected key: {}", oth))),
+                oth => return Err(BCoreError::EDecode(format!("unexpected key: {oth}"))),
             }
         }
 

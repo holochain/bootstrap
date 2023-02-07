@@ -12,7 +12,7 @@ impl Host {
         let func: JsValue =
             js_sys::Reflect::get(&self.0, &name.into()).map_err(|e| bcore_err!("{:?}", e))?;
         if !func.is_function() {
-            return Err(format!("{} is not a function", name).into());
+            return Err(format!("{name} is not a function").into());
         }
         Ok(func.into())
     }
