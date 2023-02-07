@@ -25,7 +25,11 @@ export async function put(
       agentInfoSigned: AgentSigned.AgentInfoSigned,
     ): Promise<E.Either<Error, unknown>> => {
       try {
-        let key = KV.agentKey(
+        let key = ''
+        if (ctx.net === 'tx5') {
+          key += 'tx5:'
+        }
+        key += KV.agentKey(
           agentInfoSigned.agent_info.space,
           agentInfoSigned.agent_info.agent,
         )

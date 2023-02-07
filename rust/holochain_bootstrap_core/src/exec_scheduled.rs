@@ -61,6 +61,11 @@ pub async fn exec_scheduled(
                     } else if &bkey[..PROXY_PREFIX.as_bytes().len()] == PROXY_PREFIX.as_bytes() {
                         total_proxy_count += 1;
                     } else if bkey.len() >= 80 {
+                        let bkey = if bkey[0..4] == b"tx5:"[..] {
+                            &bkey[4..]
+                        } else {
+                            bkey
+                        };
                         // alas, there's some wiggle room in the way
                         // space / agents are currently encoded as keys
                         // let's just take the first 30 bytes (40 in base64)

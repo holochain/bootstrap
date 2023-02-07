@@ -40,6 +40,7 @@ pub async fn handle_request(
     host: JsValue,
     method: JsValue,
     op: JsValue,
+    _net: JsValue,
     input: JsValue,
 ) -> JsResult<JsValue> {
     let kv = KV::new(kv)?;

@@ -21,7 +21,11 @@ export async function list(
   space: Kitsune.Space,
   ctx: Ctx,
 ): Promise<Array<Kitsune.Agent>> {
-  let prefix = Base64.fromBytes(space)
+  let prefix = ''
+  if (ctx.net === 'tx5') {
+    prefix += 'tx5:'
+  }
+  prefix += Base64.fromBytes(space)
   let keys: any[] = []
   let more = true
   let cursor
