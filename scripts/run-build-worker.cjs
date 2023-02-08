@@ -60,8 +60,10 @@ async function cleanBuildDir () {
 async function writeExportWasm () {
   console.log('[rbw:writeExportWasm]')
   const fn = path.resolve('.', 'rust', 'target', 'wasm-build', 'holochain_bootstrap_wasm_export.js')
-  fs.writeFileSync(fn, `import * as rust_to_wasm from './holochain_bootstrap_wasm_bg.js'
-import _wasm from './holochain_bootstrap_wasm_bg.wasm'
+  fs.writeFileSync(fn, `
+import * as rust_to_wasm from "./holochain_bootstrap_wasm_bg.js";
+import _wasm from "./holochain_bootstrap_wasm_bg.wasm";
+
 const _wasm_memory = new WebAssembly.Memory({initial: 512})
 const _imports_obj = {
   env: { memory: _wasm_memory },
@@ -76,7 +78,10 @@ async function replaceGeneratedImportWithCustomImpl () {
   const fn = path.resolve('.', 'rust', 'target', 'wasm-build', 'holochain_bootstrap_wasm_bg.js')
   const data = fs.readFileSync(fn).toString()
   const customData = data.replace(
-    "import * as wasm from './holochain_bootstrap_wasm_bg.wasm';",
+    `let wasm;
+export function __wbg_set_wasm(val) {
+    wasm = val;
+}`,
     "import wasm from './holochain_bootstrap_wasm_export.js';",
   )
     + "\nimport * as myself from './holochain_bootstrap_wasm_bg.js';"
