@@ -25,7 +25,7 @@ impl AsRequestHandler for PostPut {
         bcore_fut(async move {
             let sig = AgentInfoSignedRef::decode(input)?;
             let info = sig.verify_and_decode_agent_info()?;
-            Err(format!("wasm put disabled: but decoded: {:?}", info).into())
+            Err(format!("wasm put disabled: but decoded: {info:?}").into())
         })
     }
 }

@@ -29,7 +29,7 @@ pub async fn handle_scheduled(kv: JsValue, host: JsValue) -> JsResult<()> {
     let host = Host::new(host)?;
     exec_scheduled(&kv, &host, false)
         .await
-        .map_err(|e| format!("{:?}", e).into())
+        .map_err(|e| format!("{e:?}").into())
         .map(|_| ())
 }
 
@@ -40,6 +40,7 @@ pub async fn handle_request(
     host: JsValue,
     method: JsValue,
     op: JsValue,
+    _net: JsValue,
     input: JsValue,
 ) -> JsResult<JsValue> {
     let kv = KV::new(kv)?;
@@ -53,10 +54,10 @@ pub async fn handle_request(
 
     let method = method
         .as_string()
-        .ok_or_else(|| JsValue::from(format!("expect method as string: {:?}", method)))?;
+        .ok_or_else(|| JsValue::from(format!("expect method as string: {method:?}")))?;
     let op = op
         .as_string()
-        .ok_or_else(|| JsValue::from(format!("expect op as string: {:?}", op)))?;
+        .ok_or_else(|| JsValue::from(format!("expect op as string: {op:?}")))?;
     if !input.is_instance_of::<js_sys::Uint8Array>() {
         return Err("input must be a Uint8Array".into());
     }
@@ -80,6 +81,6 @@ pub async fn handle_request(
             js_sys::Reflect::set(&out, &"body".into(), &body)?;
             Ok(out.into())
         }
-        Err(err) => Err(format!("{:?}", err).into()),
+        Err(err) => Err(format!("{err:?}").into()),
     }
 }

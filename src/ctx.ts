@@ -8,6 +8,7 @@ export interface BootstrapWasm {
     host: WasmHost,
     method: string,
     op: string,
+    net: string,
     input: Uint8Array,
   ) => Promise<{
     status: number
@@ -25,6 +26,7 @@ export const wasmHost = {
 export class Ctx {
   public wasmError?: string = undefined
   public wasmHost: WasmHost = wasmHost
+  public net: string = 'tx2'
 
   constructor(
     public request: Request,
