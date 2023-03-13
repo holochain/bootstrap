@@ -19,7 +19,12 @@ export async function get(
   try {
     let space = key.slice(0, Kitsune.spaceLength)
     let agent = key.slice(Kitsune.spaceLength)
-    let value = await ctx.BOOTSTRAP.get(agentKey(space, agent), 'arrayBuffer')
+    let pkey = ''
+    if (ctx.net === 'tx5') {
+      pkey += 'tx5:'
+    }
+    pkey += agentKey(space, agent)
+    let value = await ctx.BOOTSTRAP.get(pkey, 'arrayBuffer')
     // Found values are already messagepack encoded but null won't be so we have to
     // manually encode it here.
     return value === null ? MP.encode(null) : new Uint8Array(value)
